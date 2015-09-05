@@ -1,0 +1,122 @@
+#' Create GANGSTA compounds and pools
+#'
+#' \code{compoundFactory} is a function that creates a \code{compound} object
+#' and all associated \code{pool} objects for use by the GANGSTA system.  It
+#' calls the constructor methods for \code{compound} and \code{pool} objects.
+#' Direct use of constructors for \code{pool} and \code{compound} should not be
+#' necessary.  Access to these constructors is provided only for extensibility.
+#' Use \code{compoundFactory} to create \code{pool} and \code{compound} objects.
+#'
+#' GANGSTA uses several classes of S3 objects to represent biogeochemical
+#' systems.  All S3 objects in GANGSTA are named lists with the class arribute
+#' set.  The list's names are used as attribute names and the values in the
+#' lists are the attribute values.  Thus, attribute values of the GANGSTA S3
+#' objects are accessible with the notation x$name.
+#'
+#' \code{Compound} objects represent chemical species (e.g., SO4 and H2S for
+#' sulfur) that contain one or more chemical elements; the mols (or umols, etc.)
+#' of each element of interest within a \code{compound} are tracked using a
+#' \code{pool}.  Each \code{pool} records the mass of an element in the
+#' \code{compound} at the beginning and end a simulation timestep.  One
+#' \code{pool} in the \code{compound} is designated as the "reference
+#' \code{pool}". The molarRatios of all other \code{pools} in the compound are
+#' relative to the reference \code{pool}.  The element of the reference
+#' \code{pool} must appear first in the \code{molarRatios} vector, and the first
+#' value in said vector must be 1.0 (i.e., the molar ratio of the reference
+#' element to itself).
+#'
+#' Not all elements in a \code{compound} must be tracked.  The model developer
+#' only creates \code{pool}s for the elements of interest.  For instance, when
+#' creating a \code{compound} for SO4, passing \code{c(S=1)} to
+#' \code{compoundFactory} as the \code{molarRatios} vector would create only a
+#' \code{pool} for sulfur, not for oxygen.  Two \code{pool}s, one for sulfur and
+#' one for oxygen, would be created by passing \code{c(S=1, O=4)}.  In both
+#' cases, sulfur would be the reference \code{pool}.  To make oxygen the
+#' reference \code{pool}, \code{molarRatios} would be \code{c(O = 1.0, S =
+#' 0.25)}.
+#'
+#' \code{Compound}s have attributes named \code{name} and
+#' \code{referencePoolName}. \code{Compound} objects are also used to represent
+#' organisms (which assimilate elements as they grow) in GANGSTA models.
+#' \code{Organism} objects inherit from \code{compound} and contain an extra
+#' attribute called \code{respirationRate} For \code{organisms}, the
+#' \code{respirationRate} is per mol (or umol, etc.) of element in the reference
+#' \code{pool} per unit time in the simulation.
+#'
+#' \code{Pool}s have attributes called \code{name}, \code{elementName}, and
+#' \code{compoundName}.  \code{Pool}s that are not designated as "reference
+#' \code{pool}s" (i.e., those \code{pool}s that track elements appearing second
+#' or later in the \code{molarRatios} vector) are consider to be \code{bound
+#' pool}s.  \code{Bound pool} objects inhert from \code{pool} objects, and have
+#' an additional attribute called \code{molarRatio}.
+#'
+#' GANGSTA models can operate using any unit of atomic count unit (mols, umols,
+#' etc.), unit of energy (Joules, KJ, etc.) over any time unit defined by the
+#' user.  However, it is critical that all units for values passed to the model
+#' be consistent.  Here, the units of \code{respirationRate} and the units of
+#' atomic count used by \code{pool} objects must be consistent with the units of
+#' all other values passed to functions in the GANGSTA package.
+#'
+#' @param name Name of the \code{compound} to be created (or for \code{pool},
+#'   the name of the \code{compound} to which the \code{pool} belongs).
+#' @param molarRatios A named vector.  Names are the names of the chemical
+#'   elements (think periodic table in chemistry) that are in the
+#'   \code{compound} and that are to be tracked in the GANGSTA model.  Values in
+#'   the vector are the ratios of each element in the \code{compound} relative
+#'   to the first value in the vector (the "reference element"); thus the first
+#'   value in the vector must always be 1.0 (the molar ratio of the first
+#'   element to itself).
+#' @param respirationRate The respiration rate (in units of energy per atomic
+#'   count per time-1).  Atomic count refers to the mols (or umols, etc.) of the
+#'   reference element. When \code{respirationRate} is numeric, an
+#'   \code{organism} object is returnd.  When NA, a \code{compound} object is
+#'   returned.
+#' @param elementName The name of the element contained by the created
+#'   \code{pool}.
+#' @param molarRatio The ratio of the elemental mass in a \code{bound pool} to
+#'   the mass in its reference \code{pool}.  When molarRatio is NA, a
+#'   \code{pool} object is return.  When molarRatio is numeric, a \code{bound
+#'   pool} object of returned.
+#' @param referencePoolName Name of the reference \code{pool} for the
+#'   \code{compound} object to be created.
+#' @return \code{compoundFactory} returns a list of length 2.  The first item in
+#'   the list is the new \code{compound} (or \code{organism}) object.  The
+#'   second is a list of the associated \code{pool} (and \code{bound pool})
+#'   objects.
+
+compoundFactory = function(name, molarRatios, respirationRate = NA) {
+  checkNames = unique(names(molarRatios))==""
+  if(any(checkNames) || (length(checkNames) != length(molarRatios))) {
+    stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
+  }
+  elementNames = names(molarRatios)
+  if(molarRatios[1]!=1.0) {
+    stop("The molarRatio of the Reference Element (the first element in the molarRatios vector) must be 1.0")
+  }
+  molarRatios[1] = NA
+  newPools = mapply(pool, name, elementNames, molarRatios, USE.NAMES = F)
+  names(newPools) = sapply(newPools, function(x) x$name)
+  newCompound = compound(name, newPools[[1]]$name, respirationRate)
+  return(list(compound = newCompound, pools = newPools))
+}
+
+#' @rdname compoundFactory
+pool = function(name, elementName, molarRatio = NA) {
+  poolName = paste0(name, "_", elementName)
+  newPool = list(name = poolName, elementName = elementName, compoundName = name)
+  class(newPool) = c("pool", "gangsta")
+  if(!is.na(molarRatio)) {
+    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("boundPool", class(newPool)))
+  }
+  return(newPool)
+}
+
+#' @rdname compoundFactory
+compound = function(name, referencePoolName, respirationRate=NA) {
+  newCompound = list(name = name, referencePoolName = referencePoolName)
+  class(newCompound) = c("compound", "gangsta")
+  if(!is.na(respirationRate)) {
+    newCompound = structure(c(newCompound, list(respirationRate = respirationRate)), class = c("organism", class(newCompound)))
+  }
+  return(newCompound)
+}
