@@ -6,18 +6,19 @@
 \alias{pool}
 \title{Create GANGSTA compounds and pools}
 \usage{
-compoundFactory(name, molarRatios, respirationRate = NA)
+compoundFactory(compoundName, molarRatios, respirationRate = NA,
+  sourceSink = F)
 
-pool(name, elementName, molarRatio = NA)
+pool(compoundName, elementName, molarRatio = NA)
 
-compound(name, referencePoolName, respirationRate = NA)
+compound(compoundName, referencePoolName, respirationRate = NA, sourceSink)
 }
 \arguments{
-\item{name}{Name of the \code{compound} to be created (or for \code{pool},
+\item{compoundName}{Name of the \code{compound} to be created (or for \code{pool},
 the name of the \code{compound} to which the \code{pool} belongs).}
 
 \item{molarRatios}{A named vector.  Names are the names of the chemical
-elements (think periodic table in chemistry) that are in the
+elements (think 'periodic table in chemistry') that are in the
 \code{compound} and that are to be tracked in the GANGSTA model.  Values in
 the vector are the ratios of each element in the \code{compound} relative
 to the first value in the vector (the "reference element"); thus the first

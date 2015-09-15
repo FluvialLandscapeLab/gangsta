@@ -57,10 +57,10 @@
 #' atomic count used by \code{pool} objects must be consistent with the units of
 #' all other values passed to functions in the GANGSTA package.
 #'
-#' @param name Name of the \code{compound} to be created (or for \code{pool},
+#' @param compoundName Name of the \code{compound} to be created (or for \code{pool},
 #'   the name of the \code{compound} to which the \code{pool} belongs).
 #' @param molarRatios A named vector.  Names are the names of the chemical
-#'   elements (think periodic table in chemistry) that are in the
+#'   elements (think 'periodic table in chemistry') that are in the
 #'   \code{compound} and that are to be tracked in the GANGSTA model.  Values in
 #'   the vector are the ratios of each element in the \code{compound} relative
 #'   to the first value in the vector (the "reference element"); thus the first
@@ -84,7 +84,7 @@
 #'   second is a list of the associated \code{pool} (and \code{bound pool})
 #'   objects.
 
-compoundFactory = function(name, molarRatios, respirationRate = NA) {
+compoundFactory = function(compoundName, molarRatios, respirationRate = NA, sourceSink = F) {
   checkNames = unique(names(molarRatios))==""
   if(any(checkNames) || (length(checkNames) != length(molarRatios))) {
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
@@ -94,29 +94,162 @@ compoundFactory = function(name, molarRatios, respirationRate = NA) {
     stop("The molarRatio of the Reference Element (the first element in the molarRatios vector) must be 1.0")
   }
   molarRatios[1] = NA
-  newPools = mapply(pool, name, elementNames, molarRatios, USE.NAMES = F)
+  newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
-  newCompound = compound(name, newPools[[1]]$name, respirationRate)
-  return(list(compound = newCompound, pools = newPools))
+  newCompound = list(compound(compoundName, newPools[[1]]$name, respirationRate, sourceSink))
+  names(newCompound) = compoundName
+  return(c(newCompound, newPools))
 }
 
 #' @rdname compoundFactory
-pool = function(name, elementName, molarRatio = NA) {
-  poolName = paste0(name, "_", elementName)
-  newPool = list(name = poolName, elementName = elementName, compoundName = name)
+pool = function(compoundName, elementName, molarRatio = NA) {
+  poolName = makePoolName(compoundName, elementName)
+  newPool = list(name = poolName, elementName = elementName, compoundName = compoundName)
   class(newPool) = c("pool", "gangsta")
   if(!is.na(molarRatio)) {
-    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("boundPool", class(newPool)))
+    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
   }
   return(newPool)
 }
 
 #' @rdname compoundFactory
-compound = function(name, referencePoolName, respirationRate=NA) {
-  newCompound = list(name = name, referencePoolName = referencePoolName)
+compound = function(compoundName, referencePoolName, respirationRate = NA, sourceSink) {
+  newCompound = list(name = compoundName, referencePoolName = referencePoolName, sourceSink = sourceSink)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     newCompound = structure(c(newCompound, list(respirationRate = respirationRate)), class = c("organism", class(newCompound)))
   }
   return(newCompound)
 }
+
+
+
+# HetAerobicResp =
+#   list(
+#     fromCompounds = list(C = c("DOM", "Het"), O = c("O2")),
+#     toCompounds = list(C = "CO2", O = "X"),
+#     massTerms = list(C = 1, O = 2),
+#     organisms = list("Het")
+#   )
+#
+
+#      fromCompounds = list(N = c("DOM", "Het"))
+#      toCompounds = list(N = "NH4")
+#      massTerms = list(N = 1)
+#      organisms = list("Het")
+
+processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundNames, toCompoundNames, massTerms, organismNames = "") {
+
+  if(!identical(organismNames, "")) {
+    gangstasExist(gangstaObjects, organismNames, "organism")
+  }
+
+  badNames = F
+  elementMatrix = sapply(list(fromCompoundNames, toCompoundNames, massTerms), function(inputList) suppressWarnings(unique(names(inputList))))
+  ## sapply above will return a matrix if all the lists are the same length.
+  if(!is.matrix(elementMatrix)){
+    badNames = T
+  } else {
+    ## if names are the same,
+    nonUniqueElements = apply(elementMatrix, 1, function(x) length(unique(x)) != 1)
+    if(any(nonUniqueElements)) {
+      badNames = T
+    }
+  }
+
+  if(badNames) {
+    stop("Parameters 'fromCompoundNames,' 'toCompoundNames,' and 'massTerms' must be named vectors. \n  - Names must be chemical elements, which must be the same and in the same order across lists, but unique within each list.\n  - All list  the same for each list.\n  - No chemical ename can be duplicated within a vector.")
+  }
+
+  processNames = paste0(organismNames, processName)
+  newProcesses = mapply(process, processName = processNames, energyTerm = energyTerm, organismName = organismNames, SIMPLIFY = F)
+
+  fromPoolNames = makeMultiplePoolNames(fromCompoundNames)
+  toPoolNames = makeMultiplePoolNames(toCompoundNames)
+
+  gangstasExist(gangstaObjects, unlist(fromPoolNames), "pool")
+  gangstasExist(gangstaObjects, unlist(toPoolNames), "pool")
+
+
+  ## To understand this triple nested mapply, think of each mapply as a
+  ## nested "for loop."
+  ##
+  ## The outermost mapply repeats for each process in "processNames" (which is
+  ## always 1:1 with length(organismNames)).
+  ##
+  ## For each process, then, the next mapply repeats for each chemical element
+  ## in the fromPools, toPools, and massTerms lists.
+  ##
+  ## For each process and element, then, the innermost loop matches (with
+  ## recycling) the toPools, fromPools, and massTerms and calls the
+  ## transformation() function to make a transformation for each fromPool,
+  ## toPool, and massTerm triplet.
+  ##
+  ## The strategically placed "unlist" functions yield a flat list of the
+  ## resulting transformations, rather than transformations clustered into
+  ## sublists by process and chemical element.
+  newTransformations =
+##    unlist(
+##      mapply(
+##        function(process, org)
+          unlist(
+            mapply(
+              function(froms, tos, mTerms)
+                mapply(
+                  transformation,
+                  froms,
+                  tos,
+                  mTerms,
+                  MoreArgs = list(
+                    processName = processNames,
+                    gangstaObjects = c(gangstaObjects, newProcesses)
+                  ),
+                  SIMPLIFY = F
+                ),
+              fromPoolNames,
+              toPoolNames,
+              massTerms
+            ),
+            recursive = F
+##          ),
+##        processNames,
+##        organismNames,
+##        SIMPLIFY = F
+##      ),
+##      recursive = F
+    )
+
+  return(c(newProcesses, newTransformations))
+}
+
+process = function(processName, energyTerm, organismName = NA) {
+  if(is.na(organismName)) {
+    organismName = ""
+  }
+  newProcess = list(name = processName, energyTerm = energyTerm)
+  class(newProcess) = c("process", "gangsta")
+  if(organismName != "") {
+    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c("metabolic", class(newProcess)))
+  }
+  return(newProcess)
+}
+
+transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, massTerm){
+  # Calling fromToPair does some key error checking.
+  pools = fromToPair(gangstaObjects, fromPoolName, toPoolName)
+  transformationName = paste(processName, fromPoolName, toPoolName, sep="_")
+  process = getGangstas(gangstaObjects, processName)
+  energyToMassRatio = process[[1]]$energyTerm / massTerm
+  newTransformation =
+    list(
+      name = transformationName,
+      from = fromPoolName,
+      to = toPoolName,
+      massTerm = massTerm,
+      energyToMassRatio = energyToMassRatio,
+      processName = processName
+    )
+  class(newTransformation) = c("transformation", "gangsta")
+  return(newTransformation)
+}
+
