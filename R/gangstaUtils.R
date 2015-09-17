@@ -2,6 +2,17 @@ makePoolName = function(compoundName, elementName) {
   paste0(compoundName, "_", elementName)
 }
 
+replaceDotWithOrganism = function(compoundNames, organismName) {
+  compoundNames = lapply(
+    compoundNames,
+    function(c) {
+      c[c == "."] = organismName
+      return(c)
+    }
+  )
+  return(compoundNames)
+}
+
 ## requires a named list; elementNames are the names of the compoundNames
 makeMultiplePoolNames = function(compoundNames) {
   elementNames = mapply(function (cNames, eName) rep(eName, length(cNames)), compoundNames, names(compoundNames), SIMPLIFY = FALSE)
