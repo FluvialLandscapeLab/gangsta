@@ -1,16 +1,29 @@
-#' Create GANGSTA compounds and pools
+#' Create GANGSTA Objects
+#'
+#' \code{compoundFactory} and \code{processFactory} are the primary functions
+#' used to create GANGSTA objects.  \code{compoundFactory} creates both compound
+#' and pool objects and \code{processFactory} creates processes and
+#' transformation objects.  The constructors \code{compound}, \code{pool},
+#' \code{process}, and \code{transformation} can be called individually, but
+#' this is discouraged since the factory functions do substantial error checking
+#' and assure that references between the GANGSTA objects are correct.
 #'
 #' \code{compoundFactory} is a function that creates a \code{compound} object
 #' and all associated \code{pool} objects for use by the GANGSTA system.  It
 #' calls the constructor methods for \code{compound} and \code{pool} objects.
-#' Direct use of constructors for \code{pool} and \code{compound} should not be
-#' necessary.  Access to these constructors is provided only for extensibility.
-#' Use \code{compoundFactory} to create \code{pool} and \code{compound} objects.
+#'
+#' \code{processFactory} is similarly the prefered way to create \code{process}
+#' objects and all assocaited \code{transformation} objects by calling the
+#' constructor methods for \code{process} and \code{transformation} objects
+#'
+#' Direct use of constructors for \code{pool}, \code{compound}, \code{process},
+#' and \code{transformation} should not be necessary and is discouraged.  Access
+#' to these constructors is provided only for extensibility.
 #'
 #' GANGSTA uses several classes of S3 objects to represent biogeochemical
-#' systems.  All S3 objects in GANGSTA are named lists with the class arribute
-#' set.  The list's names are used as attribute names and the values in the
-#' lists are the attribute values.  Thus, attribute values of the GANGSTA S3
+#' systems.  All S3 objects in GANGSTA built atop named lists with the class
+#' arribute set.  The list's names are used as attribute names and the values in
+#' the lists are the attribute values.  Thus, attribute values of the GANGSTA S3
 #' objects are accessible with the notation x$name.
 #'
 #' \code{Compound} objects represent chemical species (e.g., SO4 and H2S for
@@ -57,8 +70,9 @@
 #' atomic count used by \code{pool} objects must be consistent with the units of
 #' all other values passed to functions in the GANGSTA package.
 #'
-#' @param compoundName Name of the \code{compound} to be created (or for \code{pool},
-#'   the name of the \code{compound} to which the \code{pool} belongs).
+#' @param compoundName Name of the \code{compound} to be created (or for
+#'   \code{pool}, the name of the \code{compound} to which the \code{pool}
+#'   belongs).
 #' @param molarRatios A named vector.  Names are the names of the chemical
 #'   elements (think 'periodic table in chemistry') that are in the
 #'   \code{compound} and that are to be tracked in the GANGSTA model.  Values in
@@ -71,6 +85,32 @@
 #'   reference element. When \code{respirationRate} is numeric, an
 #'   \code{organism} object is returnd.  When NA, a \code{compound} object is
 #'   returned.
+#' @param sourceSink Boolean when set to TRUE tags a compound as being unlimited
+#'   in supply for the purposes of the model.
+#' @param gangstaObjects A list of compounds and pools, typically created by
+#'   calling \code{compoundFactory}.  Error checking in \code{processFactory}
+#'   checks to be sure that referenced compounds and pools exist in the
+#'   gangstaObjects list.
+#' @param processName. The name of the process to be created.
+#' @param energyTerm. The net energy associated with the processs.  A positive
+#'   number represents a process that yeilds energy, a negative number
+#'   represents a process that consumes energy.  Units are kJ (or J, etc.) of
+#'   energy per mol (or umol, etc.) listed in \code{massTerms} parameter.
+#' @param fromCompoundNames Named \code{list} of compound names where the name
+#'   of each \code{list} member is the a chemical element derived from the
+#'   compound.  For instance, to track carbon flux from the oxidation of
+#'   glucose, the \code{fromCompoundNames} list might be list(C = "C6H12O6", O =
+#'   "O2")
+#' @param toCompoundNames.  See \code{toCompoundNames}.  To track carbon flux
+#'   from the oxidation of glucose, the \code{toCompoundNames} list might be
+#'   list(C = "CO2", O = "Ox") (where Ox is a undifferentiated sink for oxygen
+#'   comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
+#'   same and in the same order as those of \code{fromCompoundNames}.
+#' @param massTerms Named list containing the mols (or uMols, etc.) of each
+#'   element that are transformed by the process.  The names of \code{massTerms}
+#'   must be the same and in the same order as those of \code{fromCompoundNames}
+#'   and \code{toCompoundNames}.
+#' @param organismNames A vector of organisms that utilize the process.
 #' @param elementName The name of the element contained by the created
 #'   \code{pool}.
 #' @param molarRatio The ratio of the elemental mass in a \code{bound pool} to
@@ -79,10 +119,10 @@
 #'   pool} object of returned.
 #' @param referencePoolName Name of the reference \code{pool} for the
 #'   \code{compound} object to be created.
-#' @return \code{compoundFactory} returns a list of length 2.  The first item in
-#'   the list is the new \code{compound} (or \code{organism}) object.  The
-#'   second is a list of the associated \code{pool} (and \code{bound pool})
-#'   objects.
+#' @return \code{compoundFactory} returns a list of \code{compound} and {pool}
+#'   objects. \code{processFactory} return a list of \code{process} and
+#'   \code{transformation} objects.  The remaining constructor methods return an
+#'   individual GANGSTA object of the class corresponding to the function name.
 
 compoundFactory = function(compoundName, molarRatios, respirationRate = NA, sourceSink = F) {
   checkNames = unique(names(molarRatios))==""
@@ -102,14 +142,90 @@ compoundFactory = function(compoundName, molarRatios, respirationRate = NA, sour
 }
 
 #' @rdname compoundFactory
-pool = function(compoundName, elementName, molarRatio = NA) {
-  poolName = makePoolName(compoundName, elementName)
-  newPool = list(name = poolName, elementName = elementName, compoundName = compoundName)
-  class(newPool) = c("pool", "gangsta")
-  if(!is.na(molarRatio)) {
-    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
+processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundNames, toCompoundNames, massTerms, organismNames = "") {
+
+  if(!identical(organismNames, "")) {
+    gangstasExist(gangstaObjects, organismNames, "organism")
   }
-  return(newPool)
+
+  inputList = list(fromCompoundNames, toCompoundNames, massTerms)
+  if(length(unique(plyr::laply(inputList, length)))!=1) {
+    stop(paste0("Process: ", processName, "\n The length of fromCompoundNames, toCompoundNames, and massTerms lists must be equal."))
+  }
+
+  nullNames = plyr::laply(inputList, function(x) is.null(names(x)), .drop = F)
+  if(any(nullNames)) {
+    stop(stop(paste0("Process: ", processName, "\n The members of lists fromCompoundNames, toCompoundNames, and massTerms must be named.")))
+  }
+
+  elementMatrix = plyr::laply(inputList, names, .drop = F)
+  #   duplicatedNamesWithinLists = apply(elementMatrix, 1, function(x) length(unique(x)) != ncol(elementMatrix))
+  #   if(any(duplicatedNamesWithinLists)) {
+  #     stop(paste0("Process: ", processName,": \n The members the 'fromCompoundNames,' 'toCompoundNames,' and 'massTerms' lists must have unique names within each list."))
+  #   }
+
+  differentNamesAcrossLists = apply(elementMatrix, 2, function(x) length(unique(x)) != 1)
+  if(any(differentNamesAcrossLists)) {
+    stop(paste0("Process: ", processName,": \n The members of 'fromCompoundNames,' 'toCompoundNames,' and 'massTerms' lists must have the same names in the same order across lists."))
+  }
+
+  processNames = paste0(organismNames, processName)
+  newProcesses = mapply(process, processName = processNames, energyTerm = energyTerm, organismName = organismNames, SIMPLIFY = F)
+  names(newProcesses) = sapply(newProcesses, function(x) x$name)
+
+  # Think of this lapply as "for i in 1:length(organismNames)". The variable "i" is a counter
+  # in the function.  I didn't use a for loop simply because lapply gathers the results into
+  # list for me rather than manually having to stick the results into a list.
+  newTransformations =
+    unlist(
+      lapply(
+        1:length(organismNames),
+        function(i) {
+
+          fromPoolNames = makeMultiplePoolNames(replaceDotWithOrganism(fromCompoundNames, organismNames[i]))
+          toPoolNames = makeMultiplePoolNames(replaceDotWithOrganism(toCompoundNames, organismNames[i]))
+
+          gangstasExist(gangstaObjects, unlist(fromPoolNames), "pool")
+          gangstasExist(gangstaObjects, unlist(toPoolNames), "pool")
+
+          ## To understand this double nested mapply, think of each mapply as a
+          ## nested "for loop."
+          ##
+          ## The outer mapply repeats for each chemical element
+          ## in the fromPools, toPools, and massTerms lists.
+          ##
+          ## For a single chemical element, then, the inner mapply matches (with
+          ## recycling) the toPools, fromPools, and massTerms and calls the
+          ## transformation() function to make a transformation for each fromPool,
+          ## toPool, and massTerm triplet.
+
+          newTrans =
+            mapply(
+              function(froms, tos, mTerms)
+                mapply(
+                  transformation,
+                  froms,
+                  tos,
+                  mTerms,
+                  MoreArgs = list(
+                    processName = processNames[i],
+                    gangstaObjects = c(gangstaObjects, newProcesses)
+                  ),
+                  SIMPLIFY = F
+                ),
+              fromPoolNames,
+              toPoolNames,
+              massTerms
+            )
+          return(newTrans)
+        }
+      ),
+      recursive = F
+    )
+
+  names(newTransformations) = sapply(newTransformations, function(x) x$name)
+
+  return(c(newProcesses, newTransformations))
 }
 
 #' @rdname compoundFactory
@@ -122,110 +238,18 @@ compound = function(compoundName, referencePoolName, respirationRate = NA, sourc
   return(newCompound)
 }
 
-
-
-# HetAerobicResp =
-#   list(
-#     fromCompounds = list(C = c("DOM", "Het"), O = c("O2")),
-#     toCompounds = list(C = "CO2", O = "X"),
-#     massTerms = list(C = 1, O = 2),
-#     organisms = list("Het")
-#   )
-#
-
-#      fromCompounds = list(N = c("DOM", "Het"))
-#      toCompounds = list(N = "NH4")
-#      massTerms = list(N = 1)
-#      organisms = list("Het")
-
-processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundNames, toCompoundNames, massTerms, organismNames = "") {
-
-  if(!identical(organismNames, "")) {
-    gangstasExist(gangstaObjects, organismNames, "organism")
+#' @rdname compoundFactory
+pool = function(compoundName, elementName, molarRatio = NA) {
+  poolName = makePoolName(compoundName, elementName)
+  newPool = list(name = poolName, elementName = elementName, compoundName = compoundName)
+  class(newPool) = c("pool", "gangsta")
+  if(!is.na(molarRatio)) {
+    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
   }
-
-  badNames = F
-  elementMatrix = sapply(list(fromCompoundNames, toCompoundNames, massTerms), function(inputList) suppressWarnings(unique(names(inputList))))
-  ## sapply above will return a matrix if all the lists are the same length.
-  if(!is.matrix(elementMatrix)){
-    badNames = T
-  } else {
-    ## if names are the same,
-    nonUniqueElements = apply(elementMatrix, 1, function(x) length(unique(x)) != 1)
-    if(any(nonUniqueElements)) {
-      badNames = T
-    }
-  }
-
-  if(badNames) {
-    stop("Parameters 'fromCompoundNames,' 'toCompoundNames,' and 'massTerms' must be named vectors. \n  - Names must be chemical elements, which must be the same and in the same order across lists, but unique within each list.\n  - All list  the same for each list.\n  - No chemical ename can be duplicated within a vector.")
-  }
-
-  processNames = paste0(organismNames, processName)
-  newProcesses = mapply(process, processName = processNames, energyTerm = energyTerm, organismName = organismNames, SIMPLIFY = F)
-  names(newProcesses) = sapply(newProcesses, function(x) x$name)
-
-  # Think of this lapply as "for i in 1:length(organismNames)". The variable "i" is a counter
-  # in the function.  I didn't use a for loop simply because lapply gathers the results into
-  # list for me rather than manually having to stick the results into a list.
-  newTransformations = lapply(
-    1:length(organismNames),
-    function(i) {
-
-      fromPoolNames = makeMultiplePoolNames(replaceDotWithOrganism(fromCompoundNames, organismNames[i]))
-      toPoolNames = makeMultiplePoolNames(replaceDotWithOrganism(toCompoundNames, organismNames[i]))
-
-      gangstasExist(gangstaObjects, unlist(fromPoolNames), "pool")
-      gangstasExist(gangstaObjects, unlist(toPoolNames), "pool")
-
-      ## To understand this double nested mapply, think of each mapply as a
-      ## nested "for loop."
-      ##
-      ## The outer mapply repeats for each chemical element
-      ## in the fromPools, toPools, and massTerms lists.
-      ##
-      ## For a single chemical element, then, the inner mapply matches (with
-      ## recycling) the toPools, fromPools, and massTerms and calls the
-      ## transformation() function to make a transformation for each fromPool,
-      ## toPool, and massTerm triplet.
-      ##
-      ## The strategically placed "unlist" functions yield a flat list of the
-      ## resulting transformations, rather than transformations clustered into
-      ## sublists by chemical element.
-
-      newTrans =
-        unlist(
-          mapply(
-            function(froms, tos, mTerms)
-              mapply(
-                transformation,
-                froms,
-                tos,
-                mTerms,
-                MoreArgs = list(
-                  processName = processNames[i],
-                  gangstaObjects = c(gangstaObjects, newProcesses)
-                ),
-                SIMPLIFY = F
-              ),
-            fromPoolNames,
-            toPoolNames,
-            massTerms
-          ),
-          recursive = F
-        )
-    return(newTrans)
-    }
-  )
-
-  # Because newTransformations were generated by an mapply, transformations are
-  # grouped into lists by organism.  Unlist creates a flat list.
-  newTransformations = unlist(newTransformations, recursive = F)
-  names(newTransformations) = sapply(newTransformations, function(x) x$name)
-
-  return(c(newProcesses, newTransformations))
+  return(newPool)
 }
 
+#' @rdname compoundFactory
 process = function(processName, energyTerm, organismName = NA) {
   if(is.na(organismName)) {
     organismName = ""
@@ -238,6 +262,7 @@ process = function(processName, energyTerm, organismName = NA) {
   return(newProcess)
 }
 
+#' @rdname compoundFactory
 transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, massTerm){
   # Calling fromToPair does some key error checking.
   pools = fromToPair(gangstaObjects, fromPoolName, toPoolName)
@@ -256,3 +281,4 @@ transformation = function(gangstaObjects, processName, fromPoolName, toPoolName,
   class(newTransformation) = c("transformation", "gangsta")
   return(newTransformation)
 }
+

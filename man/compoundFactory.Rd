@@ -4,18 +4,29 @@
 \alias{compound}
 \alias{compoundFactory}
 \alias{pool}
-\title{Create GANGSTA compounds and pools}
+\alias{process}
+\alias{processFactory}
+\alias{transformation}
+\title{Create GANGSTA Objects}
 \usage{
 compoundFactory(compoundName, molarRatios, respirationRate = NA,
   sourceSink = F)
 
-pool(compoundName, elementName, molarRatio = NA)
+processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
+  toCompoundNames, massTerms, organismNames = "")
 
 compound(compoundName, referencePoolName, respirationRate = NA, sourceSink)
+
+pool(compoundName, elementName, molarRatio = NA)
+
+process(processName, energyTerm, organismName = NA)
+
+transformation(gangstaObjects, processName, fromPoolName, toPoolName, massTerm)
 }
 \arguments{
-\item{compoundName}{Name of the \code{compound} to be created (or for \code{pool},
-the name of the \code{compound} to which the \code{pool} belongs).}
+\item{compoundName}{Name of the \code{compound} to be created (or for
+\code{pool}, the name of the \code{compound} to which the \code{pool}
+belongs).}
 
 \item{molarRatios}{A named vector.  Names are the names of the chemical
 elements (think 'periodic table in chemistry') that are in the
@@ -31,6 +42,30 @@ reference element. When \code{respirationRate} is numeric, an
 \code{organism} object is returnd.  When NA, a \code{compound} object is
 returned.}
 
+\item{sourceSink}{Boolean when set to TRUE tags a compound as being unlimited
+in supply for the purposes of the model.}
+
+\item{gangstaObjects}{A list of compounds and pools, typically created by
+calling \code{compoundFactory}.  Error checking in \code{processFactory}
+checks to be sure that referenced compounds and pools exist in the
+gangstaObjects list.}
+
+\item{fromCompoundNames}{Named \code{list} of compound names where the name
+of each \code{list} member is the a chemical element derived from the
+compound.  For instance, to track carbon flux from the oxidation of
+glucose, the \code{fromCompoundNames} list might be list(C = "C6H12O6", O =
+"O2")}
+
+\item{massTerms}{Named list containing the mols (or uMols, etc.) of each
+element that are transformed by the process.  The names of \code{massTerms}
+must be the same and in the same order as those of \code{fromCompoundNames}
+and \code{toCompoundNames}.}
+
+\item{organismNames}{A vector of organisms that utilize the process.}
+
+\item{referencePoolName}{Name of the reference \code{pool} for the
+\code{compound} object to be created.}
+
 \item{elementName}{The name of the element contained by the created
 \code{pool}.}
 
@@ -39,28 +74,51 @@ the mass in its reference \code{pool}.  When molarRatio is NA, a
 \code{pool} object is return.  When molarRatio is numeric, a \code{bound
 pool} object of returned.}
 
-\item{referencePoolName}{Name of the reference \code{pool} for the
-\code{compound} object to be created.}
+\item{processName.}{The name of the process to be created.}
+
+\item{energyTerm.}{The net energy associated with the processs.  A positive
+number represents a process that yeilds energy, a negative number
+represents a process that consumes energy.  Units are kJ (or J, etc.) of
+energy per mol (or umol, etc.) listed in \code{massTerms} parameter.}
+
+\item{toCompoundNames.}{See \code{toCompoundNames}.  To track carbon flux
+from the oxidation of glucose, the \code{toCompoundNames} list might be
+list(C = "CO2", O = "Ox") (where Ox is a undifferentiated sink for oxygen
+comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
+same and in the same order as those of \code{fromCompoundNames}.}
 }
 \value{
-\code{compoundFactory} returns a list of length 2.  The first item in
-  the list is the new \code{compound} (or \code{organism}) object.  The
-  second is a list of the associated \code{pool} (and \code{bound pool})
-  objects.
+\code{compoundFactory} returns a list of \code{compound} and {pool}
+  objects. \code{processFactory} return a list of \code{process} and
+  \code{transformation} objects.  The remaining constructor methods return an
+  individual GANGSTA object of the class corresponding to the function name.
 }
 \description{
+\code{compoundFactory} and \code{processFactory} are the primary functions
+used to create GANGSTA objects.  \code{compoundFactory} creates both compound
+and pool objects and \code{processFactory} creates processes and
+transformation objects.  The constructors \code{compound}, \code{pool},
+\code{process}, and \code{transformation} can be called individually, but
+this is discouraged since the factory functions do substantial error checking
+and assure that references between the GANGSTA objects are correct.
+}
+\details{
 \code{compoundFactory} is a function that creates a \code{compound} object
 and all associated \code{pool} objects for use by the GANGSTA system.  It
 calls the constructor methods for \code{compound} and \code{pool} objects.
-Direct use of constructors for \code{pool} and \code{compound} should not be
-necessary.  Access to these constructors is provided only for extensibility.
-Use \code{compoundFactory} to create \code{pool} and \code{compound} objects.
-}
-\details{
+
+\code{processFactory} is similarly the prefered way to create \code{process}
+objects and all assocaited \code{transformation} objects by calling the
+constructor methods for \code{process} and \code{transformation} objects
+
+Direct use of constructors for \code{pool}, \code{compound}, \code{process},
+and \code{transformation} should not be necessary and is discouraged.  Access
+to these constructors is provided only for extensibility.
+
 GANGSTA uses several classes of S3 objects to represent biogeochemical
-systems.  All S3 objects in GANGSTA are named lists with the class arribute
-set.  The list's names are used as attribute names and the values in the
-lists are the attribute values.  Thus, attribute values of the GANGSTA S3
+systems.  All S3 objects in GANGSTA built atop named lists with the class
+arribute set.  The list's names are used as attribute names and the values in
+the lists are the attribute values.  Thus, attribute values of the GANGSTA S3
 objects are accessible with the notation x$name.
 
 \code{Compound} objects represent chemical species (e.g., SO4 and H2S for
