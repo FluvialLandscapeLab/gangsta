@@ -142,15 +142,23 @@ compoundFactory = function(compoundName, molarRatios, respirationRate = NA, sour
 }
 
 #' @rdname compoundFactory
-processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundNames, toCompoundNames, massTerms, organismNames = "") {
+processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundNames, toCompoundNames, massTerms, organismNames = "", limitToInitMass = T) {
 
   if(!identical(organismNames, "")) {
     gangstasExist(gangstaObjects, organismNames, "organism")
   }
 
+  if(length(limitToInitMass) == 1) {
+    limitToInitMass = rep(limitToInitMass, length(organismNames))
+  }
+
+  if(length(limitToInitMass)!=length(organismNames)) {
+    stop("Length of limitToInitMass must be equal to 1, or equal to the length of organismNames")
+  }
+
   inputList = list(fromCompoundNames, toCompoundNames, massTerms)
   if(length(unique(plyr::laply(inputList, length)))!=1) {
-    stop(paste0("Process: ", processName, "\n The length of fromCompoundNames, toCompoundNames, and massTerms lists must be equal."))
+    stop(paste0("Process: ", processName, "\n The length of fromCompoundNames, toCompoundNames, massTerms, and limitToInitMass lists must be equal."))
   }
 
   nullNames = plyr::laply(inputList, function(x) is.null(names(x)), .drop = F)
@@ -208,8 +216,9 @@ processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundN
                   tos,
                   mTerms,
                   MoreArgs = list(
+                    gangstaObjects = c(gangstaObjects, newProcesses),
                     processName = processNames[i],
-                    gangstaObjects = c(gangstaObjects, newProcesses)
+                    limitToInitMass = limitToInitMass[i]
                   ),
                   SIMPLIFY = F
                 ),
@@ -254,16 +263,17 @@ process = function(processName, energyTerm, organismName = NA) {
   if(is.na(organismName)) {
     organismName = ""
   }
+  processClassNames = c(gangstaClassName("proc"), gangstaClassName("base"))
   newProcess = list(name = processName, energyTerm = energyTerm)
-  class(newProcess) = c("process", "gangsta")
+  class(newProcess) = processClassNames
   if(organismName != "") {
-    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c("metabolic", class(newProcess)))
+    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
   }
   return(newProcess)
 }
 
 #' @rdname compoundFactory
-transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, massTerm){
+transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, massTerm, limitToInitMass = T){
   # Calling fromToPair does some key error checking.
   pools = fromToPair(gangstaObjects, fromPoolName, toPoolName)
   transformationName = paste(processName, fromPoolName, toPoolName, sep="_")
@@ -276,7 +286,8 @@ transformation = function(gangstaObjects, processName, fromPoolName, toPoolName,
       to = toPoolName,
       massTerm = massTerm,
       energyToMassRatio = energyToMassRatio,
-      processName = processName
+      processName = processName,
+      limitToInitMass = limitToInitMass
     )
   class(newTransformation) = c("transformation", "gangsta")
   return(newTransformation)

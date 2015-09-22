@@ -1,8 +1,11 @@
 gangstaTest = function() {
+
+  ### NEED TO ALLOW "." to access the molarRatio of the source for massTerm of transformation.
+
   compoundParams = list(
-    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), respirationRate = -99),
-    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), respirationRate = -99),
-    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), respirationRate = -99),
+    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), respirationRate = -1),
+    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), respirationRate = -2),
+    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), respirationRate = -3),
     list(compoundName = "DOM", molarRatios = c(C=1, N=6/106)),
     list(compoundName = "CH4", molarRatios = c(C=1)),
     list(compoundName = "NH4", molarRatios = c(N=1)),
@@ -21,91 +24,13 @@ gangstaTest = function() {
 
   processParams = list(
     list(
-      processName = "AssimDOM",
-      energyTerm = -4.32E-04,
-      fromCompoundNames = list(C = "DOM", N="DOM"),
-      toCompoundNames = list(C = ".", N="."),
-      massTerms = list(C = 1, N = 16/106),
-      organismNames = c("Het")
-    ),
-    list(
-      processName = "AssimCO2",
-      energyTerm = -3.5E-02,
-      fromCompoundNames = list(C = "CO2"),
-      toCompoundNames = list(C = "."),
-      massTerms = list(C = 1),
-      organismNames = c("Aut")
-    ),
-    list(
-      gangstaObjects = compounds,
-      processName = "AssimCH4",
-      energyTerm = -1.09E-03,
-      fromCompoundNames = list(C = "CH4"),
-      toCompoundNames = list(C = "."),
-      massTerms = list(C = 1),
-      organismNames = c("Met")
-    ),
-    list(
-      gangstaObjects = compounds,
-      processName = "AssimNO3",
-      energyTerm = -1.55E-04,
-      fromCompoundNames = list(N = "NO3"),
-      toCompoundNames = list(N = "."),
-      massTerms = list(N = 1),
-      organismNames = c("Het", "Aut", "Met")
-    ),
-    list(
-      gangstaObjects = compounds,
-      processName = "AssimNO2",
-      energyTerm = -1.25E-04,
-      fromCompoundNames = list(N = "NO2"),
-      toCompoundNames = list(N = "."),
-      massTerms = list(N = 1),
-      organismNames = c("Het", "Aut", "Met")
-    ),
-    list(
-      gangstaObjects = compounds,
-      processName = "AssimNH4",
-      energyTerm = -3.18E-05,
-      fromCompoundNames = list(N = "NH4"),
-      toCompoundNames = list(N = "."),
-      massTerms = list(N = 1),
-      organismNames = c("Het", "Aut", "Met")
-    ),
-    list(
-      gangstaObjects = compounds,
-      processName = "Aeorbic",
-      energyTerm = 4.37-04,
-      fromCompoundNames = list(C = c("DOM", "."), N = c("DOM", "."), O = "O2"),
-      toCompoundNames = list(C = "CO2", N = "NH4", O = "X"),
-      massTerms = list(C = 1, N = 16/106, O = 2),
-      organismNames = c("Het")
-    ),
-    list(
-      gangstaObjects = compounds,
-      processName = "DenitNO3toNO2",
-      energyTerm = 4.37-04,
-      fromCompoundNames = list(C = c("DOM", "."), N = c("DOM", "."), N = "NO3"),
-      toCompoundNames = list(C = "CO2", N = "NH4", N = "NO2"),
-      massTerms = list(C = 1, N = 16/106, N = 2),
-      organismNames = c("Het")
-    )
-
-
-  )
-
-
-
-
-  processParams = list(
-    list(
       gangstaObjects = compounds,
       processName = "AssimDOM",
       energyTerm = -4.32E-04,
-      fromCompoundNames = list(C = c("DOM"), N = "DOM"),
+      fromCompoundNames = list(C = "DOM", N = "DOM"),
       toCompoundNames = list(C = ".", N = "."),
-      massTerms = list(C = 1, N = 16/106),
-      organismNames = c("Het")
+      massTerms = list(C = 1, N = 6/106),
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
@@ -114,7 +39,7 @@ gangstaTest = function() {
       fromCompoundNames = list(C = "CO2"),
       toCompoundNames = list(C = "."),
       massTerms = list(C = 1),
-      organismNames = c("Aut")
+      organismNames = "Aut"
     ),
     list(
       gangstaObjects = compounds,
@@ -123,7 +48,7 @@ gangstaTest = function() {
       fromCompoundNames = list(C = "CH4"),
       toCompoundNames = list(C = "."),
       massTerms = list(C = 1),
-      organismNames = c("Met")
+      organismNames = "Met"
     ),
     list(
       gangstaObjects = compounds,
@@ -150,80 +75,81 @@ gangstaTest = function() {
       fromCompoundNames = list(N = "NH4"),
       toCompoundNames = list(N = "."),
       massTerms = list(N = 1),
-      organismNames = c("Het", "Aut", "Met")
+      organismNames = c("Het", "Aut", "Met"),
+      limitToInitMass = c(F, T, T)
     ),
     list(
       gangstaObjects = compounds,
-      processName = "AeorbicOfDOM",
+      processName = "AerobicOfDOM",
       energyTerm = 4.37-04,
       fromCompoundNames = list(C = "DOM", N = "DOM", O = "O2"),
       toCompoundNames = list(C = "CO2", N = "NH4", O = "Ox"),
       massTerms = list(C = 1, N = 16/106, O = 2),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
-      processName = "AeorbicOfHet",
+      processName = "AerobicOfHet",
       energyTerm = 4.37-04,
       fromCompoundNames = list(C = ".", N = ".", O = "O2"),
       toCompoundNames = list(C = "CO2", N = "NH4", O = "Ox"),
       massTerms = list(C = 1, N = 16/106, O = 2),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
       processName = "DenitOfHetStep1",
-      energyTerm = 4.37-04,
-      fromCompoundNames = list(C = c("."), N = c("."), N = "NO3"),
+      energyTerm = 2.88E-04,
+      fromCompoundNames = list(C = ".", N = ".", N = "NO3"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "NO2"),
       massTerms = list(C = 1, N = 16/106, N = 2),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
       processName = "DenitOfDOMStep1",
-      energyTerm = 4.37-04,
-      fromCompoundNames = list(C = c("DOM"), N = c("DOM"), N = "NO3"),
+      energyTerm = 2.88E-04,
+      fromCompoundNames = list(C = "DOM", N = "DOM", N = "NO3"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "NO2"),
       massTerms = list(C = 1, N = 16/106, N = 2),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
       processName = "DenitOfHetStep2",
       energyTerm = 4.15E-04,
-      fromCompoundNames = list(C = c("."), N = c("."), N = "NO2"),
+      fromCompoundNames = list(C = ".", N = ".", N = "NO2"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2O"),
       massTerms = list(C = 1, N = 16/106, N = 2),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
       processName = "DenitOfDOMStep2",
       energyTerm = 4.15E-04,
-      fromCompoundNames = list(C = c("DOM"), N = c("DOM"), N = "NO2"),
+      fromCompoundNames = list(C = "DOM", N = "DOM", N = "NO2"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2O"),
       massTerms = list(C = 1, N = 16/106, N = 2),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
 
     list(
       gangstaObjects = compounds,
       processName = "DenitOfHetStep3",
       energyTerm = 6.45E-04,
-      fromCompoundNames = list(C = c("."), N = c("."), N = "N2O"),
+      fromCompoundNames = list(C = ".", N = ".", N = "N2O"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2"),
       massTerms = list(C = 1, N = 16/106, N = 4),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
       processName = "DenitOfDOMStep3",
       energyTerm = 6.45E-04,
-      fromCompoundNames = list(C = c("DOM"), N = c("DOM"), N = "N2O"),
+      fromCompoundNames = list(C = "DOM", N = "DOM", N = "N2O"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2"),
       massTerms = list(C = 1, N = 16/106, N = 4),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
@@ -232,7 +158,7 @@ gangstaTest = function() {
       fromCompoundNames = list(C = ".", N = ".", S = "SO4"),
       toCompoundNames = list(C = "CO2", N = "NH4", S = "HS"),
       massTerms = list(C = 1, N = 16/106, S = 0.5),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
@@ -241,7 +167,7 @@ gangstaTest = function() {
       fromCompoundNames = list(C = "DOM", N = "DOM", S = "SO4"),
       toCompoundNames = list(C = "CO2", N = "NH4", S = "HS"),
       massTerms = list(C = 1, N = 16/106, S = 0.5),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
@@ -250,7 +176,7 @@ gangstaTest = function() {
       fromCompoundNames = list(C = ".", C = ".", N = "."),
       toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4"),
       massTerms = list(C = 0.5, C = 0.5, N = 16/106),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
@@ -259,7 +185,7 @@ gangstaTest = function() {
       fromCompoundNames = list(C = "DOM", C = "DOM", N = "DOM"),
       toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4"),
       massTerms = list(C = 0.5, C = 0.5, N = 16/106),
-      organismNames = c("Het")
+      organismNames = "Het"
     ),
     list(
       gangstaObjects = compounds,
@@ -268,7 +194,7 @@ gangstaTest = function() {
       fromCompoundNames = list(N = "NH4", O = "O2"),
       toCompoundNames = list(N = "NO2", O = "Ox"),
       massTerms = list(N = 2/3, O = 2),
-      organismNames = c("Aut")
+      organismNames = "Aut"
     ),
     list(
       gangstaObjects = compounds,
@@ -277,7 +203,7 @@ gangstaTest = function() {
       fromCompoundNames = list(N = "NO2", O = "O2"),
       toCompoundNames = list(N = "NO3", O = "Ox"),
       massTerms = list(N = 2, O = 2),
-      organismNames = c("Aut")
+      organismNames = "Aut"
     ),
     list(
       gangstaObjects = compounds,
@@ -286,7 +212,7 @@ gangstaTest = function() {
       fromCompoundNames = list(C = "CH4", O = "O2"),
       toCompoundNames = list(C = "CO2", O = "Ox"),
       massTerms = list(C = 0.5, O = 2),
-      organismNames = c("Met")
+      organismNames = "Met"
     )
   )
 

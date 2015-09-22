@@ -35,5 +35,27 @@ fromToPair = function(gangstaObjects, fromName, toName) {
   return(targetPools)
 }
 
+gangstaVarName = function(varTag) {
+  return(getOption("gangsta.vars")[varTag])
+}
 
+gangstaClassName = function(classTag) {
+  return(getOption("gangsta.classes")[classTag])
+}
 
+gangstaAttributeName = function(attributeTag) {
+  return(getOption("gangsta.attributes")[attributeTag])
+}
+
+gangstaVarTags = function() {
+  return(names(getOption("gangsta.vars")))
+}
+
+gangstaClassTags = function() {
+  return(names(getOption("gangsta.classes")))
+}
+
+gangstaAttributeTags = function() {
+  return(names(getOption("gangsta.attributes")))
+
+}

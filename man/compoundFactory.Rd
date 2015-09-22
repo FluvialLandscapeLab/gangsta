@@ -13,7 +13,7 @@ compoundFactory(compoundName, molarRatios, respirationRate = NA,
   sourceSink = F)
 
 processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
-  toCompoundNames, massTerms, organismNames = "")
+  toCompoundNames, massTerms, organismNames = "", limitToInitMass = T)
 
 compound(compoundName, referencePoolName, respirationRate = NA, sourceSink)
 
@@ -21,7 +21,8 @@ pool(compoundName, elementName, molarRatio = NA)
 
 process(processName, energyTerm, organismName = NA)
 
-transformation(gangstaObjects, processName, fromPoolName, toPoolName, massTerm)
+transformation(gangstaObjects, processName, fromPoolName, toPoolName, massTerm,
+  limitToInitMass = T)
 }
 \arguments{
 \item{compoundName}{Name of the \code{compound} to be created (or for

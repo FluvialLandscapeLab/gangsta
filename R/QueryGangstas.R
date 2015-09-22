@@ -42,20 +42,24 @@
 #'   objects.
 
 subsetGangstas = function(gangstaObjects, attributeName, attributeValue) {
-  if(attributeName == "class") {
-    itMatches = sapply(gangstaObjects, is, class2 = attributeValue)
+  if(length(gangstaObjects) == 0) {
+    returnVal = list()
   } else {
-    if(is.logical(attributeValue)) {
-      itMatches = sapply(gangstaObjects, "[", name=attributeName)
-      ## where itMatches is TRUE, return TRUE; where NULL or FALSE, return FALSE
-      itMatches = sapply(itMatches, function(x) !is.null(x) && x)
+    if(attributeName == "class") {
+      itMatches = sapply(gangstaObjects, is, class2 = attributeValue)
     } else {
-      itMatches = (sapply(gangstaObjects, "[", name=attributeName) == attributeValue)
+      if(is.logical(attributeValue)) {
+        itMatches = sapply(gangstaObjects, "[", name=attributeName)
+        ## where itMatches is TRUE, return TRUE; where NULL or FALSE, return FALSE
+        itMatches = sapply(itMatches, function(x) !is.null(x) && (!xor(x, attributeValue)))
+      } else {
+        itMatches = (sapply(gangstaObjects, "[", name=attributeName) == attributeValue)
+      }
     }
+    returnVal = gangstaObjects[itMatches]
   }
-  return(gangstaObjects[itMatches])
+  return(returnVal)
 }
-
 #' @rdname subsetGangstas
 getGangstas = function(gangstaObjects, gangstaNames) {
   hits = lapply(gangstaNames, subsetGangstas, gangstaObjects = gangstaObjects, attributeName = "name")
