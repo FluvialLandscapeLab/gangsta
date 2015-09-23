@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 ###  This is a silly comment that just says nothing.  MASTER FIX.
->>>>>>> deb8a9e515bfafe223cbb8448fc96275b6936d74
 
 gangstaTest = function() {
 
