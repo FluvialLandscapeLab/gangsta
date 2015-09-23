@@ -39,10 +39,13 @@
       refPool = "referencePoolName",
       orgName = "organismName",
       procName = "processName",
+      compName = "compoundName",
       energyToMass = "energyToMassRatio",
       fromPool = "from",
       toPool = "to",
-      limitToStartMass = "limitToInitMass"
+      limitToStartMass = "limitToInitMass",
+      molRatio = "molarRatio",
+      initMols = "initialMols"
     )
 
 

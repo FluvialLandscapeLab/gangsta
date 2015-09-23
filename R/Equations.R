@@ -14,6 +14,7 @@ makeEquations = function(gangstaObjects) {
   processClassName = gangstaClassName("proc")
   transClassName = gangstaClassName("trans")
   poolClassName = gangstaClassName("pool")
+  boundClassName = gangstaClassName("bnd")
 
   nameAttrName = gangstaAttributeName("name")
   orgNameAttrName = gangstaAttributeName("orgName")
@@ -21,8 +22,12 @@ makeEquations = function(gangstaObjects) {
   fromPoolAttrName = gangstaAttributeName("fromPool")
   toPoolAttrName = gangstaAttributeName("toPool")
   respAttrName = gangstaAttributeName("respRate")
+  procNameAttrName = gangstaAttributeName("procName")
   energyToMassAttrName =  gangstaAttributeName("energyToMass")
   limitToStartAttrName = gangstaAttributeName("limitToStartMass")
+  molarRatioAttrName = gangstaAttributeName("molRatio")
+  initialMolsAttrName = gangstaAttributeName("initMols")
+  compNameAttrName =  gangstaAttributeName("compName")
 
   makeProcessEnergyVars = function(processNames) {
     return(paste0(processNames, ".", energySuffix))
@@ -50,6 +55,32 @@ makeEquations = function(gangstaObjects) {
 
   makeBiomassRemainingVars = function(poolNames) {
     return(paste0(poolNames, ".", endSuffix))
+  }
+
+  eqnInitialMasses = function() {
+    pools = subsetGangstas(gangstaObjects, "class", poolClassName)
+    poolNames = getGangstaAttribute(pools, nameAttrName)
+    compoundNames = getGangstaAttribute(pools, compNameAttrName)
+    compounds = getGangstas(gangstaObjects, compoundNames)
+    initialMols = getGangstaAttribute(compounds, initialMolsAttrName)
+    isBound = sapply(pools, is, class2 = boundClassName)
+
+    poolStartMassVars = makePoolStartMassVars(poolNames)
+
+    equations = paste(poolStartMassVars[!isBound], "=", initialMols[!isBound])
+
+    if(any(isBound)) {
+      molarRatios = getGangstaAttribute(pools[isBound], molarRatioAttrName)
+      refPoolNames = getGangstaAttribute(compounds[isBound], nameAttrName)
+      refPoolStartMassVars = makePoolStartMassVars(refPoolNames)
+      equations = c(equations, paste(poolStartMassVars[isBound], "=", molarRatios, refPoolStartMassVars))
+
+      boundPoolEndMassVars = makePoolEndMassVars(poolNames[isBound])
+      refPoolEndMassVars = makePoolEndMassVars(refPoolNames)
+      equations = c(equations, paste(boundPoolEndMassVars, "=", molarRatios, refPoolEndMassVars))
+    }
+
+    return(equations)
   }
 
   eqnProcessEnergy = function() {
@@ -84,7 +115,6 @@ makeEquations = function(gangstaObjects) {
   eqnEnergyBalance = function() {
     return(paste("0 =", respEnergyVars, "+", orgEnergyVars))
   }
-
 
   eqnTransformation = function() {
 
@@ -135,6 +165,7 @@ makeEquations = function(gangstaObjects) {
     transformations = subsetGangstas(gangstaObjects, "class", transClassName)
 
     transfersOut = lapply(poolNames, subsetGangstas, gangstaObjects = transformations, attributeName = fromPoolAttrName)
+    # remove any transformations that user defines as not limited by the starting mass of the from pool.
     transfersOut = lapply(transfersOut, subsetGangstas, attributeName = limitToStartAttrName, attributeValue = T)
 
     poolStartMassVars = poolStartMassVars[sapply(transfersOut, length) > 0]
@@ -150,7 +181,9 @@ makeEquations = function(gangstaObjects) {
     return(equations)
   }
 
-  procNameAttrName = gangstaAttributeName("procName")
+
+  # Initial Masses
+  initialMassEqns = eqnInitialMasses()
 
   # Respiration Equations
   respEnergyEqns = eqnRespEnergy()
@@ -169,7 +202,15 @@ makeEquations = function(gangstaObjects) {
 
   limitToStartEqns = eqnLimitToStartingMass()
 
-  allEquations = c(respEnergyEqns, processEnergyEqns, energyBalEqns, transformationEqns, massBalEqns, limitToStartEqns)
+  allEquations = c(
+    initialMassEqns,
+    respEnergyEqns,
+    processEnergyEqns,
+    energyBalEqns,
+    transformationEqns,
+    massBalEqns,
+    limitToStartEqns
+  )
 
   return(allEquations)
 }

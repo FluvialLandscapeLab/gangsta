@@ -3,21 +3,21 @@ gangstaTest = function() {
   ### NEED TO ALLOW "." to access the molarRatio of the source for massTerm of transformation.
 
   compoundParams = list(
-    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), respirationRate = -1),
-    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), respirationRate = -2),
-    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), respirationRate = -3),
-    list(compoundName = "DOM", molarRatios = c(C=1, N=6/106)),
-    list(compoundName = "CH4", molarRatios = c(C=1)),
-    list(compoundName = "NH4", molarRatios = c(N=1)),
-    list(compoundName = "NO3", molarRatios = c(N=1)),
-    list(compoundName = "NO2", molarRatios = c(N=1)),
-    list(compoundName = "N2O", molarRatios = c(N=1)),
-    list(compoundName = "O2" , molarRatios = c(O=1)),
-    list(compoundName = "SO4", molarRatios = c(S=1)),
-    list(compoundName = "CO2", molarRatios = c(C=1), sourceSink = T),
-    list(compoundName = "N2" , molarRatios = c(N=1), sourceSink = T),
-    list(compoundName = "HS" , molarRatios = c(S=1), sourceSink = T),
-    list(compoundName = "Ox" , molarRatios = c(O=1), sourceSink = T)
+    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -1),
+    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -2),
+    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -3),
+    list(compoundName = "DOM", molarRatios = c(C=1, N=6/106), initialMols = 0),
+    list(compoundName = "CH4", molarRatios = c(C=1), initialMols = 0),
+    list(compoundName = "NH4", molarRatios = c(N=1), initialMols = 0),
+    list(compoundName = "NO3", molarRatios = c(N=1), initialMols = 0),
+    list(compoundName = "NO2", molarRatios = c(N=1), initialMols = 0),
+    list(compoundName = "N2O", molarRatios = c(N=1), initialMols = 0),
+    list(compoundName = "O2" , molarRatios = c(O=1), initialMols = 0),
+    list(compoundName = "SO4", molarRatios = c(S=1), initialMols = 0),
+    list(compoundName = "CO2", molarRatios = c(C=1), initialMols = 0, sourceSink = T),
+    list(compoundName = "N2" , molarRatios = c(N=1), initialMols = 0, sourceSink = T),
+    list(compoundName = "HS" , molarRatios = c(S=1), initialMols = 0, sourceSink = T),
+    list(compoundName = "Ox" , molarRatios = c(O=1), initialMols = 0, sourceSink = T)
   )
 
   compounds = unlist(lapply(compoundParams, do.call, what = "compoundFactory"), recursive = F)

@@ -9,13 +9,14 @@
 \alias{transformation}
 \title{Create GANGSTA Objects}
 \usage{
-compoundFactory(compoundName, molarRatios, respirationRate = NA,
+compoundFactory(compoundName, molarRatios, initialMols, respirationRate = NA,
   sourceSink = F)
 
 processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
   toCompoundNames, massTerms, organismNames = "", limitToInitMass = T)
 
-compound(compoundName, referencePoolName, respirationRate = NA, sourceSink)
+compound(compoundName, referencePoolName, initialMols, respirationRate = NA,
+  sourceSink)
 
 pool(compoundName, elementName, molarRatio = NA)
 

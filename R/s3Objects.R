@@ -124,7 +124,7 @@
 #'   \code{transformation} objects.  The remaining constructor methods return an
 #'   individual GANGSTA object of the class corresponding to the function name.
 
-compoundFactory = function(compoundName, molarRatios, respirationRate = NA, sourceSink = F) {
+compoundFactory = function(compoundName, molarRatios, initialMols, respirationRate = NA, sourceSink = F) {
   checkNames = unique(names(molarRatios))==""
   if(any(checkNames) || (length(checkNames) != length(molarRatios))) {
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
@@ -136,7 +136,7 @@ compoundFactory = function(compoundName, molarRatios, respirationRate = NA, sour
   molarRatios[1] = NA
   newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
-  newCompound = list(compound(compoundName, newPools[[1]]$name, respirationRate, sourceSink))
+  newCompound = list(compound(compoundName, newPools[[1]]$name, initialMols, respirationRate, sourceSink))
   names(newCompound) = compoundName
   return(c(newCompound, newPools))
 }
@@ -238,8 +238,8 @@ processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundN
 }
 
 #' @rdname compoundFactory
-compound = function(compoundName, referencePoolName, respirationRate = NA, sourceSink) {
-  newCompound = list(name = compoundName, referencePoolName = referencePoolName, sourceSink = sourceSink)
+compound = function(compoundName, referencePoolName, initialMols, respirationRate = NA, sourceSink) {
+  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMols = initialMols, sourceSink = sourceSink)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     newCompound = structure(c(newCompound, list(respirationRate = respirationRate)), class = c("organism", class(newCompound)))
