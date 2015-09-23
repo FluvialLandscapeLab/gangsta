@@ -1,9 +1,11 @@
-###  This is a silly comment that just says nothing.  Blah blah blah.
+<<<<<<< HEAD
+###  This is a silly comment that just says nothing.  MASTER FIX.
+>>>>>>> deb8a9e515bfafe223cbb8448fc96275b6936d74
 
 gangstaTest = function() {
 
   ### NEED TO ALLOW "." to access the molarRatio of the source for massTerm of transformation.
-
+  ### Another comment to change.
   compoundParams = list(
     list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -1),
     list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -2),
@@ -86,7 +88,7 @@ gangstaTest = function() {
       energyTerm = 4.37-04,
       fromCompoundNames = list(C = "DOM", N = "DOM", O = "O2"),
       toCompoundNames = list(C = "CO2", N = "NH4", O = "Ox"),
-      massTerms = list(C = 1, N = 16/106, O = 2),
+      massTerms = list(C = 1, N = 6/106, O = 2),
       organismNames = "Het"
     ),
     list(
