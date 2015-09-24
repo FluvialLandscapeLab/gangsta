@@ -1,22 +1,149 @@
-makePoolName = function(compoundName, elementName) {
-  paste0(compoundName, "_", elementName)
+makePoolNames = function(compoundNames, elementNames = names(compoundNames), gangstaObjects = NULL) {
+  poolNames = paste0(compoundNames, "_", elementNames)
+  if(!is.null(gangstaObjects)) {
+    gangstasExist(gangstaObjects, poolNames, gangstaClassName("pool"))
+  }
+  return(poolNames)
+}
+
+processSpecRequiredNames = function() {
+  argHasNoDefault = function(x) {
+    evaluated = tryCatch(
+      eval(x),
+      error = function(e) return(">>NODEF<<")
+    )
+    if(identical(evaluated, ">>NODEF<<")) {
+      return(T)
+    } else {
+      return(F)
+    }
+  }
+
+  processFactoryParams = formals(processFactory)
+  processFactoryParams = processFactoryParams[2:length(processFactoryParams)]
+  hasNoDefault = sapply(processFactoryParams, argHasNoDefault)
+  names(hasNoDefault) = names(processFactoryParams)
+  return(hasNoDefault)
+}
+
+checkProcessSpecNames = function(processSpecNames, additionalValidNames = NULL) {
+  namesAreRequired = processSpecRequiredNames()
+  validNames = c(names(namesAreRequired), additionalValidNames)
+  isInvalid = !(processSpecNames %in% validNames)
+  if(any(isInvalid)) {
+    stop("The following names are not permitted in a process specification: ", paste0(processSpecNames[isInvalid], collapse = "; "), "\n  (Valid names are: ", paste0(validNames, collapse = "; "), ")")
+  }
+
+  # hint: namesAreRequired is a boolean vector, so this next line returnes the
+  # names where the vector value is T
+  requiredNames = names(namesAreRequired[namesAreRequired])
+  isMissing = !(requiredNames %in% processSpecNames)
+  if(any(isMissing)) {
+    stop("The following names are required in a process specification but are missing: ", paste0(requiredNames[isMissing], collapse = "; "))
+  }
+
+  return(T)
+}
+
+expandMultiprocessSpec = function(multiprocessSpec) {
+  checkProcessSpecNames(names(multiprocessSpec), "processSuffix")
+
+  # if a "processSuffix" is passed in multiprocessSpec, we we don't want to
+  # return it from this function. Realizing the T = 1, and F = 0, calculated the
+  # number of elements to return.
+  nListElementsToReturn = length(multiprocessSpec) - !is.null(multiprocessSpec[["processSuffix"]])
+
+  # add "" for organismName and processSuffix if not already in list
+  defaults = list(organismName = "", processSuffix = "")
+  notInList = !(names(defaults) %in% names(multiprocessSpec))
+  spec = c(multiprocessSpec, defaults[notInList])
+
+  # move processSuffix to end of list
+  suffixList = spec["processSuffix"]
+  spec["processSuffix"] = NULL
+  spec = c(spec, suffixList)
+
+  # use names of spec to create variables with associated values
+  for(varName in names(spec)) {
+    assign(varName, spec[[varName]])
+  }
+
+  # expand the elements of spec
+  organismName = rep(organismName, each = length(processSuffix))
+  if(!is.null(spec[["limitToInitMols"]])) limitToInitMols = rep(limitToInitMols, each = length(processSuffix))
+  name = mapply(paste0, organismName, name, processSuffix)
+  fromCompoundNames = do.call(mapply, c(list(FUN = "c", SIMPLIFY = F), fromCompoundNames))
+  toCompoundNames = do.call(mapply, c(list(FUN = "c", SIMPLIFY = F), toCompoundNames))
+  molarTerms = do.call(mapply, c(list(FUN = "c", SIMPLIFY = F), molarTerms))
+
+  # Store the values of the expanded elements in a list
+  paramList = lapply(names(spec)[1:nListElementsToReturn], function(x) eval(parse(text = x)))
+  # Now use do.call to call mapply on the "list" fuction.  Essentially this does mapply(list, organismName, This will build lists from one value in
+  # each expanded element, while recycling each expanded element.  This has the
+  # effect of making permutative combinations of the expanded elements, storing
+  # all the combinations in a list
+  expandedSpecs = do.call(mapply, c(list(FUN = "list", SIMPLIFY = F), paramList))
+  expandedSpecs = lapply(
+    expandedSpecs,
+    function(x) {
+      names(x) = names(spec)[1:nListElementsToReturn]
+      return(x)
+    }
+  )
+  expandedSpecs = lapply(expandedSpecs, processSpec)
+  names(expandedSpecs) = name
+  return(expandedSpecs)
+}
+
+
+replaceNAWithMolarRatio = function(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects) {
+
+  ### THIS DOESN"T WORK FOR METHANOGENESIS BECAUSE WE NEED TO SUM THE MOLARTERMS FOR THE REFERENCE POOL WHICH IS LISTED TWICE!!!
+
+  isNA = is.na(molarTerms)
+  if(any(isNA)) {
+    fromCompounds = getGangstas(gangstaObjects, fromCompoundNames)
+    refPoolNames = getGangstaAttribute(fromCompounds, gangstaAttributeName("refPool"))
+    refPoolIndexes = match(refPoolNames, fromPoolNames)
+    missingRefPools = (is.na(refPoolIndexes) & isNA)
+    if(any(missingRefPools)) {
+      stop("When molarTerms are 'NA' in a process specification, the molarTerm of the reference pool must be specified in the vector.\n  The molarTerm(s) for ",
+           paste0(fromPoolNames[match(refPoolNames[missingRefPools], refPoolNames)], collapse = " and "),
+           " = NA, but expected molarTerm(s) for reference pool(s) ",
+           paste0(refPoolNames[missingRefPools], collapse = " and "),
+           " are not in the molarTerms vector.\n  Error occurred where fromPools = ",
+           paste0(fromPoolNames, collapse = "; ")
+      )
+    }
+    # in case the refPool is specified as the fromPool for more than one
+    # transformation (e.g., DOM -> CO2 and DOM -> CH4 in denitrification), we
+    # sum the molarTerms for all instances of each referencePool in fromPools
+    refPoolMolarTerms = sapply(refPoolNames, function(rP) (sum(molarTerms[rP == fromPoolNames])))
+    isNARefMolarTerms = (is.na(refPoolMolarTerms) & isNA)
+    if(any(isNARefMolarTerms)) {
+      stop("The molarTerms for reference pools can not be 'NA' in a process specification.\n  The molarTerm(s) for ",
+           paste0(unique(refPoolNames[isNARefMolarTerms]), collapse = " and "),
+           " were specified as 'NA'.\n  Error occurred where fromPools = ",
+           paste0(fromPoolNames, collapse = "; ")
+      )
+    }
+    fromPools = getGangstas(gangstaObjects, fromPoolNames)
+    fromPoolMolarRatioList = getGangstaAttribute(fromPools, gangstaAttributeName("molRatio"))
+    fromPoolMolarRatios = sapply(
+      fromPoolMolarRatioList,
+      function(x) {
+        if (is.null(x)) return(NA)
+        return(x)
+      }
+    )
+    molarTerms[isNA] = refPoolMolarTerms[isNA] * fromPoolMolarRatios[isNA]
+  }
+  return(molarTerms)
 }
 
 replaceDotWithOrganism = function(compoundNames, organismName) {
-  compoundNames = lapply(
-    compoundNames,
-    function(c) {
-      c[c == "."] = organismName
-      return(c)
-    }
-  )
+  compoundNames[compoundNames == "."] = organismName
   return(compoundNames)
-}
-
-## requires a named list; elementNames are the names of the compoundNames
-makeMultiplePoolNames = function(compoundNames) {
-  elementNames = mapply(function (cNames, eName) rep(eName, length(cNames)), compoundNames, names(compoundNames), SIMPLIFY = FALSE)
-  PoolNames = mapply(makePoolName, compoundNames, elementNames, SIMPLIFY = F)
 }
 
 fromToPair = function(gangstaObjects, fromName, toName) {

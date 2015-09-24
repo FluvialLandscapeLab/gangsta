@@ -23,7 +23,7 @@ makeEquations = function(gangstaObjects) {
   toPoolAttrName = gangstaAttributeName("toPool")
   respAttrName = gangstaAttributeName("respRate")
   procNameAttrName = gangstaAttributeName("procName")
-  energyToMassAttrName =  gangstaAttributeName("energyToMass")
+  energyToMolsAttrName =  gangstaAttributeName("energyToMols")
   limitToStartAttrName = gangstaAttributeName("limitToStartMass")
   molarRatioAttrName = gangstaAttributeName("molRatio")
   initialMolsAttrName = gangstaAttributeName("initMols")
@@ -125,9 +125,9 @@ makeEquations = function(gangstaObjects) {
     processNames = getGangstaAttribute(transformations, procNameAttrName)
     processEnergyVars = makeProcessEnergyVars(processNames)
 
-    energyToMassRatios = getGangstaAttribute(transformations, energyToMassAttrName)
+    energyToMolsRatios = getGangstaAttribute(transformations, energyToMolsAttrName)
 
-    equations = paste(transformationMassVars, "=", energyToMassRatios, processEnergyVars)
+    equations = paste(transformationMassVars, "=", energyToMolsRatios, processEnergyVars)
     return(equations)
   }
 

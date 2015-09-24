@@ -62,7 +62,7 @@ subsetGangstas = function(gangstaObjects, attributeName, attributeValue) {
 }
 #' @rdname subsetGangstas
 getGangstas = function(gangstaObjects, gangstaNames) {
-  hits = lapply(gangstaNames, subsetGangstas, gangstaObjects = gangstaObjects, attributeName = "name")
+  hits = lapply(gangstaNames, subsetGangstas, gangstaObjects = gangstaObjects, attributeName = gangstaAttributeName("name"))
   notFound = (sapply(hits, length) == 0)
   if(any(notFound)){
     stop(paste("Gangstas with the following names were requested but not found in the list of gangsta objects: ", paste0(gangstaNames[notFound], collapse = ", ")))
