@@ -1,5 +1,5 @@
 ###  Imports gangsta lp file into R
-readGangsta.lp = function(lpFile = fileToImport){
+readGangsta.lp = function(lpFile = file.choose()){
   lp.bgc = lpSolveAPI::read.lp(lpFile, type = "lp", verbose = "full")
   return(lp.bgc)
 }
@@ -42,4 +42,23 @@ solvedDataFrame.lp = function(gangsta.lp, simple = TRUE) {
     variableOutputSimple[order(row.names(variableOutputSimple)),]
     return(variableOutputSimple)
   }
+}
+
+
+poolDifs = function(gangstaObjects, lp, simple = T) {
+  pools = subsetGangstas(gangstaObjects, "class", gangstaClassName("pool"))
+  poolNames = getGangstaAttribute(pools, gangstaAttributeName("name"))
+
+  initPoolNames = paste0(poolNames, ".", gangstaVarName("startSuffix"))
+  finalPoolNames = paste0(poolNames, ".", gangstaVarName("endSuffix"))
+
+  df.lp = solvedDataFrame.lp(lp, simple = F)
+
+  startVals = df.lp[initPoolNames,]
+  endVals = df.lp[finalPoolNames,]
+  allDF = data.frame(change = endVals - startVals, initial = startVals, final = endVals)
+  row.names(allDF) = poolNames
+  if(simple) allDF = subset(allDF, (allDF$initial != 0) | (allDF$final != 0))
+#  col.names(appDF) = c("initial", "final", "change")
+  return(allDF)
 }
