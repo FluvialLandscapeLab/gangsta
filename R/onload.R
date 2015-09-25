@@ -1,4 +1,5 @@
 .onLoad <- function(libname, pkgname) {
+
   op <- options()
   op.gangsta <- list(
     gangsta.path = "~/R-dev",
@@ -45,7 +46,10 @@
       toPool = "to",
       limitToStartMass = "limitToInitMass",
       molRatio = "molarRatio",
-      initMols = "initialMols"
+      initMols = "initialMols",
+      sourceSink = "sourceSink",
+      energy = "energyTerm",
+      element = "elementName"
     )
 
 

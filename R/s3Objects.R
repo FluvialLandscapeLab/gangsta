@@ -242,6 +242,9 @@ compound = function(compoundName, referencePoolName, initialMols, respirationRat
   newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMols = initialMols, sourceSink = sourceSink)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
+    if(respirationRate > 0) {
+      stop("Respiration rate must be negative.")
+    }
     newCompound = structure(c(newCompound, list(respirationRate = respirationRate)), class = c("organism", class(newCompound)))
   }
   return(newCompound)
@@ -266,7 +269,7 @@ process = function(processName, energyTerm, organismName = NA) {
   processClassNames = c(gangstaClassName("proc"), gangstaClassName("base"))
   newProcess = list(name = processName, energyTerm = energyTerm)
   class(newProcess) = processClassNames
-  if(organismName != "") {
+  if(energyTerm != 0) {
     newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
   }
   return(newProcess)

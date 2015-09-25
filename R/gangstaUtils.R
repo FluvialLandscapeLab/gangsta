@@ -59,3 +59,8 @@ gangstaAttributeTags = function() {
   return(names(getOption("gangsta.attributes")))
 
 }
+
+writeGangstaModel = function(equations, file = file.choose()) {
+  equations = sapply(equations, paste0, ";")
+  write(equations, file)
+}

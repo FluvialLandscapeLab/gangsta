@@ -1,20 +1,23 @@
-###  This is a silly comment that just says nothing.  MASTER FIX. Ann Marie!
+runTest = function() {
+  testRun = runGangsta(file.choose(), )
+}
 
 gangstaTest = function() {
 
   ### NEED TO ALLOW "." to access the molarRatio of the source for massTerm of transformation.
-  ### Another comment to change.
+
   compoundParams = list(
-    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -1),
-    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -2),
-    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -3),
-    list(compoundName = "DOM", molarRatios = c(C=1, N=6/106), initialMols = 0),
+    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
+    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
+    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
+    list(compoundName = "XOM", molarRatios = c(C=1, N=16/106), initialMols = 0),
+    list(compoundName = "DOM", molarRatios = c(C=1, N=6/106), initialMols = 1),
     list(compoundName = "CH4", molarRatios = c(C=1), initialMols = 0),
     list(compoundName = "NH4", molarRatios = c(N=1), initialMols = 0),
     list(compoundName = "NO3", molarRatios = c(N=1), initialMols = 0),
     list(compoundName = "NO2", molarRatios = c(N=1), initialMols = 0),
     list(compoundName = "N2O", molarRatios = c(N=1), initialMols = 0),
-    list(compoundName = "O2" , molarRatios = c(O=1), initialMols = 0),
+    list(compoundName = "O2" , molarRatios = c(O=1), initialMols = 10),
     list(compoundName = "SO4", molarRatios = c(S=1), initialMols = 0),
     list(compoundName = "CO2", molarRatios = c(C=1), initialMols = 0, sourceSink = T),
     list(compoundName = "N2" , molarRatios = c(N=1), initialMols = 0, sourceSink = T),
@@ -113,7 +116,7 @@ gangstaTest = function() {
       energyTerm = 2.88E-04,
       fromCompoundNames = list(C = "DOM", N = "DOM", N = "NO3"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "NO2"),
-      massTerms = list(C = 1, N = 16/106, N = 2),
+      massTerms = list(C = 1, N = 6/106, N = 2),
       organismNames = "Het"
     ),
     list(
@@ -131,7 +134,7 @@ gangstaTest = function() {
       energyTerm = 4.15E-04,
       fromCompoundNames = list(C = "DOM", N = "DOM", N = "NO2"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2O"),
-      massTerms = list(C = 1, N = 16/106, N = 2),
+      massTerms = list(C = 1, N = 6/106, N = 2),
       organismNames = "Het"
     ),
 
@@ -150,7 +153,7 @@ gangstaTest = function() {
       energyTerm = 6.45E-04,
       fromCompoundNames = list(C = "DOM", N = "DOM", N = "N2O"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2"),
-      massTerms = list(C = 1, N = 16/106, N = 4),
+      massTerms = list(C = 1, N = 6/106, N = 4),
       organismNames = "Het"
     ),
     list(
@@ -168,7 +171,7 @@ gangstaTest = function() {
       energyTerm = 3.8E-05,
       fromCompoundNames = list(C = "DOM", N = "DOM", S = "SO4"),
       toCompoundNames = list(C = "CO2", N = "NH4", S = "HS"),
-      massTerms = list(C = 1, N = 16/106, S = 0.5),
+      massTerms = list(C = 1, N = 6/106, S = 0.5),
       organismNames = "Het"
     ),
     list(
@@ -186,7 +189,7 @@ gangstaTest = function() {
       energyTerm = 2.8E-05,
       fromCompoundNames = list(C = "DOM", C = "DOM", N = "DOM"),
       toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4"),
-      massTerms = list(C = 0.5, C = 0.5, N = 16/106),
+      massTerms = list(C = 0.5, C = 0.5, N = 6/106),
       organismNames = "Het"
     ),
     list(
@@ -215,6 +218,15 @@ gangstaTest = function() {
       toCompoundNames = list(C = "CO2", O = "Ox"),
       massTerms = list(C = 0.5, O = 2),
       organismNames = "Met"
+    ),
+    list(
+      gangstaObjects = compounds,
+      processName = "Decay",
+      energyTerm = 0,
+      fromCompoundNames = list(C = ".", N = "."),
+      toCompoundNames = list(C = "XOM", N = "XOM"),
+      massTerms = list(C = 1, N = 16/106),
+      organismNames = c("Aut", "Met")
     )
   )
 
@@ -222,4 +234,9 @@ gangstaTest = function() {
   return(c(compounds, processes))
 }
 
-
+doItGangsta = function(file = file.choose()){
+  gangstas <<- gangstaTest()
+  equations <<- makeEquations(gangstas)
+  writeGangstaModel(equations, file)
+  test.lp <<- readGangsta.lp(file)
+}
