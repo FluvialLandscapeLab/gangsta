@@ -1,3 +1,7 @@
+# runTest = function() {
+#   testRun = runGangsta(file.choose())
+# }
+
 testList = function() {
   return(
     list(
@@ -15,14 +19,12 @@ testList = function() {
 
 gangstaTest = function() {
 
-  ### NEED TO ALLOW "." to access the molarRatio of the source for massTerm of transformation.
-
   compoundParams = list(
     list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
     list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
     list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
     list(compoundName = "XOM", molarRatios = c(C=1, N=16/106), initialMols = 0),
-    list(compoundName = "DOM", molarRatios = c(C=1, N=6/106), initialMols = 1),
+    list(compoundName = "DOM", molarRatios = c(C=1, N=16/106), initialMols = 1),
     list(compoundName = "CH4", molarRatios = c(C=1), initialMols = 0),
     list(compoundName = "NH4", molarRatios = c(N=1), initialMols = 0),
     list(compoundName = "NO3", molarRatios = c(N=1), initialMols = 0),
@@ -165,7 +167,16 @@ gangstaTest = function() {
       toCompoundNames = list(C = "CO2", O = "Ox"),
       molarTerms = list(C = 0.5, O = 2),
       organismName = "Met"
+    ),
+    list(
+      name = "Decay",
+      energyTerm = 0,
+      fromCompoundNames = list(C = ".", N = "."),
+      toCompoundNames = list(C = "XOM", N = "XOM"),
+      molarTerms = list(C = 1, N = NA),
+      organismName = c("Aut", "Met")
     )
+
   )
 
 #   processParams = list(
@@ -186,8 +197,13 @@ gangstaTest = function() {
   return(c(compounds, processes))
 }
 
-doItGangsta = function(file = file.choose()){
-  gangstas <<- gangstaTest()
+doItGangsta = function(simple = T, file = file.choose()){
+  if(simple) {
+    gangstas <<- simpleTest()
+  } else {
+    gangstas <<- gangstaTest()
+
+  }
   equations <<- makeEquations(gangstas)
   writeGangstaModel(equations, file)
   test.lp <<- readGangsta.lp(file)
