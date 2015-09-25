@@ -95,7 +95,7 @@
 #' @param energyTerm. The net energy associated with the processs.  A positive
 #'   number represents a process that yeilds energy, a negative number
 #'   represents a process that consumes energy.  Units are kJ (or J, etc.) of
-#'   energy per mol (or umol, etc.) listed in \code{massTerms} parameter.
+#'   energy per mol (or umol, etc.) listed in \code{molarTerms} parameter.
 #' @param fromCompoundNames Named \code{list} of compound names where the name
 #'   of each \code{list} member is the a chemical element derived from the
 #'   compound.  For instance, to track carbon flux from the oxidation of
@@ -106,8 +106,8 @@
 #'   list(C = "CO2", O = "Ox") (where Ox is a undifferentiated sink for oxygen
 #'   comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
 #'   same and in the same order as those of \code{fromCompoundNames}.
-#' @param massTerms Named list containing the mols (or uMols, etc.) of each
-#'   element that are transformed by the process.  The names of \code{massTerms}
+#' @param molarTerms Named list containing the mols (or uMols, etc.) of each
+#'   element that are transformed by the process.  The names of \code{molarTerms}
 #'   must be the same and in the same order as those of \code{fromCompoundNames}
 #'   and \code{toCompoundNames}.
 #' @param organismNames A vector of organisms that utilize the process.
@@ -142,99 +142,53 @@ compoundFactory = function(compoundName, molarRatios, initialMols, respirationRa
 }
 
 #' @rdname compoundFactory
-processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundNames, toCompoundNames, massTerms, organismNames = "", limitToInitMass = T) {
-
-  if(!identical(organismNames, "")) {
-    gangstasExist(gangstaObjects, organismNames, "organism")
+processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, organismName = "", limitToInitMols = T) {
+  if(!identical(organismName, "")) {
+    gangstasExist(gangstaObjects, organismName, "organism")
   }
 
-  if(length(limitToInitMass) == 1) {
-    limitToInitMass = rep(limitToInitMass, length(organismNames))
+  inputList = list(name, energyTerm, organismName, limitToInitMols)
+  if(any(plyr::laply(inputList, length) != 1)) {
+    stop(paste0("Process: ", name, "\n The arguments name, energyTerm, orgaismName, and limitToInitMols must be vectors of length() = 1."))
   }
 
-  if(length(limitToInitMass)!=length(organismNames)) {
-    stop("Length of limitToInitMass must be equal to 1, or equal to the length of organismNames")
-  }
-
-  inputList = list(fromCompoundNames, toCompoundNames, massTerms)
+  inputList = list(fromCompoundNames, toCompoundNames, molarTerms)
   if(length(unique(plyr::laply(inputList, length)))!=1) {
-    stop(paste0("Process: ", processName, "\n The length of fromCompoundNames, toCompoundNames, massTerms, and limitToInitMass lists must be equal."))
+    stop(paste0("Process: ", name, "\n The length of fromCompoundNames, toCompoundNames, and molarTerms vectors must be equal."))
   }
 
   nullNames = plyr::laply(inputList, function(x) is.null(names(x)), .drop = F)
   if(any(nullNames)) {
-    stop(stop(paste0("Process: ", processName, "\n The members of lists fromCompoundNames, toCompoundNames, and massTerms must be named.")))
+    stop(stop(paste0("Process: ", name, "\n The members of lists fromCompoundNames, toCompoundNames, and molarTerms must be named.")))
   }
 
   elementMatrix = plyr::laply(inputList, names, .drop = F)
-  #   duplicatedNamesWithinLists = apply(elementMatrix, 1, function(x) length(unique(x)) != ncol(elementMatrix))
-  #   if(any(duplicatedNamesWithinLists)) {
-  #     stop(paste0("Process: ", processName,": \n The members the 'fromCompoundNames,' 'toCompoundNames,' and 'massTerms' lists must have unique names within each list."))
-  #   }
 
   differentNamesAcrossLists = apply(elementMatrix, 2, function(x) length(unique(x)) != 1)
   if(any(differentNamesAcrossLists)) {
-    stop(paste0("Process: ", processName,": \n The members of 'fromCompoundNames,' 'toCompoundNames,' and 'massTerms' lists must have the same names in the same order across lists."))
+    stop(paste0("Process: ", name,": \n The members of 'fromCompoundNames,' 'toCompoundNames,' and 'molarTerms' lists must have the same names in the same order across lists."))
   }
 
-  processNames = paste0(organismNames, processName)
-  newProcesses = mapply(process, processName = processNames, energyTerm = energyTerm, organismName = organismNames, SIMPLIFY = F)
-  names(newProcesses) = sapply(newProcesses, function(x) x$name)
+  newProcess = list(process(name, energyTerm, organismName))
+  names(newProcess) = name
 
-  # Think of this lapply as "for i in 1:length(organismNames)". The variable "i" is a counter
-  # in the function.  I didn't use a for loop simply because lapply gathers the results into
-  # list for me rather than manually having to stick the results into a list.
-  newTransformations =
-    unlist(
-      lapply(
-        1:length(organismNames),
-        function(i) {
+  fromCompoundNames = replaceDotWithOrganism(fromCompoundNames, organismName)
+  toCompoundNames = replaceDotWithOrganism(toCompoundNames, organismName)
+  fromPoolNames = makePoolNames(fromCompoundNames, gangstaObjects = gangstaObjects)
+  toPoolNames = makePoolNames(toCompoundNames, gangstaObjects = gangstaObjects)
+  molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
-          fromPoolNames = makeMultiplePoolNames(replaceDotWithOrganism(fromCompoundNames, organismNames[i]))
-          toPoolNames = makeMultiplePoolNames(replaceDotWithOrganism(toCompoundNames, organismNames[i]))
-
-          gangstasExist(gangstaObjects, unlist(fromPoolNames), "pool")
-          gangstasExist(gangstaObjects, unlist(toPoolNames), "pool")
-
-          ## To understand this double nested mapply, think of each mapply as a
-          ## nested "for loop."
-          ##
-          ## The outer mapply repeats for each chemical element
-          ## in the fromPools, toPools, and massTerms lists.
-          ##
-          ## For a single chemical element, then, the inner mapply matches (with
-          ## recycling) the toPools, fromPools, and massTerms and calls the
-          ## transformation() function to make a transformation for each fromPool,
-          ## toPool, and massTerm triplet.
-
-          newTrans =
-            mapply(
-              function(froms, tos, mTerms)
-                mapply(
-                  transformation,
-                  froms,
-                  tos,
-                  mTerms,
-                  MoreArgs = list(
-                    gangstaObjects = c(gangstaObjects, newProcesses),
-                    processName = processNames[i],
-                    limitToInitMass = limitToInitMass[i]
-                  ),
-                  SIMPLIFY = F
-                ),
-              fromPoolNames,
-              toPoolNames,
-              massTerms
-            )
-          return(newTrans)
-        }
-      ),
-      recursive = F
-    )
-
+  newTransformations = mapply(transformation, fromPoolNames, toPoolNames, molarTerms,
+                              MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = name, limitToInitMols = limitToInitMols),
+                              SIMPLIFY = F)
   names(newTransformations) = sapply(newTransformations, function(x) x$name)
 
-  return(c(newProcesses, newTransformations))
+  duplicateNames = unique(names(newTransformations)[duplicated(names(newTransformations))])
+  if(length(duplicateNames)>0) {
+    stop("The following transformation(s) were specified more than once: ", paste0(duplicateNames, collapse = "; "))
+  }
+
+  return(c(newProcess, newTransformations))
 }
 
 #' @rdname compoundFactory
@@ -252,7 +206,7 @@ compound = function(compoundName, referencePoolName, initialMols, respirationRat
 
 #' @rdname compoundFactory
 pool = function(compoundName, elementName, molarRatio = NA) {
-  poolName = makePoolName(compoundName, elementName)
+  poolName = makePoolNames(compoundName, elementName)
   newPool = list(name = poolName, elementName = elementName, compoundName = compoundName)
   class(newPool) = c("pool", "gangsta")
   if(!is.na(molarRatio)) {
@@ -262,12 +216,9 @@ pool = function(compoundName, elementName, molarRatio = NA) {
 }
 
 #' @rdname compoundFactory
-process = function(processName, energyTerm, organismName = NA) {
-  if(is.na(organismName)) {
-    organismName = ""
-  }
+process = function(name, energyTerm, organismName = "") {
   processClassNames = c(gangstaClassName("proc"), gangstaClassName("base"))
-  newProcess = list(name = processName, energyTerm = energyTerm)
+  newProcess = list(name = name, energyTerm = energyTerm)
   class(newProcess) = processClassNames
   if(energyTerm != 0) {
     newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
@@ -276,23 +227,29 @@ process = function(processName, energyTerm, organismName = NA) {
 }
 
 #' @rdname compoundFactory
-transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, massTerm, limitToInitMass = T){
+transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, molarTerm, limitToInitMols = T){
   # Calling fromToPair does some key error checking.
   pools = fromToPair(gangstaObjects, fromPoolName, toPoolName)
   transformationName = paste(processName, fromPoolName, toPoolName, sep="_")
   process = getGangstas(gangstaObjects, processName)
-  energyToMassRatio = process[[1]]$energyTerm / massTerm
+  energyToMolsRatio = process[[1]]$energyTerm / molarTerm
   newTransformation =
     list(
       name = transformationName,
       from = fromPoolName,
       to = toPoolName,
-      massTerm = massTerm,
-      energyToMassRatio = energyToMassRatio,
+      molarTerm = molarTerm,
+      energyToMolsRatio = energyToMolsRatio,
       processName = processName,
-      limitToInitMass = limitToInitMass
+      limitToInitMols = limitToInitMols
     )
   class(newTransformation) = c("transformation", "gangsta")
   return(newTransformation)
+}
+
+processSpec = function(listOfProcessFactoryArgs) {
+  checkProcessSpecNames(names(listOfProcessFactoryArgs))
+  class(listOfProcessFactoryArgs) = c("processSpec", "gangsta")
+  return(listOfProcessFactoryArgs)
 }
 

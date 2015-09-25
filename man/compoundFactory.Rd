@@ -12,18 +12,18 @@
 compoundFactory(compoundName, molarRatios, initialMols, respirationRate = NA,
   sourceSink = F)
 
-processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
-  toCompoundNames, massTerms, organismNames = "", limitToInitMass = T)
+processFactory(gangstaObjects, name, energyTerm, fromCompoundNames,
+  toCompoundNames, molarTerms, organismName = "", limitToInitMols = T)
 
 compound(compoundName, referencePoolName, initialMols, respirationRate = NA,
   sourceSink)
 
 pool(compoundName, elementName, molarRatio = NA)
 
-process(processName, energyTerm, organismName = NA)
+process(name, energyTerm, organismName = "")
 
-transformation(gangstaObjects, processName, fromPoolName, toPoolName, massTerm,
-  limitToInitMass = T)
+transformation(gangstaObjects, processName, fromPoolName, toPoolName, molarTerm,
+  limitToInitMols = T)
 }
 \arguments{
 \item{compoundName}{Name of the \code{compound} to be created (or for
@@ -58,12 +58,10 @@ compound.  For instance, to track carbon flux from the oxidation of
 glucose, the \code{fromCompoundNames} list might be list(C = "C6H12O6", O =
 "O2")}
 
-\item{massTerms}{Named list containing the mols (or uMols, etc.) of each
-element that are transformed by the process.  The names of \code{massTerms}
+\item{molarTerms}{Named list containing the mols (or uMols, etc.) of each
+element that are transformed by the process.  The names of \code{molarTerms}
 must be the same and in the same order as those of \code{fromCompoundNames}
 and \code{toCompoundNames}.}
-
-\item{organismNames}{A vector of organisms that utilize the process.}
 
 \item{referencePoolName}{Name of the reference \code{pool} for the
 \code{compound} object to be created.}
@@ -81,13 +79,15 @@ pool} object of returned.}
 \item{energyTerm.}{The net energy associated with the processs.  A positive
 number represents a process that yeilds energy, a negative number
 represents a process that consumes energy.  Units are kJ (or J, etc.) of
-energy per mol (or umol, etc.) listed in \code{massTerms} parameter.}
+energy per mol (or umol, etc.) listed in \code{molarTerms} parameter.}
 
 \item{toCompoundNames.}{See \code{toCompoundNames}.  To track carbon flux
 from the oxidation of glucose, the \code{toCompoundNames} list might be
 list(C = "CO2", O = "Ox") (where Ox is a undifferentiated sink for oxygen
 comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
 same and in the same order as those of \code{fromCompoundNames}.}
+
+\item{organismNames}{A vector of organisms that utilize the process.}
 }
 \value{
 \code{compoundFactory} returns a list of \code{compound} and {pool}
