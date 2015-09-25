@@ -15,6 +15,8 @@ makeEquations = function(gangstaObjects) {
   transClassName = gangstaClassName("trans")
   poolClassName = gangstaClassName("pool")
   boundClassName = gangstaClassName("bnd")
+  compoundClassName = gangstaClassName("comp")
+  metabolicClassName = gangstaClassName("metab")
 
   nameAttrName = gangstaAttributeName("name")
   orgNameAttrName = gangstaAttributeName("orgName")
@@ -28,6 +30,9 @@ makeEquations = function(gangstaObjects) {
   molarRatioAttrName = gangstaAttributeName("molRatio")
   initialMolsAttrName = gangstaAttributeName("initMols")
   compNameAttrName =  gangstaAttributeName("compName")
+  sourceSinkAttrName = gangstaAttributeName("sourceSink")
+  energyTermAttrName = gangstaAttributeName("energy")
+  elementAttrName = gangstaAttributeName("element")
 
   makeProcessEnergyVars = function(processNames) {
     return(paste0(processNames, ".", energySuffix))
@@ -57,6 +62,47 @@ makeEquations = function(gangstaObjects) {
     return(paste0(poolNames, ".", endSuffix))
   }
 
+  eqnMaxBiomass = function() {
+    organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
+    organismNames = getGangstaAttribute(organisms, nameAttrName)
+    refPoolNames = getGangstaAttribute(organisms, refPoolAttrName)
+    refPools = getGangstas(gangstaObjects, refPoolNames)
+    refPoolElementNames = getGangstaAttribute(refPools, elementAttrName)
+    if(length(unique(refPoolElementNames)) != 1) {
+      stop("Reference pool elements must be the same across organisms.  Currently, reference pool elements are:\n", paste0("    ", organismNames, ": ", refPoolElementNames, collapse = "\n"))
+    }
+    refPoolEndMassVars = makePoolEndMassVars(refPoolNames)
+    equations = c("MAX: Total_Biomass", paste0("Total_Biomass = ", paste0(refPoolEndMassVars, collapse = " + ")))
+    return(equations)
+  }
+
+  eqnAllowNegatives = function() {
+    processes = subsetGangstas(gangstaObjects, "class", processClassName)
+    negativeEnergyTerms = getGangstaAttribute(processes, energyTermAttrName) < 0
+    processes = processes[negativeEnergyTerms]
+    processNames = getGangstaAttribute(processes, nameAttrName)
+    energyVarNames = makeProcessEnergyVars(processNames)
+
+    organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
+    organismNames = getGangstaAttribute(organisms, nameAttrName)
+    respEnergyVars = makeRespEnergyVars(organismNames)
+
+    equations = paste("-Inf <", c(respEnergyVars, energyVarNames), "<= 0")
+
+    compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
+    compounds = subsetGangstas(compounds, sourceSinkAttrName, T)
+    compoundNames = getGangstaAttribute(compounds, nameAttrName)
+
+    pools = subsetGangstas(gangstaObjects, "class", poolClassName)
+    pools = lapply(compoundNames, subsetGangstas, gangstaObjects = pools, attributeName = compNameAttrName)
+    pools = unlist(pools, recursive = F)
+    poolNames = getGangstaAttribute(pools, nameAttrName)
+    poolVarNames = makePoolEndMassVars(poolNames)
+
+    equations = c(equations, paste("-Inf <", poolVarNames, "< +Inf"))
+    return(equations)
+  }
+
   eqnInitialMasses = function() {
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
     poolNames = getGangstaAttribute(pools, nameAttrName)
@@ -71,7 +117,7 @@ makeEquations = function(gangstaObjects) {
 
     if(any(isBound)) {
       molarRatios = getGangstaAttribute(pools[isBound], molarRatioAttrName)
-      refPoolNames = getGangstaAttribute(compounds[isBound], nameAttrName)
+      refPoolNames = getGangstaAttribute(compounds[isBound], refPoolAttrName)
       refPoolStartMassVars = makePoolStartMassVars(refPoolNames)
       equations = c(equations, paste(poolStartMassVars[isBound], "=", molarRatios, refPoolStartMassVars))
 
@@ -85,14 +131,14 @@ makeEquations = function(gangstaObjects) {
 
   eqnProcessEnergy = function() {
 
-    processes = subsetGangstas(gangstaObjects, "class", processClassName)
-    organismNames = unique(getGangstaAttribute(processes, orgNameAttrName))
+    metabolicProcesses = subsetGangstas(gangstaObjects, "class", metabolicClassName)
+    organismNames = unique(getGangstaAttribute(metabolicProcesses, orgNameAttrName))
 
-    processesByOrganism = lapply(organismNames, subsetGangstas, gangstaObjects = processes, attributeName = orgNameAttrName)
+    processesByOrganism = lapply(organismNames, subsetGangstas, gangstaObjects = metabolicProcesses, attributeName = orgNameAttrName)
     processNamesByOrganism = lapply(processesByOrganism, getGangstaAttribute, attribName = nameAttrName)
 
     processEnergyVars = lapply(processNamesByOrganism, makeProcessEnergyVars)
-    orgEnergyVars <<- makeOrgansimEnergyVars(organismNames)
+    orgEnergyVars = makeOrgansimEnergyVars(organismNames)
 
     eqnRightHandSides = sapply(processEnergyVars, paste, collapse = " + ")
     equations = paste(orgEnergyVars, "=", eqnRightHandSides)
@@ -104,7 +150,7 @@ makeEquations = function(gangstaObjects) {
     organismNames = getGangstaAttribute(organisms, nameAttrName)
     referencePoolNames = getGangstaAttribute(organisms, refPoolAttrName)
 
-    respEnergyVars <<- makeRespEnergyVars(organismNames)
+    respEnergyVars = makeRespEnergyVars(organismNames)
     respirationRates = getGangstaAttribute(organisms, respAttrName)
     biomassVars = makeBiomassRemainingVars(referencePoolNames)
 
@@ -113,21 +159,32 @@ makeEquations = function(gangstaObjects) {
   }
 
   eqnEnergyBalance = function() {
+    organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
+    organismNames = getGangstaAttribute(organisms, nameAttrName)
+
+    respEnergyVars = makeRespEnergyVars(organismNames)
+    orgEnergyVars = makeOrgansimEnergyVars(organismNames)
     return(paste("0 =", respEnergyVars, "+", orgEnergyVars))
   }
 
   eqnTransformation = function() {
 
+    metabolics = subsetGangstas(gangstaObjects, "class", metabolicClassName)
+    metabolicNames = getGangstaAttribute(metabolics, nameAttrName)
+
     transformations = subsetGangstas(gangstaObjects, "class", transClassName)
-    transformationNames = getGangstaAttribute(transformations, nameAttrName)
-    transformationMassVars = makeTransformationMassTransVars(transformationNames)
+    metabolicTransformations = lapply(metabolicNames, subsetGangstas, gangstaObjects = transformations, attributeName = procNameAttrName)
+    metabolicTransformations = unlist(metabolicTransformations, recursive = F)
 
-    processNames = getGangstaAttribute(transformations, procNameAttrName)
-    processEnergyVars = makeProcessEnergyVars(processNames)
+    metabolicTransformationNames = getGangstaAttribute(metabolicTransformations, nameAttrName)
+    metabolicTransformationMassTransVars = makeTransformationMassTransVars(metabolicTransformationNames)
 
-    energyToMolsRatios = getGangstaAttribute(transformations, energyToMolsAttrName)
+    metabolicProcessNames = getGangstaAttribute(metabolicTransformations, procNameAttrName)
+    metabolicProcessEnergyVars = makeProcessEnergyVars(metabolicProcessNames)
 
-    equations = paste(transformationMassVars, "=", energyToMolsRatios, processEnergyVars)
+    energyToMolsRatios = getGangstaAttribute(metabolicTransformations, energyToMolsAttrName)
+
+    equations = paste(metabolicTransformationMassTransVars, "=", energyToMolsRatios, metabolicProcessEnergyVars)
     return(equations)
   }
 
@@ -158,7 +215,14 @@ makeEquations = function(gangstaObjects) {
   }
 
   eqnLimitToStartingMass = function() {
+    compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
+    compounds = subsetGangstas(compounds, sourceSinkAttrName, F)
+    compoundNames = getGangstaAttribute(compounds, nameAttrName)
+
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
+    pools = lapply(compoundNames, subsetGangstas, gangstaObjects = pools, attributeName = compNameAttrName)
+    pools = unlist(pools, recursive = F)
+
     poolNames = getGangstaAttribute(pools, nameAttrName)
     poolStartMassVars = makePoolStartMassVars(poolNames)
 
@@ -181,6 +245,11 @@ makeEquations = function(gangstaObjects) {
     return(equations)
   }
 
+  # goal Equations
+  goalEqns = eqnMaxBiomass()
+
+  # Allow negative values where appropriate
+  allowNegativeEqns = eqnAllowNegatives()
 
   # Initial Masses
   initialMassEqns = eqnInitialMasses()
@@ -203,7 +272,9 @@ makeEquations = function(gangstaObjects) {
   limitToStartEqns = eqnLimitToStartingMass()
 
   allEquations = c(
+    goalEqns,
     initialMassEqns,
+    allowNegativeEqns,
     respEnergyEqns,
     processEnergyEqns,
     energyBalEqns,
@@ -211,6 +282,8 @@ makeEquations = function(gangstaObjects) {
     massBalEqns,
     limitToStartEqns
   )
+
+  print("Damn it feels good to be a GANGSTA!")
 
   return(allEquations)
 }

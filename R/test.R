@@ -16,18 +16,19 @@ testList = function() {
 gangstaTest = function() {
 
   ### NEED TO ALLOW "." to access the molarRatio of the source for massTerm of transformation.
-  ### Another comment to change.
+
   compoundParams = list(
-    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -1),
-    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -2),
-    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -3),
-    list(compoundName = "DOM", molarRatios = c(C=1, N=6/106), initialMols = 0),
+    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
+    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
+    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
+    list(compoundName = "XOM", molarRatios = c(C=1, N=16/106), initialMols = 0),
+    list(compoundName = "DOM", molarRatios = c(C=1, N=6/106), initialMols = 1),
     list(compoundName = "CH4", molarRatios = c(C=1), initialMols = 0),
     list(compoundName = "NH4", molarRatios = c(N=1), initialMols = 0),
     list(compoundName = "NO3", molarRatios = c(N=1), initialMols = 0),
     list(compoundName = "NO2", molarRatios = c(N=1), initialMols = 0),
     list(compoundName = "N2O", molarRatios = c(N=1), initialMols = 0),
-    list(compoundName = "O2" , molarRatios = c(O=1), initialMols = 0),
+    list(compoundName = "O2" , molarRatios = c(O=1), initialMols = 10),
     list(compoundName = "SO4", molarRatios = c(S=1), initialMols = 0),
     list(compoundName = "CO2", molarRatios = c(C=1), initialMols = 0, sourceSink = T),
     list(compoundName = "N2" , molarRatios = c(N=1), initialMols = 0, sourceSink = T),
@@ -185,4 +186,9 @@ gangstaTest = function() {
   return(c(compounds, processes))
 }
 
-
+doItGangsta = function(file = file.choose()){
+  gangstas <<- gangstaTest()
+  equations <<- makeEquations(gangstas)
+  writeGangstaModel(equations, file)
+  test.lp <<- readGangsta.lp(file)
+}

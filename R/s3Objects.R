@@ -196,6 +196,9 @@ compound = function(compoundName, referencePoolName, initialMols, respirationRat
   newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMols = initialMols, sourceSink = sourceSink)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
+    if(respirationRate > 0) {
+      stop("Respiration rate must be negative.")
+    }
     newCompound = structure(c(newCompound, list(respirationRate = respirationRate)), class = c("organism", class(newCompound)))
   }
   return(newCompound)
