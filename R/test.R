@@ -3,12 +3,12 @@ testList = function() {
     list(
       name = "Aerobic",
       energyTerm = 4.37-04,
-      fromCompoundNames = list(C = c("DOM", "Het"), N = c("DOM", "Het"), O = "O2"),
-      processSuffix = c("ofDOM", "ofHet"),
+      fromCompoundNames = list(C = c("DOM", "."), N = c("DOM", "."), O = "O2"),
       toCompoundNames = list(C = "CO2", N = "NH4", O = "Ox"),
       organismName = c("Het", "Aut", "Met"),
+      molarTerms = list(C = 1, N = NA, O = 2),
       limitToInitMols = c(F, T, T),
-      molarTerms = list(C = 1, N = NA, O = 2)
+      processSuffix = c("ofDOM", "ofHet")
     )
   )
 }
@@ -92,7 +92,7 @@ gangstaTest = function() {
       energyTerm = 4.37-04,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), O = "O2"),
       toCompoundNames = list(C = "CO2", N = "NH4", O = "Ox"),
-      molarTerms = list(C = 1, N = c(NA, NA), O = 2),
+      molarTerms = list(C = 1, N = NA, O = 2),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -101,7 +101,7 @@ gangstaTest = function() {
       energyTerm = 2.88E-04,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO3"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "NO2"),
-      molarTerms = list(C = 1, N = c(NA, NA), N = 2),
+      molarTerms = list(C = 1, N = NA, N = 2),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -110,7 +110,7 @@ gangstaTest = function() {
       energyTerm = 4.15E-04,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO2"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2O"),
-      molarTerms = list(C = 1, N = c(NA, NA), N = 2),
+      molarTerms = list(C = 1, N = NA, N = 2),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -119,7 +119,7 @@ gangstaTest = function() {
       energyTerm = 6.45E-04,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "N2O"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2"),
-      molarTerms = list(C = 1, N = c(NA, NA), N = 4),
+      molarTerms = list(C = 1, N = NA, N = 4),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -128,7 +128,7 @@ gangstaTest = function() {
       energyTerm = 3.8E-05,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), S = "SO4"),
       toCompoundNames = list(C = "CO2", N = "NH4", S = "HS"),
-      molarTerms = list(C = 1, N = c(NA, NA), S = 0.5),
+      molarTerms = list(C = 1, N = NA, S = 0.5),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -137,7 +137,7 @@ gangstaTest = function() {
       energyTerm = 2.8E-05,
       fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "DOM"), N = c(".", "DOM")),
       toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4"),
-      molarTerms = list(C = 0.5, C = 0.5, N = c(NA, NA)),
+      molarTerms = list(C = 0.5, C = 0.5, N = NA),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),

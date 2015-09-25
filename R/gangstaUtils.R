@@ -70,18 +70,19 @@ expandMultiprocessSpec = function(multiprocessSpec) {
 
   # expand the elements of spec
   organismName = rep(organismName, each = length(processSuffix))
+  name = paste0(organismName, name, processSuffix)
   if(!is.null(spec[["limitToInitMols"]])) limitToInitMols = rep(limitToInitMols, each = length(processSuffix))
-  name = mapply(paste0, organismName, name, processSuffix)
   fromCompoundNames = do.call(mapply, c(list(FUN = "c", SIMPLIFY = F), fromCompoundNames))
   toCompoundNames = do.call(mapply, c(list(FUN = "c", SIMPLIFY = F), toCompoundNames))
   molarTerms = do.call(mapply, c(list(FUN = "c", SIMPLIFY = F), molarTerms))
 
   # Store the values of the expanded elements in a list
   paramList = lapply(names(spec)[1:nListElementsToReturn], function(x) eval(parse(text = x)))
-  # Now use do.call to call mapply on the "list" fuction.  Essentially this does mapply(list, organismName, This will build lists from one value in
-  # each expanded element, while recycling each expanded element.  This has the
-  # effect of making permutative combinations of the expanded elements, storing
-  # all the combinations in a list
+  # Now use do.call to call mapply on the "list" fuction.  This is the same as
+  # executing: mapply(FUN = list, name, energyTerm, fromCompoundNames,
+  # toCompoundNames, molarTerms, organismName, limitToInitMols)
+  # which obviously(?) creates multiple processSpecs from the recyled
+  # combinations of the expanded elements of the multiProcessSpec
   expandedSpecs = do.call(mapply, c(list(FUN = "list", SIMPLIFY = F), paramList))
   expandedSpecs = lapply(
     expandedSpecs,
@@ -97,8 +98,6 @@ expandMultiprocessSpec = function(multiprocessSpec) {
 
 
 replaceNAWithMolarRatio = function(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects) {
-
-  ### THIS DOESN"T WORK FOR METHANOGENESIS BECAUSE WE NEED TO SUM THE MOLARTERMS FOR THE REFERENCE POOL WHICH IS LISTED TWICE!!!
 
   isNA = is.na(molarTerms)
   if(any(isNA)) {
