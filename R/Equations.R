@@ -184,7 +184,7 @@ makeEquations = function(gangstaObjects) {
 
     energyToMolsRatios = getGangstaAttribute(metabolicTransformations, energyToMolsAttrName)
 
-    equations = paste(metabolicTransformationMassTransVars, "=", energyToMolsRatios, metabolicProcessEnergyVars)
+    equations = paste(metabolicProcessEnergyVars, "=", energyToMolsRatios, metabolicTransformationMassTransVars)
     return(equations)
   }
 

@@ -1,179 +1,40 @@
-simpleTest = function() {
-
-  compoundParams = list(
-    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
-#    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
-#    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0.5, respirationRate = -2.83E-6),
-#    list(compoundName = "XOM", molarRatios = c(C=1, N=16/106), initialMols = 0),
-    list(compoundName = "DOM", molarRatios = c(C=1, N=16/106), initialMols = 1),
-#    list(compoundName = "CH4", molarRatios = c(C=1), initialMols = 0),
-    list(compoundName = "NH4", molarRatios = c(N=1), initialMols = 0),
-#    list(compoundName = "NO3", molarRatios = c(N=1), initialMols = 0),
-#    list(compoundName = "NO2", molarRatios = c(N=1), initialMols = 0),
-#    list(compoundName = "N2O", molarRatios = c(N=1), initialMols = 0),
-    list(compoundName = "O2" , molarRatios = c(O=1), initialMols = 10),
-#    list(compoundName = "SO4", molarRatios = c(S=1), initialMols = 0),
-    list(compoundName = "CO2", molarRatios = c(C=1), initialMols = 0, sourceSink = T),
-#    list(compoundName = "N2" , molarRatios = c(N=1), initialMols = 0, sourceSink = T),
-#    list(compoundName = "HS" , molarRatios = c(S=1), initialMols = 0, sourceSink = T),
-    list(compoundName = "Ox" , molarRatios = c(O=1), initialMols = 0, sourceSink = T)
-  )
-
-  compounds = unlist(lapply(compoundParams, do.call, what = "compoundFactory"), recursive = F)
-
-  processParams = list(
-    list(
-      name = "AssimDOM",
-      energyTerm = -4.32E-04,
-      fromCompoundNames = list(C = "DOM", N = "DOM"),
-      toCompoundNames = list(C = ".", N = "."),
-      molarTerms = list(C = 1, N = NA),
-      organismName = "Het"
-    ),
-#     list(
-#       name = "AssimCO2",
-#       energyTerm = -3.5E-02,
-#       fromCompoundNames = list(C = "CO2"),
-#       toCompoundNames = list(C = "."),
-#       molarTerms = list(C = 1),
-#       organismName = "Aut"
-#     ),
-#     list(
-#       name = "AssimCH4",
-#       energyTerm = -1.09E-03,
-#       fromCompoundNames = list(C = "CH4"),
-#       toCompoundNames = list(C = "."),
-#       molarTerms = list(C = 1),
-#       organismName = "Met"
-#     ),
-#     list(
-#       name = "AssimNO3",
-#       energyTerm = -1.55E-04,
-#       fromCompoundNames = list(N = "NO3"),
-#       toCompoundNames = list(N = "."),
-#       molarTerms = list(N = 1),
-#       organismName = c("Het") #, "Aut", "Met")
-#     ),
-#     list(
-#       name = "AssimNO2",
-#       energyTerm = -1.25E-04,
-#       fromCompoundNames = list(N = "NO2"),
-#       toCompoundNames = list(N = "."),
-#       molarTerms = list(N = 1),
-#       organismName = c("Het", "Aut", "Met")
-#     ),
-#     list(
-#       name = "AssimNH4",
-#       energyTerm = -3.18E-05,
-#       fromCompoundNames = list(N = "NH4"),
-#       toCompoundNames = list(N = "."),
-#       molarTerms = list(N = 1),
-#       organismName = c("Het"), #, "Aut", "Met"),
-#       limitToInitMols = c(F) #, T, T)
-#     ),
-    list(
-      name = "Aerobic",
-      energyTerm = 4.37-04,
-      fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), O = "O2"),
-      toCompoundNames = list(C = "CO2", N = "NH4", O = "Ox"),
-      molarTerms = list(C = 1, N = c(NA, NA), O = 2),
-      organismName = "Het",
-      processSuffix = c("ofHet", "ofDOM")
-    )
-#     list(
-#       name = "DenitStep1",
-#       energyTerm = 2.88E-04,
-#       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO3"),
-#       toCompoundNames = list(C = "CO2", N = "NH4", N = "NO2"),
-#       molarTerms = list(C = 1, N = c(NA, NA), N = 2),
-#       organismName = "Het",
-#       processSuffix = c("ofHet", "ofDOM")
-#     ),
-#     list(
-#       name = "DenitStep2",
-#       energyTerm = 4.15E-04,
-#       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO2"),
-#       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2O"),
-#       molarTerms = list(C = 1, N = c(NA, NA), N = 2),
-#       organismName = "Het",
-#       processSuffix = c("ofHet", "ofDOM")
-#     ),
-#     list(
-#       name = "DenitStep3",
-#       energyTerm = 6.45E-04,
-#       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "N2O"),
-#       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2"),
-#       molarTerms = list(C = 1, N = c(NA, NA), N = 4),
-#       organismName = "Het",
-#       processSuffix = c("ofHet", "ofDOM")
-#     ),
-#     list(
-#       name = "SulfateRed",
-#       energyTerm = 3.8E-05,
-#       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), S = "SO4"),
-#       toCompoundNames = list(C = "CO2", N = "NH4", S = "HS"),
-#       molarTerms = list(C = 1, N = c(NA, NA), S = 0.5),
-#       organismName = "Het",
-#       processSuffix = c("ofHet", "ofDOM")
-#     ),
-#     list(
-#       name = "Methanogenesis",
-#       energyTerm = 2.8E-05,
-#       fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "DOM"), N = c(".", "DOM")),
-#       toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4"),
-#       molarTerms = list(C = 0.5, C = 0.5, N = c(NA, NA)),
-#       organismName = "Het",
-#       processSuffix = c("ofHet", "ofDOM")
-#     ),
-#     list(
-#       name = "NitrifStep1",
-#       energyTerm = 1.83E-04,
-#       fromCompoundNames = list(N = "NH4", O = "O2"),
-#       toCompoundNames = list(N = "NO2", O = "Ox"),
-#       molarTerms = list(N = 2/3, O = 2),
-#       organismName = "Aut"
-#     ),
-#     list(
-#       name = "NitrifStep2",
-#       energyTerm = 1.48E-04,
-#       fromCompoundNames = list(N = "NO2", O = "O2"),
-#       toCompoundNames = list(N = "NO3", O = "Ox"),
-#       molarTerms = list(N = 2, O = 2),
-#       organismName = "Aut"
-#     ),
-#     list(
-#       name = "MethaneOxid",
-#       energyTerm = 4.09E-04,
-#       fromCompoundNames = list(C = "CH4", O = "O2"),
-#       toCompoundNames = list(C = "CO2", O = "Ox"),
-#       molarTerms = list(C = 0.5, O = 2),
-#       organismName = "Met"
-#     ),
-#     list(
-#       name = "Decay",
-#       energyTerm = 0,
-#       fromCompoundNames = list(C = ".", N = "."),
-#       toCompoundNames = list(C = "XOM", N = "XOM"),
-#       molarTerms = list(C = 1, N = NA),
-#       organismName = c("Aut", "Met")
-#     )
-
-  )
-
-  #   processParams = list(
-  #     list(
-  #       name = "Methanogenesis",
-  #       energyTerm = 2.8E-05,
-  #       fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "."), N = c(".", "DOM"), N = c("NH4", ".")),
-  #       toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4", N = c("NO3", "NH4")),
-  #       molarTerms = list(C = 0.5, C = 0.5, N = c(NA, NA), N = c(1, NA)),
-  #       organismName = "Het",
-  #       processSuffix = c("ofHet", "ofDOM")
-  #     )
-  #   )
-
-  expandedSpecs = unlist(lapply(processParams, expandMultiprocessSpec), recursive = F)
-  processes = unlist(lapply(expandedSpecs, function(x) do.call(processFactory, args = c(list(compounds), x))), recursive = F)
-  names(processes) = getGangstaAttribute(processes, gangstaAttributeName("name"))
-  return(c(compounds, processes))
-}
+MAX: Total_Biomass;
+Total_Biomass = Het_C.FinalMass;
+Het_C.InitialMass = 0.5;
+DOM_C.InitialMass = 1;
+NH4_N.InitialMass = 0;
+O2_O.InitialMass = 10;
+CO2_C.InitialMass = 0;
+Ox_O.InitialMass = 0;
+Het_N.InitialMass = 0.150943396226415 Het_C.InitialMass;
+DOM_N.InitialMass = 0.150943396226415 DOM_C.InitialMass;
+Het_N.FinalMass = 0.150943396226415 Het_C.FinalMass;
+DOM_N.FinalMass = 0.150943396226415 DOM_C.FinalMass;
+-Inf < Het.RespEnergy <= 0;
+-Inf < HetAssimDOM.Energy <= 0;
+-Inf < CO2_C.FinalMass < +Inf;
+-Inf < Ox_O.FinalMass < +Inf;
+Het.RespEnergy = -2.83e-06 Het_C.FinalMass;
+Het.Energy = HetAssimDOM.Energy + HetAerobicofHet.Energy + HetAerobicofDOM.Energy;
+0 = Het.RespEnergy + Het.Energy;
+HetAssimDOM.Energy = -0.000432 HetAssimDOM_DOM_C_Het_C.MassTrans;
+HetAssimDOM.Energy = -0.002862 HetAssimDOM_DOM_N_Het_N.MassTrans;
+HetAerobicofHet.Energy = 0.37 HetAerobicofHet_Het_C_CO2_C.MassTrans;
+HetAerobicofHet.Energy = 2.45125 HetAerobicofHet_Het_N_NH4_N.MassTrans;
+HetAerobicofHet.Energy = 0.185 HetAerobicofHet_O2_O_Ox_O.MassTrans;
+HetAerobicofDOM.Energy = 0.37 HetAerobicofDOM_DOM_C_CO2_C.MassTrans;
+HetAerobicofDOM.Energy = 2.45125 HetAerobicofDOM_DOM_N_NH4_N.MassTrans;
+HetAerobicofDOM.Energy = 0.185 HetAerobicofDOM_O2_O_Ox_O.MassTrans;
+Het_C.FinalMass = Het_C.InitialMass + HetAssimDOM_DOM_C_Het_C.MassTrans - HetAerobicofHet_Het_C_CO2_C.MassTrans;
+Het_N.FinalMass = Het_N.InitialMass + HetAssimDOM_DOM_N_Het_N.MassTrans - HetAerobicofHet_Het_N_NH4_N.MassTrans;
+DOM_C.FinalMass = DOM_C.InitialMass - HetAssimDOM_DOM_C_Het_C.MassTrans - HetAerobicofDOM_DOM_C_CO2_C.MassTrans;
+DOM_N.FinalMass = DOM_N.InitialMass - HetAssimDOM_DOM_N_Het_N.MassTrans - HetAerobicofDOM_DOM_N_NH4_N.MassTrans;
+NH4_N.FinalMass = NH4_N.InitialMass + HetAerobicofHet_Het_N_NH4_N.MassTrans + HetAerobicofDOM_DOM_N_NH4_N.MassTrans;
+O2_O.FinalMass = O2_O.InitialMass - HetAerobicofHet_O2_O_Ox_O.MassTrans - HetAerobicofDOM_O2_O_Ox_O.MassTrans;
+CO2_C.FinalMass = CO2_C.InitialMass + HetAerobicofHet_Het_C_CO2_C.MassTrans + HetAerobicofDOM_DOM_C_CO2_C.MassTrans;
+Ox_O.FinalMass = Ox_O.InitialMass + HetAerobicofHet_O2_O_Ox_O.MassTrans + HetAerobicofDOM_O2_O_Ox_O.MassTrans;
+Het_C.InitialMass >= HetAerobicofHet_Het_C_CO2_C.MassTrans;
+Het_N.InitialMass >= HetAerobicofHet_Het_N_NH4_N.MassTrans;
+DOM_C.InitialMass >= HetAssimDOM_DOM_C_Het_C.MassTrans + HetAerobicofDOM_DOM_C_CO2_C.MassTrans;
+DOM_N.InitialMass >= HetAssimDOM_DOM_N_Het_N.MassTrans + HetAerobicofDOM_DOM_N_NH4_N.MassTrans;
+O2_O.InitialMass >= HetAerobicofHet_O2_O_Ox_O.MassTrans + HetAerobicofDOM_O2_O_Ox_O.MassTrans;
