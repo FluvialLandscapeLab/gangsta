@@ -64,7 +64,7 @@ poolDifs = function(gangstaObjects, lpObject, simple = T) {
   allDF = allDF[elementIdx, ]
 
   if(simple) allDF = subset(allDF, (allDF$initial != 0) | (allDF$final != 0))
-#  col.names(appDF) = c("initial", "final", "change")
+  #  col.names(appDF) = c("initial", "final", "change")
   return(allDF)
 }
 
@@ -72,46 +72,33 @@ poolDifs = function(gangstaObjects, lpObject, simple = T) {
 massTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE) {
 
   ### get classes, names, attributes, and gangstaObjectss that are used later in this function
-  metabolicClassName =  gangstaClassName("metab")
   transClassName =      gangstaClassName("trans")
-
   nameAttrName =      gangstaAttributeName("name")
-  procNameAttrName =  gangstaAttributeName("procName")
 
-  transSuffix = gangstaVarName("transSuffix")
-
-  metabolics =      subsetGangstas(gangstaObjects, "class", metabolicClassName)
   transformations = subsetGangstas(gangstaObjects, "class", transClassName)
 
-  metabolicNames = getGangstaAttribute(metabolics, nameAttrName)
-
   ### make metabolic transformation variable names from gangstaObjects
-  metabolicTransformations = lapply(metabolicNames, subsetGangstas, gangstaObjects = transformations, attributeName = procNameAttrName)
-  metabolicTransformations = unlist(metabolicTransformations, recursive = FALSE)
-  makeTransformationMassTransVars = function(transformationNames) {
-    return(paste0(transformationNames, ".", transSuffix))
-  }
-  metabolicTransformationNames = getGangstaAttribute(metabolicTransformations, nameAttrName)
-  metabolicTransformationMassTransVars = makeTransformationMassTransVars(metabolicTransformationNames)
+  transformationNames = getGangstaAttribute(transformations, nameAttrName)
+  transformationMassTransVars = makeTransformationMassTransVars(transformationNames)
 
   ### make two named vectors: one of the from pools and one of the to pools
-  massTransferFroms = unlist(lapply(metabolicTransformations, "[[", "from") )
-  massTransferTos = unlist(lapply(metabolicTransformations, "[[", "to") )
-  massTransferFromsTosNames = paste(unlist(lapply(metabolicTransformations, "[[", nameAttrName)), transSuffix, sep = ".")
-  names(massTransferFroms) = names(massTransferTos) = massTransferFromsTosNames
+  massTransferFroms = unlist(lapply(transformations, "[[", "from") )
+  massTransferTos = unlist(lapply(transformations, "[[", "to") )
+  names(massTransferFroms) = transformationMassTransVars
+  names(massTransferTos) = transformationMassTransVars
 
-  ### make a data frame of lpsolve results that will be subsetted using the metabolicTransformationMassTransVars from gangsta
+  ### make a data frame of lpsolve results that will be subsetted using the transformationMassTransVars from gangsta
   massTransferDF = solvedDataFrame.lp(lpObject, simple = FALSE)
-  subsettingCriteria = row.names(massTransferDF) %in% metabolicTransformationMassTransVars
+  subsettingCriteria = row.names(massTransferDF) %in% transformationMassTransVars
   massTransferNames = row.names(massTransferDF)[subsettingCriteria]
-  if(length(massTransferFromsTosNames) != length(massTransferNames))
+  if(length(transformationMassTransVars) != length(massTransferNames))
     stop("The number of mass transfer variables generated from your gangsta list doesn't match the number of mass transfer variable names in your lpSolve file.")
-  if(any(massTransferFromsTosNames %in% massTransferNames) == FALSE)
+  if(any(transformationMassTransVars %in% massTransferNames) == FALSE)
     stop("Your names of mass transfers in your gangsta list doesn't match your mass transfer variable names in your lpSolve file.")
 
   ### ensure that the order of the froms and tos matches that of the transfers in the dataframe
-  massTransferFroms = massTransferFroms[match(massTransferNames, massTransferFromsTosNames)]
-  massTransferTos = massTransferTos[match(massTransferNames, massTransferFromsTosNames)]
+  massTransferFroms = massTransferFroms[match(massTransferNames, transformationMassTransVars)]
+  massTransferTos = massTransferTos[match(massTransferNames, transformationMassTransVars)]
 
   ### subset the data frame
   massTransfers = massTransferDF[subsettingCriteria,]
@@ -122,34 +109,95 @@ massTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = F
     return(massTransfers)
   } else {
     massTransfers = plyr::ddply(massTransfers, c("fromPool", "toPool"), plyr::summarise,
-                massTransfered = sum(massTransfered)
-                )
+                                massTransfered = sum(massTransfered)
+    )
     return(massTransfers)
   }
 }
 
 ### Make plots of multiple lp models
 #############  THIS NEEDS UPDATING WHEN YOU FIGURE OUT HOW TO MAKE SEQUENTIAL UPDATES TO COMPOUNDS
-massTransfersPlot = function(gangstaObjects, lpObjects, lineMult = 1, dotMult = 1){
+massTransfersPlot = function(gangstaObjects,
+                             lpResultsList = gangstaResults,
+                             lineMult = 4,
+                             dotMult = 10,
+                             ###unfrequently changed arguments:
+                             xBound = 0.25,
+                             #                             xPositions = c(-0.125, 0.125),
+                             nPlots = ((2*length(lpResultsList)) - 1),
+                             layoutMatrix = matrix(nrow = 1, ncol = nPlots, data = 1:nPlots),
+                             layoutWidths = c(2, rep(c(1,2), length(lpResultsList)-1)),
+                             layoutMarginsFirstPlot = c(1,1,1,0), #c(3,12,1,0),
+                             layoutMarginsSubsequentPlot = c(1,0,1,0), #c(3,0,1,0.08),
+                             layoutMarginsLastPlot = c(1,0,1,1),#c(3,0,1,12),
+                             parOuterMarginSettings = c(1,5,1,5)
+){
+  numberOfIterations = length(lpResultsList)
 
-  nPlots = (2*length(lpObjects)) - 1
-  layoutMatrix = matrix(nrow = 1, ncol = nPlots, data = 1:nPlots)
-  layoutWidths = c(2, rep(c(1,2), length(lpObjects)-1))
   layout(layoutMatrix, layoutWidths)
-  layoutMarginsFirstPlot = c(3,12,1,0)
-  layoutMarginsSubsequentPlot = c(3,0,1,0.08)
-  layoutMarginsLastPlot = c(3,0,1,12)
-  par(oma = c(1,7,1,7))
+  par(oma = parOuterMarginSettings)
 
-  lapply(lpObjects, function(lpObject) {
-    solve(lpObject)
-    pd <<- poolDifs(gangstaObjects, lpObject, simple = FALSE, byProces = FALSE)
-    mt <<- massTransfers(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE)
-    poolOrder <<- abs(seq(-nrow(pd), -1, 1))
-    xPosnInit <<- (lpObject %in% lpObjects)
-  },
-  gangstaObjects
-  )
+  ### need an error check that goes here to ensure that the names of each of the results
+  ### items has the same sets of row names for the pool diffs data frame and the same from/to columns
+  ### for the mass transfers data frame
+  numOfPools = nrow(lpResultsList[[1]]$poolVals)
+  numOfTransfers = nrow(lpResultsList[[1]]$massTransferVals)
 
+  poolNames =
+    row.names(lpResultsList[[1]]$poolVals)
+  poolYVal =
+    seq(numOfPools, 1, -1)
+  names(poolYVal) = poolNames
+  massTransferStartPoolIndex =
+    match(lpResultsList[[1]]$massTransferVals$fromPool, poolNames)
+  massTransferEndPoolIndex =
+    match(lpResultsList[[1]]$massTransferVals$toPool, poolNames)
+  arrowStartYVal = poolYVal[massTransferStartPoolIndex]
+  arrowEndYVal = poolYVal[massTransferEndPoolIndex]
 
+  xLocs = rep(c(-xBound/2, xBound/2), each = numOfPools)
+  yLocs = rep(poolYVal, 2)
+
+  marginList = list(layoutMarginsFirstPlot)
+  if(numberOfIterations>1) {
+    marginList = c(marginList, rep(list(layoutMarginsSubsequentPlot), numberOfIterations-2), list(layoutMarginsLastPlot))
+  }
+
+  for(i in 1:numberOfIterations){
+    pointSizes =
+      sqrt(dotMult * c(lpResultsList[[i]]$poolVals$initial, lpResultsList[[i]]$poolVals$final) / pi)
+
+    lineWeights = lineMult * lpResultsList[[i]]$massTransferVals$massTransfered
+    par(mar = marginList[[i]])
+    plot(yLocs ~ xLocs,
+         type = "n",
+         yaxt = "n", ylab = "",
+         xaxt = "n", xlab = "", xlim = c(-xBound, xBound), xaxs = "i"
+    )
+    points(xLocs, yLocs, pch = 16, cex = pointSizes)
+    axis(1,0,labels = i, cex.axis = 1.5)
+    if (i == 1) axis(side = 2, at = poolYVal, labels = poolNames, las = 2, cex.axis = 1.5)
+    if (i == numberOfIterations) axis(side = 4, at = poolYVal, labels = poolNames, las = 2, cex.axis = 1.5)
+
+    activeTransfers = which(lineWeights > 0)
+    arrows(rep(-xBound/2, length(activeTransfers)),
+           arrowStartYVal[activeTransfers],
+           rep(xBound/2, length(activeTransfers)),
+           arrowEndYVal[activeTransfers],
+           lwd = lineWeights, length = 0)
+    if(i < numberOfIterations) {
+      par(mar = layoutMarginsSubsequentPlot)
+      leakYLocs = poolYVal[names(lpResultsList[[i+1]]$leakInVals)]
+      pointSizes =
+        sqrt(dotMult * lpResultsList[[i+1]]$leakInVals / pi)
+
+      plot(poolYVal ~ rep(0, length(poolYVal)),
+           type = "n",
+           yaxt = "n", ylab = "",
+           xaxt = "n", xlab = "", xlim = c(-xBound/2, xBound/2), xaxs = "i"
+      )
+      points(rep(0,length(leakYLocs)), leakYLocs, pch = 16, cex = pointSizes)
+    }
+  }
+  return("I am awesome-o.")
 }

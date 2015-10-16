@@ -1,3 +1,31 @@
+makeProcessEnergyVars = function(processNames) {
+  return(paste0(processNames, ".", gangstaVarName("energySuffix")))
+}
+
+makeOrgansimEnergyVars = function(organismNames) {
+  return(paste0(organismNames, ".", gangstaVarName("energySuffix")))
+}
+
+makePoolStartMassVars = function(poolNames) {
+  return(paste0(poolNames, ".", gangstaVarName("startSuffix")))
+}
+
+makePoolEndMassVars = function(poolNames) {
+  return(paste0(poolNames, ".", gangstaVarName("endSuffix")))
+}
+
+makeRespEnergyVars = function(organismNames) {
+  return(paste0(organismNames, ".", gangstaVarName("respEnergy")))
+}
+
+makeTransformationMassTransVars = function(transformationNames) {
+  return(paste0(transformationNames, ".", gangstaVarName("transSuffix")))
+}
+
+makeBiomassRemainingVars = function(poolNames) {
+  return(paste0(poolNames, ".", gangstaVarName("endSuffix")))
+}
+
 makeEquations = function(gangstaObjects) {
 
   ## Get gangsta.option values
@@ -33,34 +61,6 @@ makeEquations = function(gangstaObjects) {
   sourceSinkAttrName = gangstaAttributeName("sourceSink")
   energyTermAttrName = gangstaAttributeName("energy")
   elementAttrName = gangstaAttributeName("element")
-
-  makeProcessEnergyVars = function(processNames) {
-    return(paste0(processNames, ".", energySuffix))
-  }
-
-  makeOrgansimEnergyVars = function(organismNames) {
-    return(paste0(organismNames, ".", energySuffix))
-  }
-
-  makePoolStartMassVars = function(poolNames) {
-    return(paste0(poolNames, ".", startSuffix))
-  }
-
-  makePoolEndMassVars = function(poolNames) {
-    return(paste0(poolNames, ".", endSuffix))
-  }
-
-  makeRespEnergyVars = function(organismNames) {
-    return(paste0(organismNames, ".", respEnergyVarName))
-  }
-
-  makeTransformationMassTransVars = function(transformationNames) {
-    return(paste0(transformationNames, ".", transSuffix))
-  }
-
-  makeBiomassRemainingVars = function(poolNames) {
-    return(paste0(poolNames, ".", endSuffix))
-  }
 
   eqnMaxBiomass = function() {
     organisms = subsetGangstas(gangstaObjects, "class", organismClassName)

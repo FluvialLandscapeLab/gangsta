@@ -209,41 +209,48 @@ leakIn = function(){
       list(compoundName = "Aut", additionalMols = 1.2),
       list(compoundName = "Met", additionalMols = 1.3),
       list(compoundName = "DOM", additionalMols = 1.4),
-#       list(compoundName = "XOM", additionalMols = 1.5),
-#       list(compoundName = "CH4", additionalMols = 1.6),
-#       list(compoundName = "NH4", additionalMols = 1.7),
-#       list(compoundName = "NO3", additionalMols = 1.8),
-#       #     list(compoundName = "NO2", additionalMols = 0),
-#       #     list(compoundName = "N2O", additionalMols = 0),
-#       list(compoundName = "O2" , additionalMols = 1.9),
-#       list(compoundName = "SO4", additionalMols = 2.0),
-#       list(compoundName = "CO2", additionalMols = 2.1),
-#       list(compoundName = "N2" , additionalMols = 2.2),
-#       list(compoundName = "HS" , additionalMols = 2.3),
-      list(compoundName = "Ox" , additionalMols = 2.4)
+      list(compoundName = "O2" , additionalMols = 2)
+    ),
+    list(
+      list(compoundName = "Aut", additionalMols = 1.5),
+      list(compoundName = "NH4", additionalMols = 0.2),
+      list(compoundName = "O2" , additionalMols = 1.4)
+    ),
+    list(
+      list(compoundName = "O2" , additionalMols = 2)
+    ),
+    list(
+      list(compoundName = "Met", additionalMols = 0.3),
+      list(compoundName = "CH4", additionalMols = 0.6),
+      list(compoundName = "O2" , additionalMols = 1.4)
+    ),
+    list(
+      list(compoundName = "DOM", additionalMols = 2),
+      list(compoundName = "NO3", additionalMols = 0.1),
+      list(compoundName = "SO4", additionalMols = 1.0)
     ),
     list(
       list(compoundName = "Het", additionalMols = 0.1),
       list(compoundName = "Aut", additionalMols = 0.2),
-#       list(compoundName = "Met", additionalMols = 0.3),
-#       list(compoundName = "DOM", additionalMols = 0.4),
-#       list(compoundName = "XOM", additionalMols = 0.5),
-#       list(compoundName = "CH4", additionalMols = 0.6),
-#       list(compoundName = "NH4", additionalMols = 0.7),
-#       list(compoundName = "NO3", additionalMols = 0.8),
-#       #     list(compoundName = "NO2", additionalMols = 0),
-#       #     list(compoundName = "N2O", additionalMols = 0),
-#       list(compoundName = "O2" , additionalMols = 0.9),
-#       list(compoundName = "SO4", additionalMols = 1.0),
-#       list(compoundName = "CO2", additionalMols = 1.1),
-#       list(compoundName = "N2" , additionalMols = 1.2),
-#       list(compoundName = "HS" , additionalMols = 1.3),
-      list(compoundName = "Ox" , additionalMols = 1.4)
+      list(compoundName = "Met", additionalMols = 0.3),
+      list(compoundName = "DOM", additionalMols = 0.4),
+      list(compoundName = "XOM", additionalMols = 0.5),
+      list(compoundName = "CH4", additionalMols = 0.6),
+      list(compoundName = "NH4", additionalMols = 0.7),
+      list(compoundName = "NO3", additionalMols = 0.8),
+      #     list(compoundName = "NO2", additionalMols = 0),
+      #     list(compoundName = "N2O", additionalMols = 0),
+      list(compoundName = "O2" , additionalMols = 0.9),
+      list(compoundName = "SO4", additionalMols = 1.0),
+      list(compoundName = "CO2", additionalMols = 1.1),
+      list(compoundName = "N2" , additionalMols = 1.2),
+      list(compoundName = "HS" , additionalMols = 1.3)
+      # list(compoundName = "Ox" , additionalMols = 1.4)
     )
   )
 }
 
-iterateGansta = function(gangstaObjects, lpObject, leakInList = leakIn(), omitInitialRun = TRUE){
+iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn(), omitInitialRun = TRUE){
   startSuffix = gangstaVarName("startSuffix")
   gangstaResultsList = list()
   nameAttrName = gangstaAttributeName("name")
@@ -255,6 +262,7 @@ iterateGansta = function(gangstaObjects, lpObject, leakInList = leakIn(), omitIn
   gangstaPoolNames = names(gangstaPools)
 
   listLoc = 0
+  molsToAdd = NULL
 
   for(i in 1:numberOfSteps) {
 
@@ -263,7 +271,11 @@ iterateGansta = function(gangstaObjects, lpObject, leakInList = leakIn(), omitIn
       pd = poolDifs(gangstaObjects, lpObject, simple = FALSE)
       mt = massTransfers(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE)
 
-      stepOutput = list(objective = lpSolveAPI::get.objective(lpObject), status = lpStatus, poolVals = pd, massTransferVals = mt)
+      stepOutput = list(objective = lpSolveAPI::get.objective(lpObject),
+                        status = lpStatus,
+                        poolVals = pd,
+                        massTransferVals = mt,
+                        leakInVals = molsToAdd)
       listLoc = listLoc + 1
       gangstaResultsList[[listLoc]] = stepOutput
       names(gangstaResultsList)[listLoc] = paste0("Iteration_", listLoc)
@@ -284,15 +296,19 @@ iterateGansta = function(gangstaObjects, lpObject, leakInList = leakIn(), omitIn
     names(refPoolMolsToAdd) = refPoolNames
 
     stoichPoolNames = poolNames[!(!is.na(match(poolNames, refPoolNames)))]
-    stoichMultipliers = getGangstaAttribute(pools[!is.na(match(poolNames, stoichPoolNames))], "molarRatio")
-    stoichPools = pools[!is.na(match(poolNames, stoichPoolNames))]
-    stoichPoolCompoundNames = getGangstaAttribute(stoichPools, "compoundName")
-    stoichPoolCompounds = cmpds[!is.na(match(cmpdNames, stoichPoolCompoundNames))]
-    stoichPoolReferencePoolNames = getGangstaAttribute(stoichPoolCompounds, "referencePoolName")
-    refPoolMolsToMultiplyToStoichPoolMols = unlist(refPoolMolsToAdd[!is.na(match(refPoolNames, stoichPoolReferencePoolNames))])
-    stoichPoolMolsToAdd = stoichMultipliers * refPoolMolsToMultiplyToStoichPoolMols
+    if(length(stoichPoolNames) > 0) {
+      stoichMultipliers = getGangstaAttribute(pools[!is.na(match(poolNames, stoichPoolNames))], "molarRatio")
+      stoichPools = pools[!is.na(match(poolNames, stoichPoolNames))]
+      stoichPoolCompoundNames = getGangstaAttribute(stoichPools, "compoundName")
+      stoichPoolCompounds = cmpds[!is.na(match(cmpdNames, stoichPoolCompoundNames))]
+      stoichPoolReferencePoolNames = getGangstaAttribute(stoichPoolCompounds, "referencePoolName")
+      refPoolMolsToMultiplyToStoichPoolMols = unlist(refPoolMolsToAdd[!is.na(match(refPoolNames, stoichPoolReferencePoolNames))])
+      stoichPoolMolsToAdd = stoichMultipliers * refPoolMolsToMultiplyToStoichPoolMols
+      molsToAdd = c(refPoolMolsToAdd, stoichPoolMolsToAdd)
+    } else {
+      molsToAdd = refPoolMolsToAdd
+    }
 
-    molsToAdd = c(refPoolMolsToAdd, stoichPoolMolsToAdd)
     if(!omitInitialRun || i>1) {
       molIndices = match(names(molsToAdd), row.names(pd))
       allMolsToAdd = molsToAdd + pd$final[molIndices]
@@ -323,5 +339,9 @@ doItGangsta = function(lpNum, file = file.choose()){
   return(get(paste0("test.lp.0", lpNum)))
 }
 
-
+doAll =  function(gangstaObjects = gangstas, file = "M:\\gangsta\\lpFiles\\test.lp"){
+  doItGangsta(1, file)
+  results <<- iterateGangsta(gangstaObjects, test.lp.01)
+  massTransfersPlot(gangstaObjects, results)
+}
 
