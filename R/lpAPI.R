@@ -51,8 +51,8 @@ poolDifs = function(gangstaObjects, lpObject, simple = T) {
   elementName = getGangstaAttribute(pools, gangstaAttributeName("element"))
   elementIdx = order(elementName)
 
-  initPoolNames = paste0(poolNames, ".", gangstaVarName("startSuffix"))
-  finalPoolNames = paste0(poolNames, ".", gangstaVarName("endSuffix"))
+  initPoolNames = makePoolStartMassVars(poolNames)
+  finalPoolNames = makePoolEndMassVars(poolNames)
 
   df.lp = solvedDataFrame.lp(lpObject, simple = F)
 
@@ -72,8 +72,8 @@ poolDifs = function(gangstaObjects, lpObject, simple = T) {
 massTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE) {
 
   ### get classes, names, attributes, and gangstaObjectss that are used later in this function
-  transClassName =      gangstaClassName("trans")
-  nameAttrName =      gangstaAttributeName("name")
+  transClassName = gangstaClassName("trans")
+  nameAttrName = gangstaAttributeName("name")
 
   transformations = subsetGangstas(gangstaObjects, "class", transClassName)
 
@@ -105,32 +105,117 @@ massTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = F
   massTransfers = data.frame(massTransferFroms, massTransferTos, massTransfers)
   names(massTransfers) = c("fromPool", "toPool", "massTransfered")
   row.names(massTransfers) = massTransferNames
-  if(byProcess == TRUE) {
-    return(massTransfers)
-  } else {
+
+  if(!byProcess) {
     massTransfers = plyr::ddply(massTransfers, c("fromPool", "toPool"), plyr::summarise,
-                                massTransfered = sum(massTransfered)
-    )
-    return(massTransfers)
+                                massTransfered = sum(massTransfered))
   }
+
+  if(simple) {
+    massTransfers = subset(massTransfers, (massTransfers$massTransfered != 0))
+  }
+
+  return(massTransfers)
+}
+
+### get energy produced/consumed by processes
+
+processEnergies = function(gangstaObjects, lpObject,
+                           condense = TRUE,
+                           simple = FALSE,
+                           catabolic = TRUE,
+                           anabolic = TRUE,
+                           decayString = "Decay",
+                           stringsToStripFromEnergyVarNames = c("ofDOM", "ofHet")) {
+
+  if(!any(c(catabolic, anabolic))) {
+    stop("You can request anabolic, catabolic, or all energy variables.  Request for neither has failed.")
+  }
+
+  processes = subsetGangstas(gangstaObjects, "class", gangstaClassName("proc"))
+  processNames = getGangstaAttribute(processes, gangstaAttributeName("name"))
+  processEnergy = getGangstaAttribute(processes, gangstaAttributeName("energy"))
+
+  ## Decay is neither catabolic or anabolic because it neither generates nor consumes energy, so we remove it:
+  processEnergy = processEnergy[-grep(decayString, names(processEnergy))]
+  processNames = processNames[-grep(decayString, processNames)]
+
+  simplifiedProcessNames = processNames
+
+  for(stringToStrip in stringsToStripFromEnergyVarNames) {
+    stringsToRemoveId = grep(stringToStrip, simplifiedProcessNames)
+    simplifiedProcessNames[stringsToRemoveId] =
+      sub(stringToStrip, "", simplifiedProcessNames)[stringsToRemoveId]
+  }
+  names(simplifiedProcessNames) = processNames
+
+  catabolicNames = names(processEnergy)[processEnergy>0]
+  anabolicNames = names(processEnergy)[processEnergy<0]
+
+  procEnergyVarNames = makeProcessEnergyVars(processNames)
+
+  df.lp = solvedDataFrame.lp(lpObject, simple = F)
+
+  energyVals = df.lp[procEnergyVarNames,]
+  names(energyVals) = processNames
+
+  energyVals = sort(energyVals)
+  simplifiedProcessNames = simplifiedProcessNames[match(names(energyVals), names(simplifiedProcessNames))]
+
+  anabolicVals = energyVals[match(anabolicNames, names(energyVals), nomatch = 0)]
+  catabolicVals = energyVals[match(catabolicNames, names(energyVals), nomatch = 0)]
+
+  anabolicSimpleNames = simplifiedProcessNames[match(anabolicNames, names(energyVals), nomatch = 0)]
+  catabolicSimpleNames = simplifiedProcessNames[match(catabolicNames, names(energyVals), nomatch = 0)]
+
+  anabolicDF = data.frame(energy = anabolicVals, procSimple = anabolicSimpleNames,  row.names = names(anabolicVals), procType = rep("anabolic", length(anabolicSimpleNames)))
+  catabolicDF = data.frame(energy = catabolicVals, procSimple = catabolicSimpleNames, row.names = names(catabolicVals), procType = rep("catabolic", length(catabolicSimpleNames)))
+
+  if(catabolic) {
+    returnDF = catabolicDF
+    if(anabolic) {
+      returnDF = rbind(catabolicDF, anabolicDF)
+    }
+  } else {
+    returnDF = anabolicDF
+  }
+  if(condense) {
+    returnDF$returnDFSorter = c(1, rep(0, nrow(returnDF)-1))
+    for(i in 2:nrow(returnDF)) {
+      returnDF$returnDFSorter[i] = ifelse((returnDF$procSimple[i-1] == returnDF$procSimple[i]),
+                                          returnDF$returnDFSorter[i-1],
+                                          returnDF$returnDFSorter[i-1]+1)
+    }
+    returnDF = plyr::ddply(.data = returnDF,
+                           .variables = c("returnDFSorter", "procSimple", "procType"),
+                           .fun = "summarise",
+                           energy = sum(energy)
+    )
+    names(returnDF)[match("summarise", names(returnDF),  nomatch = 0)] = "energy"
+    returnDF = returnDF[, c("procSimple", "energy", "procType")]
+  }
+  if(simple) returnDF = subset(returnDF, energy != 0)
+  return(returnDF)
 }
 
 ### Make plots of multiple lp models
 #############  THIS NEEDS UPDATING WHEN YOU FIGURE OUT HOW TO MAKE SEQUENTIAL UPDATES TO COMPOUNDS
 massTransfersPlot = function(gangstaObjects,
-                             lpResultsList = gangstaResults,
-                             lineMult = 4,
-                             dotMult = 10,
-                             ###unfrequently changed arguments:
+                             lpResultsList,
+                             lineMult = 42,
+                             dotMult = 140,
+                             ###infrequently changed arguments:
                              xBound = 0.25,
                              #                             xPositions = c(-0.125, 0.125),
                              nPlots = ((2*length(lpResultsList)) - 1),
                              layoutMatrix = matrix(nrow = 1, ncol = nPlots, data = 1:nPlots),
-                             layoutWidths = c(2, rep(c(1,2), length(lpResultsList)-1)),
-                             layoutMarginsFirstPlot = c(1,1,1,0), #c(3,12,1,0),
+                             layoutWidths = c(2, rep(c(0.7,2), length(lpResultsList)-1)),
+                             layoutMarginsFirstPlot = c(1,0,1,0), #c(3,12,1,0),
                              layoutMarginsSubsequentPlot = c(1,0,1,0), #c(3,0,1,0.08),
-                             layoutMarginsLastPlot = c(1,0,1,1),#c(3,0,1,12),
-                             parOuterMarginSettings = c(1,5,1,5)
+                             layoutMarginsLastPlot = c(1,0,1,0),#c(3,0,1,12),
+                             parOuterMarginSettings = c(1.75,13,0.25,13),
+
+                             energyPtMultiplier = 110000
 ){
   numberOfIterations = length(lpResultsList)
 
@@ -143,6 +228,7 @@ massTransfersPlot = function(gangstaObjects,
   numOfPools = nrow(lpResultsList[[1]]$poolVals)
   numOfTransfers = nrow(lpResultsList[[1]]$massTransferVals)
 
+  ### Determine pool locations in results list and determine where y values are plotted
   poolNames =
     row.names(lpResultsList[[1]]$poolVals)
   poolYVal =
@@ -155,19 +241,26 @@ massTransfersPlot = function(gangstaObjects,
   arrowStartYVal = poolYVal[massTransferStartPoolIndex]
   arrowEndYVal = poolYVal[massTransferEndPoolIndex]
 
+  ###  Specify x and y locations of points in mass transfer plots
   xLocs = rep(c(-xBound/2, xBound/2), each = numOfPools)
   yLocs = rep(poolYVal, 2)
 
+  ### Set up margins of first, middle, and last plots
   marginList = list(layoutMarginsFirstPlot)
   if(numberOfIterations>1) {
     marginList = c(marginList, rep(list(layoutMarginsSubsequentPlot), numberOfIterations-2), list(layoutMarginsLastPlot))
   }
 
+  #####################  Begin plotting  #####################
   for(i in 1:numberOfIterations){
+    ### Calculate point sizes in mass transfer plots
     pointSizes =
       sqrt(dotMult * c(lpResultsList[[i]]$poolVals$initial, lpResultsList[[i]]$poolVals$final) / pi)
 
+    ### Calculate the line weights for mass transfers
     lineWeights = lineMult * lpResultsList[[i]]$massTransferVals$massTransfered
+
+    ### Set margins, build plot
     par(mar = marginList[[i]])
     plot(yLocs ~ xLocs,
          type = "n",
@@ -176,15 +269,19 @@ massTransfersPlot = function(gangstaObjects,
     )
     points(xLocs, yLocs, pch = 16, cex = pointSizes)
     axis(1,0,labels = i, cex.axis = 1.5)
+    ### give first and last plots y-axes
     if (i == 1) axis(side = 2, at = poolYVal, labels = poolNames, las = 2, cex.axis = 1.5)
     if (i == numberOfIterations) axis(side = 4, at = poolYVal, labels = poolNames, las = 2, cex.axis = 1.5)
+    ### add lines that show transfers between pools
+    activeTransferIndex = which(lineWeights > 0)
 
-    activeTransfers = which(lineWeights > 0)
-    arrows(rep(-xBound/2, length(activeTransfers)),
-           arrowStartYVal[activeTransfers],
-           rep(xBound/2, length(activeTransfers)),
-           arrowEndYVal[activeTransfers],
-           lwd = lineWeights, length = 0)
+    arrows(rep(-xBound/2, length(activeTransferIndex)),
+           arrowStartYVal[activeTransferIndex],
+           rep(xBound/2, length(activeTransferIndex)),
+           arrowEndYVal[activeTransferIndex],
+           lwd = lineWeights[activeTransferIndex], length = 0)
+
+    ### Make leak in plot AND initialize values for next plot
     if(i < numberOfIterations) {
       par(mar = layoutMarginsSubsequentPlot)
       leakYLocs = poolYVal[names(lpResultsList[[i+1]]$leakInVals)]
@@ -194,10 +291,49 @@ massTransfersPlot = function(gangstaObjects,
       plot(poolYVal ~ rep(0, length(poolYVal)),
            type = "n",
            yaxt = "n", ylab = "",
-           xaxt = "n", xlab = "", xlim = c(-xBound/2, xBound/2), xaxs = "i"
+           xaxt = "n", xlab = "", xlim = c(-xBound/2, xBound/2), xaxs = "i", bty = "n"
       )
       points(rep(0,length(leakYLocs)), leakYLocs, pch = 16, cex = pointSizes)
     }
   }
+
+  ####  Make plots of catabolic energy of each timestep
+  catabolicSubset = lpResultsList[[1]]$processEnergyVals$procType == "catabolic"
+  energyDF = lpResultsList[[1]]$processEnergyVals
+  numOfCatabProc = nrow(energyDF[catabolicSubset,])
+  energyXLocs = rep(0, numOfCatabProc)
+  energyYLocs = seq(numOfCatabProc, 1, -1)
+  procNames = energyDF$procSimple[catabolicSubset]
+
+  for(i in 1:numberOfIterations){
+    energyDF =
+      lpResultsList[[i]]$processEnergyVals[lpResultsList[[i]]$processEnergyVals$procType == "catabolic",]
+    energyPtSizes =
+      sqrt(energyPtMultiplier * energyDF$energy / pi)
+
+    ### Set margins, build plot
+    par(mar = marginList[[i]])
+    plot(energyYLocs ~ energyXLocs,
+         type = "n",
+         yaxt = "n", ylab = "",
+         xaxt = "n", xlab = "", xlim = c(-xBound, xBound), xaxs = "i"
+    )
+    points(energyXLocs, energyYLocs, pch = 16, cex = energyPtSizes)
+    axis(1,0,labels = i, cex.axis = 1.5)
+    ### give first and last plots y-axes
+    if (i == 1) axis(side = 2, at = energyYLocs, labels = procNames, las = 2, cex.axis = 1.5)
+    if (i == numberOfIterations) axis(side = 4, at = energyYLocs, labels = procNames, las = 2, cex.axis = 1.5)
+
+    ### make a blank plot in between the energypoint plots
+    if(i < numberOfIterations) {
+      par(mar = layoutMarginsSubsequentPlot)
+      plot(energyYLocs ~ energyXLocs,
+           type = "n",
+           yaxt = "n", ylab = "",
+           xaxt = "n", xlab = "", xlim = c(-xBound/2, xBound/2), xaxs = "i", bty = "n"
+      )
+    }
+  }
+
   return("I am awesome-o.")
 }
