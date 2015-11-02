@@ -41,7 +41,7 @@
       orgName = "organismName",
       procName = "processName",
       compName = "compoundName",
-      energyToMols = "energyToMolsRatio",
+      energyToMols = "jouleToMolRatio",
       fromPool = "from",
       toPool = "to",
       limitToStartMass = "limitToInitMols",

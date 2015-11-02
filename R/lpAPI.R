@@ -202,25 +202,21 @@ processEnergies = function(gangstaObjects, lpObject,
 #############  THIS NEEDS UPDATING WHEN YOU FIGURE OUT HOW TO MAKE SEQUENTIAL UPDATES TO COMPOUNDS
 massTransfersPlot = function(gangstaObjects,
                              lpResultsList,
-                             lineMult = 42,
-                             dotMult = 140,
+                             lineMult = 25,
+                             dotMult = 60,
+                             energyPtMultiplier = 1E6,
+
                              ###infrequently changed arguments:
                              xBound = 0.25,
-                             #                             xPositions = c(-0.125, 0.125),
                              nPlots = ((2*length(lpResultsList)) - 1),
                              layoutMatrix = matrix(nrow = 1, ncol = nPlots, data = 1:nPlots),
-                             layoutWidths = c(2, rep(c(0.7,2), length(lpResultsList)-1)),
-                             layoutMarginsFirstPlot = c(1,0,1,0), #c(3,12,1,0),
-                             layoutMarginsSubsequentPlot = c(1,0,1,0), #c(3,0,1,0.08),
-                             layoutMarginsLastPlot = c(1,0,1,0),#c(3,0,1,12),
-                             parOuterMarginSettings = c(1.75,13,0.25,13),
-
-                             energyPtMultiplier = 110000
+                             layoutWidths = c(2, rep(c(1,2), length(lpResultsList)-1)),
+                             layoutMarginsFirstPlot = c(1,0,1,0),
+                             layoutMarginsSubsequentPlot = c(1,0,1,0),
+                             layoutMarginsLastPlot = c(1,0,1,0),
+                             parOuterMarginSettings = c(1.75,11,0.25,11)
 ){
   numberOfIterations = length(lpResultsList)
-
-  layout(layoutMatrix, layoutWidths)
-  par(oma = parOuterMarginSettings)
 
   ### need an error check that goes here to ensure that the names of each of the results
   ### items has the same sets of row names for the pool diffs data frame and the same from/to columns
@@ -245,6 +241,10 @@ massTransfersPlot = function(gangstaObjects,
   xLocs = rep(c(-xBound/2, xBound/2), each = numOfPools)
   yLocs = rep(poolYVal, 2)
 
+  # dev.new(height = 5, width = 9)
+  layout(layoutMatrix, layoutWidths)
+  par(oma = parOuterMarginSettings)
+
   ### Set up margins of first, middle, and last plots
   marginList = list(layoutMarginsFirstPlot)
   if(numberOfIterations>1) {
@@ -254,8 +254,10 @@ massTransfersPlot = function(gangstaObjects,
   #####################  Begin plotting  #####################
   for(i in 1:numberOfIterations){
     ### Calculate point sizes in mass transfer plots
+    initialVal = ifelse(lpResultsList[[i]]$poolVals$initial>0, lpResultsList[[i]]$poolVals$initial, 0)
+    finalVal = ifelse(lpResultsList[[i]]$poolVals$final>0, lpResultsList[[i]]$poolVals$final, 0)
     pointSizes =
-      sqrt(dotMult * c(lpResultsList[[i]]$poolVals$initial, lpResultsList[[i]]$poolVals$final) / pi)
+      sqrt(dotMult * c(initialVal, finalVal) / pi)
 
     ### Calculate the line weights for mass transfers
     lineWeights = lineMult * lpResultsList[[i]]$massTransferVals$massTransfered
@@ -305,7 +307,22 @@ massTransfersPlot = function(gangstaObjects,
   energyYLocs = seq(numOfCatabProc, 1, -1)
   procNames = energyDF$procSimple[catabolicSubset]
 
+  ### This next bit is a brittle hack-fest that I wrote for the paper.
+  ### I'm happy to clean this up later if we want to add a fancy name
+  ### to the gangsta objects that we can call on when we go to plot...
+  procNames = ifelse(procNames == "HetAerobic", "Aerobic resp.",
+                     ifelse(procNames =="HetDenit", "Denitrification",
+                            ifelse(procNames == "HetSulfateRed", "Sulfate reduct.",
+                                   ifelse(procNames == "HetMethanogenesis", "Methanogenesis",
+                                          ifelse(procNames == "AutNitrif", "Nitrification",
+                                                 ifelse(procNames == "MetMethaneOxid", "Methane oxid.",
+                                                        "Oops. I should write less brittle code."))))))
+  # dev.new(height = 5, width = 9)
+  layout(layoutMatrix, layoutWidths)
+  par(oma = parOuterMarginSettings)
+
   for(i in 1:numberOfIterations){
+
     energyDF =
       lpResultsList[[i]]$processEnergyVals[lpResultsList[[i]]$processEnergyVals$procType == "catabolic",]
     energyPtSizes =
@@ -316,7 +333,7 @@ massTransfersPlot = function(gangstaObjects,
     plot(energyYLocs ~ energyXLocs,
          type = "n",
          yaxt = "n", ylab = "",
-         xaxt = "n", xlab = "", xlim = c(-xBound, xBound), xaxs = "i"
+         xaxt = "n", xlab = "", xlim = c(-xBound, xBound), ylim = c(min(energyYLocs)-0.25, max(energyYLocs)+0.25), xaxs = "i"
     )
     points(energyXLocs, energyYLocs, pch = 16, cex = energyPtSizes)
     axis(1,0,labels = i, cex.axis = 1.5)

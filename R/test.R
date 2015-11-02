@@ -31,7 +31,8 @@ leakIn = function(O = T, S = T){
     ),
     list(
       list(compoundName = "DOM", additionalMols = 0.1),
-      O = list(compoundName = "O2" , additionalMols = 0.4)
+      list(compoundName = "NO3", additionalMols = 0.1),
+      S = list(compoundName = "SO4" , additionalMols = 0.1)
     ),
     list(
       list(compoundName = "DOM", additionalMols = 0.3)
@@ -43,15 +44,15 @@ leakIn = function(O = T, S = T){
       O = list(compoundName = "O2" , additionalMols = 0.8)
     ),
     list(
-      list(compoundName = "DOM", additionalMols = 0.3),
-      list(compoundName = "NO3", additionalMols = 0.2),
-      S = list(compoundName = "SO4" , additionalMols = 0.2)
+      list(compoundName = "DOM", additionalMols = 0.1),
+      list(compoundName = "NO3", additionalMols = 0.1),
+      S = list(compoundName = "SO4" , additionalMols = 0.1)
     ),
     list(
       list(compoundName = "DOM", additionalMols = 0.3)
     ),
     list(
-      list(compoundName = "DOM", additionalMols = 0.1)
+      list(compoundName = "DOM", additionalMols = 0.3)
     )
   )
 
@@ -214,7 +215,8 @@ doAll = function(tag, compoundParams, processParams, O = T, S = T) {
 }
 
 runAllModelScenariosForManuscript = function(){
-  CNModel()
-  CNOModel()
-  CNOSModel()
+  CN_Anaerobic_Model()
+  CN_Aerobic_Model()
+  CNO_Model()
+  CNOS_Model()
 }
