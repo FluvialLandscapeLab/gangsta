@@ -6,6 +6,9 @@ makePoolNames = function(compoundNames, elementNames = names(compoundNames), gan
   return(poolNames)
 }
 
+# Return the names of all of the paramers of the processFactory() function that
+# don't have default values.  Test for new default value is whether or not
+# eval() throws an error.  If so, there is no default.
 processSpecRequiredNames = function() {
   argHasNoDefault = function(x) {
     evaluated = tryCatch(

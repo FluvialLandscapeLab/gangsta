@@ -239,7 +239,7 @@ transformation = function(gangstaObjects, processName, fromPoolName, toPoolName,
       from = fromPoolName,
       to = toPoolName,
       molarTerm = molarTerm,
-      energyToMolsRatio = energyToMolsRatio,
+      joulesToMolsRatio = energyToMolsRatio,
       processName = processName,
       limitToInitMols = limitToInitMols
     )

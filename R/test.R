@@ -4,8 +4,9 @@ gangstaCompounds = function(compoundParams) {
 
 gangstaProcesses = function(processParams, compounds) {
 
-  expandedSpecs = unlist(lapply(processParams, expandMultiprocessSpec), recursive = F)
-  processes = unlist(lapply(expandedSpecs, function(x) do.call(processFactory, args = c(list(compounds), x))), recursive = F)
+  #  expandedSpecs = unlist(lapply(processParams, expandMultiprocessSpec), recursive = F)
+  #  processes = unlist(lapply(expandedSpecs, function(x) do.call(processFactory, args = c(list(compounds), x))), recursive = F)
+  processes = unlist(lapply(processParams, function(x) do.call(processFactory, args = c(list(compounds), x))), recursive = F)
   names(processes) = getGangstaAttribute(processes, gangstaAttributeName("name"))
   return(processes)
 }
@@ -16,7 +17,7 @@ gangstaBuildCompoundsAndProcesses = function(compoundParams, processParams){
   return(c(compounds, processes))
 }
 
-leakIn = function(O = T, S = T){
+leakIn = function(compoundNames){
 
   leakInList = list(
     list(
@@ -24,7 +25,7 @@ leakIn = function(O = T, S = T){
       list(compoundName = "Aut", additionalMols = 0),
       list(compoundName = "Met", additionalMols = 0),
       list(compoundName = "DOM", additionalMols = 0.1),
-      O = list(compoundName = "O2" , additionalMols = 0.4)
+      list(compoundName = "O2" , additionalMols = 0.4)
     ),
     list(
       list()
@@ -32,21 +33,21 @@ leakIn = function(O = T, S = T){
     list(
       list(compoundName = "DOM", additionalMols = 0.1),
       list(compoundName = "NO3", additionalMols = 0.1),
-      S = list(compoundName = "SO4" , additionalMols = 0.1)
+      list(compoundName = "SO4" , additionalMols = 0.1)
     ),
     list(
       list(compoundName = "DOM", additionalMols = 0.3)
     ),
     list(
-      O = list(compoundName = "O2" , additionalMols = 0.8)
+      list(compoundName = "O2" , additionalMols = 0.8)
     ),
     list(
-      O = list(compoundName = "O2" , additionalMols = 0.8)
+      list(compoundName = "O2" , additionalMols = 0.8)
     ),
     list(
       list(compoundName = "DOM", additionalMols = 0.1),
       list(compoundName = "NO3", additionalMols = 0.1),
-      S = list(compoundName = "SO4" , additionalMols = 0.1)
+      list(compoundName = "SO4" , additionalMols = 0.1)
     ),
     list(
       list(compoundName = "DOM", additionalMols = 0.3)
@@ -56,26 +57,38 @@ leakIn = function(O = T, S = T){
     )
   )
 
-  for (element in c("S", "O")) {
-    if(!get(element)) {
-      leakInList = lapply(
-        leakInList,
-        function(x) {
-          if(is.null(names(x)))
-          {
-            return(x)
-          } else {
-            shortList = x[names(x)!=element]
-            if(length(shortList)==0) {
-              return(list(list()))
-            } else {
-              return(shortList)
-            }
-          }
-        }
-      )
+  leakInList = lapply(
+    leakInList,
+    function(x) {
+      compoundExists = unlist(lapply(x, function(y) y$compoundName %in% compoundNames))
+      if (!any(compoundExists)) {
+        x = list(list())
+      } else {
+        x = x[compoundExists]
+      }
+      return(x)
     }
-  }
+  )
+  #   for (element in c("S", "O")) {
+  #     if(!get(element)) {
+  #       leakInList = lapply(
+  #         leakInList,
+  #         function(x) {
+  #           if(is.null(names(x)))
+  #           {
+  #             return(x)
+  #           } else {
+  #             shortList = x[names(x)!=element]
+  #             if(length(shortList)==0) {
+  #               return(list(list()))
+  #             } else {
+  #               return(shortList)
+  #             }
+  #           }
+  #         }
+  #       )
+  #     }
+  #   }
 
   return(leakInList)
 }
@@ -200,7 +213,7 @@ doItGangsta = function(gangstaObjects, lpID, file = file.choose()){
 #   massTransfersPlot(gangstaObjects, results)
 # }
 
-doAll = function(tag, compoundParams, processParams, O = T, S = T) {
+doAll = function(tag, compoundParams, processParams, compoundNames) {
   gangstasName = paste0("gangstas", tag)
   resultsName = paste0("results", tag)
   modelName = paste0("lp.", tag)
@@ -210,7 +223,7 @@ doAll = function(tag, compoundParams, processParams, O = T, S = T) {
 
   doItGangsta(gangstaObjects, tag, file = paste0("lpFiles/", tag, ".lp"))
 
-  assign(resultsName, (iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(O = O, S = S))), envir = .GlobalEnv)
+  assign(resultsName, (iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames))), envir = .GlobalEnv)
   massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv))
 }
 
