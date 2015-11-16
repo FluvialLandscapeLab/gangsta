@@ -2,11 +2,13 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
 
   tag = paste(activeElements, collapse = "")
 
+  BioStoich = 16/106
+
   compoundParams = list(
-    list(compoundName = "Het", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "Aut", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "Met", molarRatios = c(C=1, N=16/106), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "DOM", molarRatios = c(C=1, N=16/106), initialMols = 0),
+    list(compoundName = "Het", molarRatios = c(C=1, N=BioStoich), initialMols = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "Aut", molarRatios = c(C=1, N=BioStoich), initialMols = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "Met", molarRatios = c(C=1, N=BioStoich), initialMols = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "DOM", molarRatios = c(C=1, N=BioStoich), initialMols = 0),
     list(compoundName = "CH4", molarRatios = c(C=1),           initialMols = 0),
     list(compoundName = "NH4", molarRatios = c(N=1),           initialMols = 0),
     list(compoundName = "NO3", molarRatios = c(N=1, O=3),      initialMols = 0),
@@ -24,7 +26,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       energyTerm = -4.32E-04,
       fromCompoundNames = list(C = "DOM", N = "DOM"),
       toCompoundNames = list(C = ".", N = "."),
-      molarTerms = list(C = 1, N = NA),
+      molarTerms = list(C = 1, N = BioStoich),
       organismName = "Het"
     ),
     list(
@@ -65,7 +67,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       energyTerm = 4.37E-04,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), O = "O2"),
       toCompoundNames = list(C = "CO2", N = "NH4", O = "CO2"),
-      molarTerms = list(C = 1, N = NA, O = 2),
+      molarTerms = list(C = 1, N = BioStoich, O = 2),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -74,7 +76,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       energyTerm = ((2 * 2.88E-04) + (2 * 4.15E-04) + 6.45E-04)/5,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO3", O = "NO3", O = "NO3"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2", O = "CO2", O = "Ox"),
-      molarTerms = list(C = 1, N = NA, N = 4/5, O = 2, O = 2/5),
+      molarTerms = list(C = 1, N = BioStoich, N = 4/5, O = 2, O = 2/5),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -83,7 +85,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       energyTerm = 3.8E-05,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), S = "SO4", O = "SO4"),
       toCompoundNames = list(C = "CO2", N = "NH4", S = "HS", O = "CO2"),
-      molarTerms = list(C = 1, N = NA, S = 0.5, O = 2),
+      molarTerms = list(C = 1, N = BioStoich, S = 0.5, O = 2),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -92,7 +94,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       energyTerm = 2.8E-05,
       fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "DOM"), N = c(".", "DOM"), O = "Ox"),
       toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4", O = "CO2"),
-      molarTerms = list(C = 0.5, C = 0.5, N = NA, O = 1),
+      molarTerms = list(C = 0.5, C = 0.5, N = BioStoich, O = 1),
       organismName = "Het",
       processSuffix = c("ofHet", "ofDOM")
     ),
@@ -117,18 +119,19 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       energyTerm = 0,
       fromCompoundNames = list(C = ".", N = "."),
       toCompoundNames = list(C = "DOM", N = "DOM"),
-      molarTerms = list(C = 1, N = NA),
+      molarTerms = list(C = 1, N = BioStoich),
       organismName = c("Aut", "Met")
     )
   )
 
-  keep = sapply(compoundParams, function(x) names(x[["molarRatios"]])[1] %in% activeElements)
+  keep = sapply(compoundParams, function(x) any(names(x[["molarRatios"]]) %in% activeElements))
   compoundParams = compoundParams[keep]
   compoundParams = lapply(
     compoundParams,
     function(x) {
       x[["molarRatios"]] = x[["molarRatios"]][names(x[["molarRatios"]]) %in% activeElements]
-      x[["molarRatios"]] = x[["molarRatios"]] / x[["molarRatios"]][1] # set molar ratio of first element to 1.0
+      # set molar ratio of first remaining element (reference element) to 1.0
+      # x[["molarRatios"]] = x[["molarRatios"]] / x[["molarRatios"]][1]
       if (x[["compoundName"]] %in% sourceSinks) x = c(x, list(sourceSink = T))
       return(x)
     }

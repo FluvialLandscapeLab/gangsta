@@ -44,6 +44,25 @@ solvedDataFrame.lp = function(lpObject, simple = TRUE) {
   }
 }
 
+compoundDifs = function(gangstaObjects, lpObject, simple = F) {
+  compounds = subsetGangstas(gangstaObjects, "class", gangstaClassName("comp"))
+  compoundNames = getGangstaAttribute(compounds, gangstaAttributeName("name"))
+
+  initCompoundNames = makeCompoundStartMassVars(compoundNames)
+  finalCompoundNames = makeCompoundEndMassVars(compoundNames)
+
+  df.lp = solvedDataFrame.lp(lpObject, simple = F)
+
+  startVals = df.lp[initCompoundNames,]
+  endVals = df.lp[finalCompoundNames,]
+  allDF = data.frame(change = endVals - startVals, initial = startVals, final = endVals)
+  row.names(allDF) = compoundNames
+
+  if(simple) allDF = subset(allDF, (allDF$initial != 0) | (allDF$final != 0))
+  return(allDF)
+}
+
+
 ### Make a data frame with three columns: start values, end values, and changes in values
 poolDifs = function(gangstaObjects, lpObject, simple = T) {
   pools = subsetGangstas(gangstaObjects, "class", gangstaClassName("pool"))

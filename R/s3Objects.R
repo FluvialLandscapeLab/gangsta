@@ -130,13 +130,13 @@ compoundFactory = function(compoundName, molarRatios, initialMols, respirationRa
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
   }
   elementNames = names(molarRatios)
-  if(molarRatios[1]!=1.0) {
-    stop("The molarRatio of the Reference Element (the first element in the molarRatios vector) must be 1.0")
-  }
-  molarRatios[1] = NA
+#   if(molarRatios[1]!=1.0) {
+#     stop("The molarRatio of the Reference Element (the first element in the molarRatios vector) must be 1.0")
+#   }
+#   molarRatios[1] = NA
   newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
-  newCompound = list(compound(compoundName, newPools[[1]]$name, initialMols, respirationRate, sourceSink))
+  newCompound = list(compound(compoundName, initialMols, respirationRate, sourceSink))
   names(newCompound) = compoundName
   return(c(newCompound, newPools))
 }
@@ -176,7 +176,7 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
   toCompoundNames = replaceDotWithOrganism(toCompoundNames, organismName)
   fromPoolNames = makePoolNames(fromCompoundNames, gangstaObjects = gangstaObjects)
   toPoolNames = makePoolNames(toCompoundNames, gangstaObjects = gangstaObjects)
-  molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
+#  molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
   newTransformations = mapply(transformation, fromPoolNames, toPoolNames, molarTerms,
                               MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = name, limitToInitMols = limitToInitMols),
@@ -192,8 +192,10 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
 }
 
 #' @rdname compoundFactory
-compound = function(compoundName, referencePoolName, initialMols, respirationRate = NA, sourceSink) {
-  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMols = initialMols, sourceSink = sourceSink)
+compound = function(compoundName, initialMols, respirationRate = NA, sourceSink) {
+  newCompound = list(name = compoundName, initialMols = initialMols, sourceSink = sourceSink)
+  #  compound = function(compoundName, referencePoolName, initialMols, respirationRate = NA, sourceSink) {
+  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMols = initialMols, sourceSink = sourceSink)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     if(respirationRate > 0) {
@@ -205,13 +207,13 @@ compound = function(compoundName, referencePoolName, initialMols, respirationRat
 }
 
 #' @rdname compoundFactory
-pool = function(compoundName, elementName, molarRatio = NA) {
+pool = function(compoundName, elementName, molarRatio) {
   poolName = makePoolNames(compoundName, elementName)
-  newPool = list(name = poolName, elementName = elementName, compoundName = compoundName)
+  newPool = list(name = poolName, elementName = elementName, compoundName = compoundName, molarRatio = molarRatio)
   class(newPool) = c("pool", "gangsta")
-  if(!is.na(molarRatio)) {
-    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
-  }
+#  if(!is.na(molarRatio)) {
+#    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
+#    }
   return(newPool)
 }
 

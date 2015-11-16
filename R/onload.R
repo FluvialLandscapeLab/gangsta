@@ -16,7 +16,7 @@
         comp = "compound",
         org = "organism",
         pool = "pool",
-        bnd = "bound",
+        # bnd = "bound",
         proc = "process",
         metab = "metabolic",
         trans = "transformation"
@@ -37,7 +37,7 @@
     gangsta.attributes = c(
       name = "name",
       respRate = "respirationRate",
-      refPool = "referencePoolName",
+#      refPool = "referencePoolName",
       orgName = "organismName",
       procName = "processName",
       compName = "compoundName",
@@ -47,6 +47,7 @@
       limitToStartMass = "limitToInitMols",
       molRatio = "molarRatio",
       initMols = "initialMols",
+      finalMols = "finalMols",
       sourceSink = "sourceSink",
       energy = "energyTerm",
       element = "elementName"
