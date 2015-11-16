@@ -202,9 +202,9 @@ processEnergies = function(gangstaObjects, lpObject,
 #############  THIS NEEDS UPDATING WHEN YOU FIGURE OUT HOW TO MAKE SEQUENTIAL UPDATES TO COMPOUNDS
 massTransfersPlot = function(gangstaObjects,
                              lpResultsList,
-                             lineMult = 25,
-                             dotMult = 60,
-                             energyPtMultiplier = 1E6,
+                             lineMult = 24,
+                             dotMult = 6,
+                             energyPtMultiplier = 1000,
 
                              ###infrequently changed arguments:
                              xBound = 0.25,
@@ -253,17 +253,14 @@ massTransfersPlot = function(gangstaObjects,
 
   #####################  Begin plotting  #####################
   for(i in 1:numberOfIterations){
+    ### Set margins, build plot
+    par(mar = marginList[[i]])
+
     ### Calculate point sizes in mass transfer plots
     initialVal = ifelse(lpResultsList[[i]]$poolVals$initial>0, lpResultsList[[i]]$poolVals$initial, 0)
     finalVal = ifelse(lpResultsList[[i]]$poolVals$final>0, lpResultsList[[i]]$poolVals$final, 0)
     pointSizes =
-      sqrt(dotMult * c(initialVal, finalVal) / pi)
-
-    ### Calculate the line weights for mass transfers
-    lineWeights = lineMult * lpResultsList[[i]]$massTransferVals$massTransfered
-
-    ### Set margins, build plot
-    par(mar = marginList[[i]])
+      dotMult * sqrt(c(initialVal, finalVal) / pi)
     plot(yLocs ~ xLocs,
          type = "n",
          yaxt = "n", ylab = "",
@@ -274,21 +271,25 @@ massTransfersPlot = function(gangstaObjects,
     ### give first and last plots y-axes
     if (i == 1) axis(side = 2, at = poolYVal, labels = poolNames, las = 2, cex.axis = 1.5)
     if (i == numberOfIterations) axis(side = 4, at = poolYVal, labels = poolNames, las = 2, cex.axis = 1.5)
+
+    ### Calculate the line weights for mass transfers. dependent on par()$cex so
+    ### must be calculated immediately before plot.
+    lineWeights = lineMult * par()$cex * sqrt(lpResultsList[[i]]$massTransferVals$massTransfered / pi)
     ### add lines that show transfers between pools
     activeTransferIndex = which(lineWeights > 0)
-
     arrows(rep(-xBound/2, length(activeTransferIndex)),
            arrowStartYVal[activeTransferIndex],
            rep(xBound/2, length(activeTransferIndex)),
            arrowEndYVal[activeTransferIndex],
-           lwd = lineWeights[activeTransferIndex], length = 0)
+           lwd = lineWeights[activeTransferIndex],
+           length = 0)
 
     ### Make leak in plot AND initialize values for next plot
     if(i < numberOfIterations) {
       par(mar = layoutMarginsSubsequentPlot)
       leakYLocs = poolYVal[names(lpResultsList[[i+1]]$leakInVals)]
       pointSizes =
-        sqrt(dotMult * lpResultsList[[i+1]]$leakInVals / pi)
+        dotMult * sqrt(lpResultsList[[i+1]]$leakInVals / pi)
 
       plot(poolYVal ~ rep(0, length(poolYVal)),
            type = "n",
@@ -326,7 +327,7 @@ massTransfersPlot = function(gangstaObjects,
     energyDF =
       lpResultsList[[i]]$processEnergyVals[lpResultsList[[i]]$processEnergyVals$procType == "catabolic",]
     energyPtSizes =
-      sqrt(energyPtMultiplier * energyDF$energy / pi)
+      energyPtMultiplier * sqrt(energyDF$energy / pi)
 
     ### Set margins, build plot
     par(mar = marginList[[i]])

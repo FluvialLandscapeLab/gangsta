@@ -227,9 +227,3 @@ doAll = function(tag, compoundParams, processParams, compoundNames) {
   massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv))
 }
 
-runAllModelScenariosForManuscript = function(){
-  CN_Anaerobic_Model()
-  CN_Aerobic_Model()
-  CNO_Model()
-  CNOS_Model()
-}

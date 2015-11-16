@@ -1,29 +1,46 @@
+eqnPaste = function(...) {
+  if(any(unlist(lapply(list(...), function(x) length(x) == 0)))) {
+    result = character(0)
+  } else {
+    result = paste(...)
+  }
+  return(result)
+}
+
+eqnPaste0 = function(...) {
+  return(eqnPaste(..., sep = ""))
+}
+
+makeGenericVars = function(prefixes, varTag) {
+  return(eqnPaste0(prefixes, ".", gangstaVarName(varTag)))
+}
+
 makeProcessEnergyVars = function(processNames) {
-  return(paste0(processNames, ".", gangstaVarName("energySuffix")))
+  return(makeGenericVars(processNames, "energySuffix"))
 }
 
 makeOrgansimEnergyVars = function(organismNames) {
-  return(paste0(organismNames, ".", gangstaVarName("energySuffix")))
+  return(makeGenericVars(organismNames, "energySuffix"))
 }
 
 makePoolStartMassVars = function(poolNames) {
-  return(paste0(poolNames, ".", gangstaVarName("startSuffix")))
+  return(makeGenericVars(poolNames, "startSuffix"))
 }
 
 makePoolEndMassVars = function(poolNames) {
-  return(paste0(poolNames, ".", gangstaVarName("endSuffix")))
+  return(makeGenericVars(poolNames, "endSuffix"))
 }
 
 makeRespEnergyVars = function(organismNames) {
-  return(paste0(organismNames, ".", gangstaVarName("respEnergy")))
+  return(makeGenericVars(organismNames, "respEnergy"))
 }
 
 makeTransformationMassTransVars = function(transformationNames) {
-  return(paste0(transformationNames, ".", gangstaVarName("transSuffix")))
+  return(makeGenericVars(transformationNames,"transSuffix"))
 }
 
 makeBiomassRemainingVars = function(poolNames) {
-  return(paste0(poolNames, ".", gangstaVarName("endSuffix")))
+  return(makeGenericVars(poolNames, "endSuffix"))
 }
 
 makeEquations = function(gangstaObjects) {
@@ -87,7 +104,7 @@ makeEquations = function(gangstaObjects) {
     organismNames = getGangstaAttribute(organisms, nameAttrName)
     respEnergyVars = makeRespEnergyVars(organismNames)
 
-    equations = paste("-Inf <", c(respEnergyVars, energyVarNames), "<= 0")
+    equations = eqnPaste("-Inf <", c(respEnergyVars, energyVarNames), "<= 0")
 
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
     compounds = subsetGangstas(compounds, sourceSinkAttrName, T)
@@ -99,7 +116,7 @@ makeEquations = function(gangstaObjects) {
     poolNames = getGangstaAttribute(pools, nameAttrName)
     poolVarNames = makePoolEndMassVars(poolNames)
 
-    equations = c(equations, paste("-Inf <", poolVarNames, "< +Inf"))
+    equations = c(equations, eqnPaste("-Inf <", poolVarNames, "< +Inf"))
     return(equations)
   }
 
