@@ -69,31 +69,10 @@ leakIn = function(compoundNames){
       return(x)
     }
   )
-  #   for (element in c("S", "O")) {
-  #     if(!get(element)) {
-  #       leakInList = lapply(
-  #         leakInList,
-  #         function(x) {
-  #           if(is.null(names(x)))
-  #           {
-  #             return(x)
-  #           } else {
-  #             shortList = x[names(x)!=element]
-  #             if(length(shortList)==0) {
-  #               return(list(list()))
-  #             } else {
-  #               return(shortList)
-  #             }
-  #           }
-  #         }
-  #       )
-  #     }
-  #   }
-
   return(leakInList)
 }
 
-iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn(), omitInitialRun = TRUE){
+iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
   startSuffix = gangstaVarName("startSuffix")
   gangstaResultsList = list()
   nameAttrName = gangstaAttributeName("name")
@@ -101,148 +80,119 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn(), omitI
 
   gangstaCompounds = subsetGangstas(gangstaObjects,"class", "compound")
   gangstaCompoundNames = names(gangstaCompounds)
-  #   gangstaPools = subsetGangstas(gangstaObjects,"class", "pool")
-  #   gangstaPoolNames = names(gangstaPools)
   gangstaSinkCompounds = subsetGangstas(gangstaCompounds, "sourceSink", T)
   gangstaSinkCompoundNames = names(gangstaSinkCompounds)
-  gangstaNonSinkCompounds = gangstaCompounds[!gangstaCompoundNames %in% gangstaSinkCompoundNames]
-  gangstaNonSinkCompoundsNames = gangstaCompoundNames[!gangstaCompoundNames %in% gangstaSinkCompoundNames]
-  #   gangstaSinkPoolIndex = getGangstaAttribute(gangstaPools, "compoundName") %in% gangstaSinkCompoundNames
-  #   gangstaSinkPools = gangstaPools[gangstaSinkPoolIndex]
-  #   gangstaSinkPoolNames = names(gangstaSinkPools)
-  #   gangstaNonSinkPools = gangstaPools[!gangstaPoolNames %in% gangstaSinkPoolNames]
-  #   gangstaNonSinkPoolsNames = gangstaPoolNames[!gangstaPoolNames %in% gangstaSinkPoolNames]
 
-  listLoc = 0
-  compoundMolsToAdd = NULL
+  initCompoundVarNames = makeCompoundStartMassVars(gangstaCompoundNames)
+  initCompoundIndexes = match(initCompoundVarNames, dimnames(lpObject)[[2]])
+
+  existingCompoundVals = lpSolveAPI::get.bounds(lpObject, columns = initCompoundIndexes)
+  if(!(identical(existingCompoundVals$lower, existingCompoundVals$upper))) {
+    stop("Upper and lower bounds for compound mols in existing lp models don't match.")
+  }
 
   for(i in 1:numberOfSteps) {
-
-    if(!omitInitialRun || i > 1) {
-      lpStatus = suppressWarnings(lpSolveAPI::solve.lpExtPtr(lpObject))
-      poolDifDF = poolDifs(gangstaObjects, lpObject, simple = FALSE)
-      mt = massTransfers(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE)
-      mtp = massTransfers(gangstaObjects, lpObject, simple = TRUE, byProcess = TRUE)
-      pe = processEnergies(gangstaObjects, lpObject, simple = FALSE, catabolic = TRUE, anabolic = TRUE)
-      compoundDifDF = compoundDifs(gangstaObjects, lpObject, simple = F)
-
-      stepOutput = list(objective = lpSolveAPI::get.objective(lpObject),
-                        status = lpStatus,
-                        poolVals = poolDifDF,
-                        massTransferVals = mt,
-                        massTransferValsByProcess = mtp,
-                        leakInVals = compoundMolsToAdd,
-                        compoundVals = compoundDifDF,
-                        processEnergyVals = pe)
-      listLoc = listLoc + 1
-      gangstaResultsList[[listLoc]] = stepOutput
-      names(gangstaResultsList)[listLoc] = paste0("Iteration_", listLoc)
-
-      if(i == numberOfSteps) break
-    }
 
     stepLeakInList = unlist(leakInList[i], recursive = FALSE)
     names(stepLeakInList) = NULL
     numberOfLeakIns = length(stepLeakInList)
 
+    # create list of zeros to initials leak in list for all compounds
+    compoundMolsAdded = rep(0, length(gangstaCompoundNames))
+    names(compoundMolsAdded) = gangstaCompoundNames
+
+    # set the values of the initalized leak in list for any compounds that are non-zero
     if( length(stepLeakInList[[1]]) > 0 ) {
-      compoundNames = mapply("[[", stepLeakInList, 1, SIMPLIFY = FALSE)
-      compoundMolsToAdd = unlist(mapply("[[", stepLeakInList, 2, SIMPLIFY = FALSE))
-      names(compoundMolsToAdd) = compoundNames
-
-      compounds = gangstaCompounds[gangstaCompoundNames %in% compoundNames]
-      #      pools = unlist(lapply(compoundNames, function(c) subsetGangstas(gangstaPools, "compoundName", c)), recursive = FALSE)
-      #      poolNames = names(pools)
-
-      #      refPoolNames = unlist(lapply(compoundNames, function(c) getGangstaAttribute(getGangstas(gangstaObjects, c), "referencePoolName")))
-      #      names(refPoolMolsToAdd) = refPoolNames
-
-      #      stoichPoolNames = poolNames[!(!is.na(match(poolNames, refPoolNames)))]
-      #     } else {
-      #       stoichPoolNames = NULL
-      #       refPoolMolsToAdd = NULL
-      #     }
-      #     if(length(stoichPoolNames) > 0) {
-      #       stoichMultipliers = getGangstaAttribute(pools[!is.na(match(poolNames, stoichPoolNames))], "molarRatio")
-      #       stoichPools = pools[!is.na(match(poolNames, stoichPoolNames))]
-      #       stoichPoolCompoundNames = getGangstaAttribute(stoichPools, "compoundName")
-      #       stoichPoolCompounds = compounds[!is.na(match(compoundNames, stoichPoolCompoundNames))]
-      #       stoichPoolReferencePoolNames = getGangstaAttribute(stoichPoolCompounds, "referencePoolName")
-      #       refPoolMolsToMultiplyToStoichPoolMols = unlist(refPoolMolsToAdd[!is.na(match(refPoolNames, stoichPoolReferencePoolNames))])
-      #       stoichPoolMolsToAdd = stoichMultipliers * refPoolMolsToMultiplyToStoichPoolMols
-      #       molsToAdd = c(refPoolMolsToAdd, stoichPoolMolsToAdd)
-      #     } else {
-      #       molsToAdd = refPoolMolsToAdd
-      #       if(length(molsToAdd) ==0) {
-      #         molsToAdd = rep(0, length(gangstaNonSinkPoolsNames))
-      #         names(molsToAdd) = gangstaNonSinkPoolsNames
-      #       }
-            if(length(compoundMolsToAdd) == 0) {
-              compoundMolsToAdd = rep(0, length(gangstaNonSinkCompoundsNames))
-              names(compoundMolsToAdd) = gangstaNonSinkCompoundsNames
-            }
-          }
-      sinkCompoundWithLeakNames = names(compoundMolsToAdd)[names(compoundMolsToAdd) %in% gangstaSinkCompoundNames]
-      if(length(sinkCompoundWithLeakNames) > 0) {
-        stop("Elements are leaked into the following source/sinks: ", paste0(sinkCompoundWithLeakNames, collapse = "; "))
+      compoundNames = mapply("[[", stepLeakInList, 1)
+      leakToSinks = compoundNames %in% gangstaSinkCompoundNames
+      if(any(leakToSinks)) {
+        stop("Compounds are leaked into the following source/sinks: ", paste0(compoundNames[leakToSinks], collapse = "; "))
       }
-      #     sinkPoolWithLeakNames = names(molsToAdd)[names(molsToAdd) %in% gangstaSinkPoolNames]
-      #     if(length(sinkPoolWithLeakNames) > 0) {
-      #       stop("Elements are leaked into the following source/sink pools: ", paste0(sinkPoolWithLeakNames, collapse = "; "))
-      #     }
-
-      if(!omitInitialRun || i>1) {
-        # nextRunInitalVals = poolDifDF$final
-        nextRunInitalVals = compoundDifDF$final
-        names(nextRunInitalVals) = row.names(compoundDifDF)
-        # names(nextRunInitalVals) = row.names(poolDifDF)
-        nextRunInitalVals[gangstaSinkCompoundNames] = 0.0
-        compoundMolsToAddIndices = match(names(compoundMolsToAdd), row.names(compoundDifDF))
-        nextRunInitalVals[compoundMolsToAddIndices] = compoundMolsToAdd + nextRunInitalVals[compoundMolsToAddIndices]
-      } else {
-        nextRunInitalVals = compoundMolsToAdd
-      }
-
-      names(nextRunInitalVals) = paste(names(nextRunInitalVals), startSuffix, sep = ".")
-
-      ### update initial mols using previous values + leak in list
-      initCompoundIndexes = match(names(nextRunInitalVals), dimnames(lpObject)[[2]])
-      lpSolveAPI::set.bounds(lpObject, lower = nextRunInitalVals, upper = nextRunInitalVals, columns = initCompoundIndexes)
-      # initPoolIndexes = match(names(nextRunInitalVals), dimnames(lpObject)[[2]])
-      # lpSolveAPI::set.bounds(lpObject, lower = nextRunInitalVals, upper = nextRunInitalVals, columns = initPoolIndexes)
+      compoundMolsAdded[compoundNames] = unlist(mapply("[[", stepLeakInList, 2, SIMPLIFY = FALSE))
     }
-    return(gangstaResultsList)
+
+    ### update initial mols using leak in list
+    if(i == 1) {
+      existingCompoundVals = lpSolveAPI::get.bounds(lpObject, columns = initCompoundIndexes)$lower
+    } else {
+      existingCompoundVals =
+        structure(
+          gangstaResultsList[[i-1]]$compoundVals$final,
+          names = row.names(gangstaResultsList[[i-1]]$compoundVals)
+        )
+    }
+
+    initCompoundVals = compoundMolsAdded + existingCompoundVals
+
+    lpSolveAPI::set.bounds(lpObject,
+                           lower = initCompoundVals,
+                           upper = initCompoundVals,
+                           columns = initCompoundIndexes
+    )
+
+    lpStatus = suppressWarnings(lpSolveAPI::solve.lpExtPtr(lpObject))
+
+    compoundDifDF = compoundDifs(gangstaObjects, lpObject, simple = F)
+    poolDifDF = poolDifs(gangstaObjects, lpObject, simple = FALSE)
+    if(i == 1) {
+      ##  For the first timestep, I set the leak in values in the results to =
+      ##  the sum of the initial values + the leak in list values
+      poolMolsAdded = poolDifDF$initial
+      compoundMolsAdded = initCompoundVals
+    } else {
+      poolMolsAdded = poolDifDF$initial - gangstaResultsList[[i-1]]$poolVals$final
+      poolMolsAdded = ifelse(abs(poolMolsAdded) < 1e-12, 0, poolMolsAdded)
+    }
+    names(poolMolsAdded) = row.names(poolDifDF)
+
+    mt = massTransfers(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE)
+    mtp = massTransfers(gangstaObjects, lpObject, simple = TRUE, byProcess = TRUE)
+    pe = processEnergies(gangstaObjects, lpObject, simple = FALSE, catabolic = TRUE, anabolic = TRUE)
+
+    stepOutput = list(objective = lpSolveAPI::get.objective(lpObject),
+                      status = lpStatus,
+                      poolVals = poolDifDF,
+                      massTransferVals = mt,
+                      massTransferValsByProcess = mtp,
+                      leakInPoolVals = poolMolsAdded,
+                      leakInCompoundVals = compoundMolsAdded,
+                      compoundVals = compoundDifDF,
+                      processEnergyVals = pe)
+    gangstaResultsList[[i]] = stepOutput
+    names(gangstaResultsList)[i] = paste0("Iteration_", i)
   }
+  return(gangstaResultsList)
+}
 
-  doItGangsta = function(gangstaObjects, lpID, file = file.choose()){
-    equations = makeEquations(gangstaObjects)
-    writeGangstaModel(equations, file)
-    gangsta.lp = readGangsta.lp(file)
-    modelName = paste0("lp.", lpID)
-    assign(modelName, gangsta.lp, envir = .GlobalEnv)
-    return("Happy, happy!  Joy, joy!")
-  }
+doItGangsta = function(gangstaObjects, lpID, file = file.choose()){
+  equations = makeEquations(gangstaObjects)
+  writeGangstaModel(equations, file)
+  gangsta.lp = readGangsta.lp(file)
+  modelName = paste0("lp.", lpID)
+  assign(modelName, gangsta.lp, envir = .GlobalEnv)
+  return("Happy, happy!  Joy, joy!")
+}
 
-  # doAll =  function(gangstaObjects = gangstas, file = "M:\\gangsta\\lpFiles\\test.lp"){
-  #   modelName = doItGangsta(1, file)
-  #   results = iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv))
-  #   massTransfersPlot(gangstaObjects, results)
-  # }
+# doAll =  function(gangstaObjects = gangstas, file = "M:\\gangsta\\lpFiles\\test.lp"){
+#   modelName = doItGangsta(1, file)
+#   results = iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv))
+#   massTransfersPlot(gangstaObjects, results)
+# }
 
-  doAll = function(tag, compoundParams, processParams, compoundNames) {
-    gangstasName = paste0("gangstas", tag)
-    resultsName = paste0("results", tag)
-    modelName = paste0("lp.", tag)
+doAll = function(tag, compoundParams, processParams, compoundNames) {
+  gangstasName = paste0("gangstas", tag)
+  resultsName = paste0("results", tag)
+  modelName = paste0("lp.", tag)
 
-    assign(gangstasName,
-           gangstaBuildCompoundsAndProcesses(compoundParams, processParams),
-           envir = .GlobalEnv)
-    gangstaObjects = get(gangstasName, envir = .GlobalEnv)
+  assign(gangstasName,
+         gangstaBuildCompoundsAndProcesses(compoundParams, processParams),
+         envir = .GlobalEnv)
+  gangstaObjects = get(gangstasName, envir = .GlobalEnv)
 
-    doItGangsta(gangstaObjects, tag, file = paste0("lpFiles/", tag, ".lp"))
+  doItGangsta(gangstaObjects, tag, file = paste0("lpFiles/", tag, ".lp"))
 
-    assign(resultsName,
-           iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
-           envir = .GlobalEnv)
-    massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv))
-  }
+  assign(resultsName,
+         iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
+         envir = .GlobalEnv)
+  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv))
+}

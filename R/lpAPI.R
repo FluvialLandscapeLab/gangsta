@@ -306,9 +306,9 @@ massTransfersPlot = function(gangstaObjects,
     ### Make leak in plot AND initialize values for next plot
     if(i < numberOfIterations) {
       par(mar = layoutMarginsSubsequentPlot)
-      leakYLocs = poolYVal[names(lpResultsList[[i+1]]$leakInVals)]
+      leakYLocs = poolYVal[names(lpResultsList[[i+1]]$leakInPoolVals)]
       pointSizes =
-        dotMult * sqrt(lpResultsList[[i+1]]$leakInVals / pi)
+        dotMult * sqrt(lpResultsList[[i+1]]$leakInPoolVals / pi)
 
       plot(poolYVal ~ rep(0, length(poolYVal)),
            type = "n",

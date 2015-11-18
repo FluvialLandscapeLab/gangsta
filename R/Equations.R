@@ -119,16 +119,16 @@ makeEquations = function(gangstaObjects) {
     compounds = subsetGangstas(compounds, sourceSinkAttrName, T)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
     compoundVarNames = makeCompoundEndMassVars(compoundNames)
-#
-#     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
-#     pools = lapply(compoundNames, subsetGangstas, gangstaObjects = pools, attributeName = compNameAttrName)
-#     pools = unlist(pools, recursive = F)
-#     poolNames = getGangstaAttribute(pools, nameAttrName)
-#     poolVarNames = makePoolEndMassVars(poolNames)
 
     equations = c(equations, eqnPaste("-Inf <", compoundVarNames, "< +Inf"))
 
-#     equations = c(equations, eqnPaste("-Inf <", poolVarNames, "< +Inf"))
+    pools = subsetGangstas(gangstaObjects, "class", poolClassName)
+    pools = lapply(compoundNames, subsetGangstas, gangstaObjects = pools, attributeName = compNameAttrName)
+    pools = unlist(pools, recursive = F)
+    poolNames = getGangstaAttribute(pools, nameAttrName)
+    poolVarNames = c(makePoolEndMassVars(poolNames), makePoolStartMassVars(poolNames))
+
+    equations = c(equations, eqnPaste("-Inf <", poolVarNames, "< +Inf"))
     return(equations)
   }
 
