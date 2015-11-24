@@ -221,6 +221,10 @@ processEnergies = function(gangstaObjects, lpObject,
 #############  THIS NEEDS UPDATING WHEN YOU FIGURE OUT HOW TO MAKE SEQUENTIAL UPDATES TO COMPOUNDS
 massTransfersPlot = function(gangstaObjects,
                              lpResultsList,
+
+                             tag = tag,
+                             sourceSinks = sourceSinks,
+
                              lineMult = 24,
                              dotMult = 6,
                              energyPtMultiplier = 1000,
@@ -233,9 +237,14 @@ massTransfersPlot = function(gangstaObjects,
                              layoutMarginsFirstPlot = c(1,0,1,0),
                              layoutMarginsSubsequentPlot = c(1,0,1,0),
                              layoutMarginsLastPlot = c(1,0,1,0),
-                             parOuterMarginSettings = c(1.75,11,0.25,11)
+                             parOuterMarginSettings = c(1.75,11,2,11)
 ){
   numberOfIterations = length(lpResultsList)
+
+
+  titleElements = paste(unlist(strsplit(tag, split ="")), collapse = ", ")
+  titleSourceSinks = paste(sourceSinks, collapse = ", ")
+  titleTag = paste("Elements:", titleElements, "; Source/sinks:", titleSourceSinks)
 
   ### need an error check that goes here to ensure that the names of each of the results
   ### items has the same sets of row names for the pool diffs data frame and the same from/to columns
@@ -318,6 +327,8 @@ massTransfersPlot = function(gangstaObjects,
       points(rep(0,length(leakYLocs)), leakYLocs, pch = 16, cex = pointSizes)
     }
   }
+  title(main=titleTag, outer=TRUE, cex.main = 1.5)
+
 
   ####  Make plots of catabolic energy of each timestep
   catabolicSubset = lpResultsList[[1]]$processEnergyVals$procType == "catabolic"
@@ -371,6 +382,8 @@ massTransfersPlot = function(gangstaObjects,
       )
     }
   }
+  title(main=titleTag, outer=TRUE, cex.main = 1.5)
+
 
   return("I am awesome-o.")
 }

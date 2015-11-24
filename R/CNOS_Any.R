@@ -73,7 +73,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
     ),
     list(
       name = "Denit",
-      energyTerm = ((2 * 2.88E-04) + (2 * 4.15E-04) + 6.45E-04)/5,
+      energyTerm = 4.102E-4, # ((2 * 2.88E-04) + (2 * 4.15E-04) + 6.45E-04)/5,
       fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO3", O = "NO3", O = "NO3"),
       toCompoundNames = list(C = "CO2", N = "NH4", N = "N2", O = "CO2", O = "Ox"),
       molarTerms = list(C = 1, N = BioStoich, N = 4/5, O = 2, O = 2/5),
@@ -100,7 +100,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
     ),
     list(
       name = "Nitrif",
-      energyTerm = ((1.83E-04 *3) + 1.48E-04)/2,
+      energyTerm = 3.485E-4, #((1.83E-04 *3) + 1.48E-04)/2,
       fromCompoundNames = list(N = "NH4", O = "O2", O = "O2"),
       toCompoundNames = list(N = "NO3", O = "NO3", O = "Ox"),
       molarTerms = list(N = 1, O = 3, O = 1),
@@ -108,7 +108,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
     ),
     list(
       name = "MethaneOxid",
-      energyTerm = 4.09E-04 * 2,
+      energyTerm = 8.18E-4, #4.09E-04 * 2,
       fromCompoundNames = list(C = "CH4", O = "O2", O = "O2"),
       toCompoundNames = list(C = "CO2", O = "CO2", O = "Ox"),
       molarTerms = list(C = 1, O = 2, O = 2),
@@ -164,6 +164,6 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
     }
   )
 
-  doAll(tag, compoundParams, processParams, compoundNames)
+  doAll(tag, compoundParams, processParams, compoundNames, sourceSinks)
 }
 

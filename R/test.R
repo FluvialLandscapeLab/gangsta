@@ -76,7 +76,7 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
   startSuffix = gangstaVarName("startSuffix")
   gangstaResultsList = list()
   nameAttrName = gangstaAttributeName("name")
-  numberOfSteps = length(leakInList) + 1
+  numberOfSteps = length(leakInList)
 
   gangstaCompounds = subsetGangstas(gangstaObjects,"class", "compound")
   gangstaCompoundNames = names(gangstaCompounds)
@@ -164,11 +164,11 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
   return(gangstaResultsList)
 }
 
-doItGangsta = function(gangstaObjects, lpID, file = file.choose()){
+doItGangsta = function(gangstaObjects, tag, file = file.choose()){
   equations = makeEquations(gangstaObjects)
   writeGangstaModel(equations, file)
   gangsta.lp = readGangsta.lp(file)
-  modelName = paste0("lp.", lpID)
+  modelName = paste0("lp.", tag)
   assign(modelName, gangsta.lp, envir = .GlobalEnv)
   return("Happy, happy!  Joy, joy!")
 }
@@ -179,7 +179,7 @@ doItGangsta = function(gangstaObjects, lpID, file = file.choose()){
 #   massTransfersPlot(gangstaObjects, results)
 # }
 
-doAll = function(tag, compoundParams, processParams, compoundNames) {
+doAll = function(tag, compoundParams, processParams, compoundNames, sourceSinks) {
   gangstasName = paste0("gangstas", tag)
   resultsName = paste0("results", tag)
   modelName = paste0("lp.", tag)
@@ -194,5 +194,5 @@ doAll = function(tag, compoundParams, processParams, compoundNames) {
   assign(resultsName,
          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
          envir = .GlobalEnv)
-  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv))
+  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
 }
