@@ -1,40 +1,46 @@
-CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
+CNOS_Any = function(activeElements, sourceSinks = character(0)) {
+
+  sourceSinks = c("CO2", "Ox", sourceSinks)
 
   tag = paste(activeElements, collapse = "")
 
-  BioStoich = 16/106
+  BioStoichN = 16/106
+  BioStoichO = 110/106
+  DOMStoichN = 16/106
+  DOMStoichO = 110/106
 
   compoundParams = list(
-    list(compoundName = "Het", molarRatios = c(C=1, N=BioStoich), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "Aut", molarRatios = c(C=1, N=BioStoich), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "Met", molarRatios = c(C=1, N=BioStoich), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "DOM", molarRatios = c(C=1, N=BioStoich), initialMols = 0),
-    list(compoundName = "CH4", molarRatios = c(C=1),           initialMols = 0),
-    list(compoundName = "NH4", molarRatios = c(N=1),           initialMols = 0),
-    list(compoundName = "NO3", molarRatios = c(N=1, O=3),      initialMols = 0),
-    list(compoundName = "O2" , molarRatios = c(O=1),           initialMols = 0),
-    list(compoundName = "SO4", molarRatios = c(S=1, O=4),      initialMols = 0),
-    list(compoundName = "CO2", molarRatios = c(C=1, O=2),      initialMols = 0),
-    list(compoundName = "N2" , molarRatios = c(N=1),           initialMols = 0),
-    list(compoundName = "HS" , molarRatios = c(S=1),           initialMols = 0),
-    list(compoundName = "Ox" , molarRatios = c(O=1),           initialMols = 0)
+    list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "Aut" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "Met" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0, respirationRate = -2.83E-6 * 24),
+#    list(compoundName = "DOMX", molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0),
+    list(compoundName = "DOM" , molarRatios = c(C=1, N=DOMStoichN, O=DOMStoichO), initialMols = 0),
+    list(compoundName = "CH4" , molarRatios = c(C=1),           initialMols = 0),
+    list(compoundName = "NH4" , molarRatios = c(N=1),           initialMols = 0),
+    list(compoundName = "NO3" , molarRatios = c(N=1, O=3),      initialMols = 0),
+    list(compoundName = "O2"  , molarRatios = c(O=1),           initialMols = 0),
+    list(compoundName = "SO4" , molarRatios = c(S=1, O=4),      initialMols = 0),
+    list(compoundName = "CO2" , molarRatios = c(C=1, O=2),      initialMols = 0),
+    list(compoundName = "N2"  , molarRatios = c(N=1),           initialMols = 0),
+    list(compoundName = "HS"  , molarRatios = c(S=1),           initialMols = 0),
+    list(compoundName = "Ox"  , molarRatios = c(O=1),           initialMols = 0)
   )
 
   processParams = list(
     list(
       name = "AssimDOM",
       energyTerm = -4.32E-04,
-      fromCompoundNames = list(C = "DOM", N = "DOM"),
-      toCompoundNames = list(C = ".", N = "."),
-      molarTerms = list(C = 1, N = BioStoich),
+      fromCompoundNames = list(C = "DOM", N = "DOM", O = "DOM"),
+      toCompoundNames = list(C = ".", N = ".", O = "."),
+      molarTerms = list(C = 1, N = DOMStoichN, O = DOMStoichO),
       organismName = "Het"
     ),
     list(
       name = "AssimCO2",
       energyTerm = -3.5E-02,
       fromCompoundNames = list(C = "CO2", O = "CO2"),
-      toCompoundNames = list(C = ".", O = "Ox"),
-      molarTerms = list(C = 1, O = 2),
+      toCompoundNames = list(C = ".", O = "."),
+      molarTerms = list(C = 1, O = 2 ),
       organismName = "Aut"
     ),
     list(
@@ -49,7 +55,7 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       name = "AssimNO3",
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3"),
-      toCompoundNames = list(N = ".", O = "Ox"),
+      toCompoundNames = list(N = ".", O = "."),
       molarTerms = list(N = 1, O = 3),
       organismName = c("Het", "Aut", "Met")
     ),
@@ -63,40 +69,71 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
       limitToInitMols = c(F, T, T)
     ),
     list(
+      name = "AssimO",
+      energyTerm = 0.0,
+      fromCompoundNames = list(O = "Ox"),
+      toCompoundNames = list(O = "."),
+      molarTerms = list(O = 1),
+      organismName = c("Met")
+    ),
+    list(
+      name = "ExcreteO",
+      energyTerm = 0.0,
+      fromCompoundNames = list(O = c(".", "DOM")),
+      toCompoundNames = list(O = "Ox"),
+      molarTerms = list(O = 1),
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, F, F),
+      processSuffix = c("fromBiomass", "fromDOM")
+      ),
+    list(
+      name = "ExcreteN",
+      energyTerm = 0.0,
+      fromCompoundNames = list(N = c(".", "DOM")),
+      toCompoundNames = list(N = "NH4"),
+      molarTerms = list(N = 1),
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, F, F),
+      processSuffix = c("fromBiomass", "fromDOM")
+    ),
+    list(
       name = "Aerobic",
       energyTerm = 4.37E-04,
-      fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), O = "O2"),
-      toCompoundNames = list(C = "CO2", N = "NH4", O = "CO2"),
-      molarTerms = list(C = 1, N = BioStoich, O = 2),
+      fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), O = c(".", "DOM"), O = "O2"),
+      toCompoundNames = list(C = "CO2", N = "NH4", O = "Ox", O = "CO2"),
+      molarTerms = list(C = 1, N = c(BioStoichN, DOMStoichN), O = c(BioStoichO, DOMStoichO), O = 2),
       organismName = "Het",
-      processSuffix = c("ofHet", "ofDOM")
+      processSuffix = c("ofBiomass", "ofDOM")
     ),
+
+    #####  Fix all of the catabolic processes below to model CNO
+
     list(
       name = "Denit",
       energyTerm = 4.102E-4, # ((2 * 2.88E-04) + (2 * 4.15E-04) + 6.45E-04)/5,
-      fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO3", O = "NO3", O = "NO3"),
-      toCompoundNames = list(C = "CO2", N = "NH4", N = "N2", O = "CO2", O = "Ox"),
-      molarTerms = list(C = 1, N = BioStoich, N = 4/5, O = 2, O = 2/5),
+      fromCompoundNames = list(C = c(".", "DOM"), N = "NO3", O = "NO3", O = "NO3"),
+      toCompoundNames = list(C = "CO2", N = "N2", O = "CO2", O = "Ox"),
+      molarTerms = list(C = 1, N = 4/5, O = 2, O = 2/5),
       organismName = "Het",
-      processSuffix = c("ofHet", "ofDOM")
+      processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
       name = "SulfateRed",
       energyTerm = 3.8E-05,
-      fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), S = "SO4", O = "SO4"),
-      toCompoundNames = list(C = "CO2", N = "NH4", S = "HS", O = "CO2"),
-      molarTerms = list(C = 1, N = BioStoich, S = 0.5, O = 2),
+      fromCompoundNames = list(C = c(".", "DOM"), S = "SO4",  O = "SO4"),
+      toCompoundNames = list(C = "CO2", S = "HS", O = "CO2"),
+      molarTerms = list(C = 1, S = 0.5, O = 2),
       organismName = "Het",
-      processSuffix = c("ofHet", "ofDOM")
+      processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
       name = "Methanogenesis",
       energyTerm = 2.8E-05,
-      fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "DOM"), N = c(".", "DOM"), O = "Ox"),
-      toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4", O = "CO2"),
-      molarTerms = list(C = 0.5, C = 0.5, N = BioStoich, O = 1),
+      fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "DOM"), O = c(".", "DOM")),
+      toCompoundNames = list(C = "CO2", C = "CH4", O = "CO2"),
+      molarTerms = list(C = 0.5, C = 0.5, O = 1),
       organismName = "Het",
-      processSuffix = c("ofHet", "ofDOM")
+      processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
       name = "Nitrif",
@@ -117,10 +154,10 @@ CNOS_Any = function(activeElements, sourceSinks = c("CO2", "N2", "HS", "Ox")) {
     list(
       name = "Decay",
       energyTerm = 0,
-      fromCompoundNames = list(C = ".", N = "."),
-      toCompoundNames = list(C = "DOM", N = "DOM"),
-      molarTerms = list(C = 1, N = BioStoich),
-      organismName = c("Aut", "Met")
+      fromCompoundNames = list(C = ".", N = ".", O = "."),
+      toCompoundNames = list(C = "DOM", N = "DOM", O = "DOM"),
+      molarTerms = list(C = 1, N = BioStoichN, O = BioStoichO),
+      organismName = c("Het", "Aut", "Met")
     )
   )
 

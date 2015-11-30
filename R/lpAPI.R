@@ -145,7 +145,7 @@ processEnergies = function(gangstaObjects, lpObject,
                            catabolic = TRUE,
                            anabolic = TRUE,
                            decayString = "Decay",
-                           stringsToStripFromEnergyVarNames = c("ofDOM", "ofHet")) {
+                           stringsToStripFromEnergyVarNames = c("ofDOM", "ofBiomass")) {
 
   if(!any(c(catabolic, anabolic))) {
     stop("You can request anabolic, catabolic, or all energy variables.  Request for neither has failed.")
