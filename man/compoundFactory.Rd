@@ -15,10 +15,9 @@ compoundFactory(compoundName, molarRatios, initialMols, respirationRate = NA,
 processFactory(gangstaObjects, name, energyTerm, fromCompoundNames,
   toCompoundNames, molarTerms, organismName = "", limitToInitMols = T)
 
-compound(compoundName, referencePoolName, initialMols, respirationRate = NA,
-  sourceSink)
+compound(compoundName, initialMols, respirationRate = NA, sourceSink)
 
-pool(compoundName, elementName, molarRatio = NA)
+pool(compoundName, elementName, molarRatio)
 
 process(name, energyTerm, organismName = "")
 
@@ -63,9 +62,6 @@ element that are transformed by the process.  The names of \code{molarTerms}
 must be the same and in the same order as those of \code{fromCompoundNames}
 and \code{toCompoundNames}.}
 
-\item{referencePoolName}{Name of the reference \code{pool} for the
-\code{compound} object to be created.}
-
 \item{elementName}{The name of the element contained by the created
 \code{pool}.}
 
@@ -88,6 +84,9 @@ comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
 same and in the same order as those of \code{fromCompoundNames}.}
 
 \item{organismNames}{A vector of organisms that utilize the process.}
+
+\item{referencePoolName}{Name of the reference \code{pool} for the
+\code{compound} object to be created.}
 }
 \value{
 \code{compoundFactory} returns a list of \code{compound} and {pool}

@@ -25,7 +25,7 @@ leakIn = function(compoundNames){
       list(compoundName = "Aut", additionalMols = 0),
       list(compoundName = "Met", additionalMols = 0),
       list(compoundName = "DOM", additionalMols = 0.1),
-      list(compoundName = "O2" , additionalMols = 0.4)
+      list(compoundName = "O2" , additionalMols = 0.2)
     ),
     list(
       list()
@@ -39,10 +39,10 @@ leakIn = function(compoundNames){
       list(compoundName = "DOM", additionalMols = 0.3)
     ),
     list(
-      list(compoundName = "O2" , additionalMols = 0.8)
+      list(compoundName = "O2" , additionalMols = 0.4)
     ),
     list(
-      list(compoundName = "O2" , additionalMols = 0.8)
+      list(compoundName = "O2" , additionalMols = 0.4)
     ),
     list(
       list(compoundName = "DOM", additionalMols = 0.1),

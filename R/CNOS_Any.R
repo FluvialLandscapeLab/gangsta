@@ -111,27 +111,27 @@ CNOS_Any = function(activeElements, sourceSinks = character(0)) {
     list(
       name = "Denit",
       energyTerm = 4.102E-4, # ((2 * 2.88E-04) + (2 * 4.15E-04) + 6.45E-04)/5,
-      fromCompoundNames = list(C = c(".", "DOM"), N = "NO3", O = "NO3", O = "NO3"),
-      toCompoundNames = list(C = "CO2", N = "N2", O = "CO2", O = "Ox"),
-      molarTerms = list(C = 1, N = 4/5, O = 2, O = 2/5),
+      fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), N = "NO3", O = c(".", "DOM"), O = "NO3", O = "NO3"),
+      toCompoundNames = list(C = "CO2", N = "NH4", N = "N2", O = "Ox", O = "CO2", O = "Ox"),
+      molarTerms = list(C = 1, N = c(BioStoichN, DOMStoichN), N = 4/5, O = c(BioStoichO, DOMStoichO), O = 2, O = 2/5),
       organismName = "Het",
       processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
       name = "SulfateRed",
       energyTerm = 3.8E-05,
-      fromCompoundNames = list(C = c(".", "DOM"), S = "SO4",  O = "SO4"),
-      toCompoundNames = list(C = "CO2", S = "HS", O = "CO2"),
-      molarTerms = list(C = 1, S = 0.5, O = 2),
+      fromCompoundNames = list(C = c(".", "DOM"), N = c(".", "DOM"), S = "SO4",  O = c(".", "DOM"), O = "SO4"),
+      toCompoundNames = list(C = "CO2", N = "NH4", S = "HS", O = "Ox", O = "CO2"),
+      molarTerms = list(C = 1, N = c(BioStoichN, DOMStoichN), S = 0.5, O = c(BioStoichO, DOMStoichO), O = 2),
       organismName = "Het",
       processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
       name = "Methanogenesis",
       energyTerm = 2.8E-05,
-      fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "DOM"), O = c(".", "DOM")),
-      toCompoundNames = list(C = "CO2", C = "CH4", O = "CO2"),
-      molarTerms = list(C = 0.5, C = 0.5, O = 1),
+      fromCompoundNames = list(C = c(".", "DOM"), C = c(".", "DOM"), N = c(".", "DOM"), O = c(".", "DOM")),
+      toCompoundNames = list(C = "CO2", C = "CH4", N = "NH4", O = "CO2"),
+      molarTerms = list(C = 0.5, C = 0.5, N = c(BioStoichN, DOMStoichN), O = 1),
       organismName = "Het",
       processSuffix = c("ofBiomass", "ofDOM")
     ),

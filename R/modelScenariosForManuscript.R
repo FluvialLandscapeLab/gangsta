@@ -7,27 +7,29 @@ runIt = function() {
       )
 
   # Anaerobic carbon
-  CNOS_Any("C")
+  CNOSH_Any("C")
   # Anaerobic N
-  CNOS_Any("N")
+  CNOSH_Any("N")
   # Anaerobic C,N
-  CNOS_Any(c("C", "N"))
+  CNOSH_Any(c("C", "N"))
 
   # Aerobic carbon
-  CNOS_Any("C", "O2")
+  CNOSH_Any("C", "O2")
   # Aerobic N
-  CNOS_Any("N", "O2")
+  CNOSH_Any("N", "O2")
   # Aerobic C,N
-  CNOS_Any(c("C", "N"), "O2")
+  CNOSH_Any(c("C", "N"), "O2")
 
   # C,O
-  CNOS_Any(c("C", "O"))
+  CNOSH_Any(c("C", "O"))
   # N,O
-  CNOS_Any(c("N","O"))
+  CNOSH_Any(c("N", "O"))
   # C,N,O
-  CNOS_Any(c("C", "N", "O"))
+  CNOSH_Any(c("C", "N", "O"))
   # C,N,O,S
-  CNOS_Any(c("C", "N", "O", "S"))
+  CNOSH_Any(c("C", "N", "O", "S"))
+
+  CNOSH_Any(c("O", "H"))
 
   dev.off()
 }

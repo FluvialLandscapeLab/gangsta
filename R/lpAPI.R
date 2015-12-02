@@ -324,7 +324,7 @@ massTransfersPlot = function(gangstaObjects,
            yaxt = "n", ylab = "",
            xaxt = "n", xlab = "", xlim = c(-xBound/2, xBound/2), xaxs = "i", bty = "n"
       )
-      points(rep(0,length(leakYLocs)), leakYLocs, pch = 16, cex = pointSizes)
+      points(rep(0,length(leakYLocs)), leakYLocs, pch = 16, cex = pointSizes, col = "darkgrey")
     }
   }
   title(main=titleTag, outer=TRUE, cex.main = 1.5)
@@ -341,7 +341,7 @@ massTransfersPlot = function(gangstaObjects,
   ### This next bit is a brittle hack-fest that I wrote for the paper.
   ### I'm happy to clean this up later if we want to add a fancy name
   ### to the gangsta objects that we can call on when we go to plot...
-  procNames = ifelse(procNames == "HetAerobic", "Aerobic resp.",
+  procNames = ifelse(procNames == "HetAerobic", "Aerobic hetrphy.",
                      ifelse(procNames =="HetDenit", "Denitrification",
                             ifelse(procNames == "HetSulfateRed", "Sulfate reduct.",
                                    ifelse(procNames == "HetMethanogenesis", "Methanogenesis",
