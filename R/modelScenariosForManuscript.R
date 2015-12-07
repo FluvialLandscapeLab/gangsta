@@ -1,33 +1,20 @@
 runIt = function() {
-  pdf("modelResults_20151130.pdf",
+  pdf("modelResults_20151203.pdf",
       onefile = T,
-      paper = "USr",
-      width = 10.5,
-      height = 8
+      paper = "letter",
+      width = 8,
+      height = 10.5
       )
 
   # Anaerobic carbon
   CNOSH_Any("C")
-  # Anaerobic N
-  CNOSH_Any("N")
-  # Anaerobic C,N
-  CNOSH_Any(c("C", "N"))
+  # Anaerobic C,N,S
+  CNOSH_Any(c("C", "N", "S"))
 
-  # Aerobic carbon
-  CNOSH_Any("C", "O2")
-  # Aerobic N
-  CNOSH_Any("N", "O2")
-  # Aerobic C,N
-  CNOSH_Any(c("C", "N"), "O2")
+  # Aerobic C,N,S
+  CNOSH_Any(c("C", "N" ,"S"), "O2")
 
-  # C,O
-  CNOSH_Any(c("C", "O"))
-  # N,O
-  CNOSH_Any(c("N", "O"))
-  # C,N,O
-  CNOSH_Any(c("C", "N", "O"))
-  # C,N,O,S
-  CNOSH_Any(c("C", "N", "O", "S"))
+  CNOSH_Any(c("C", "N", "S", "O"))
 
   CNOSH_Any(c("O", "H"))
 

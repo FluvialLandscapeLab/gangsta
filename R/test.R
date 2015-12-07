@@ -194,5 +194,6 @@ doAll = function(tag, compoundParams, processParams, compoundNames, sourceSinks)
   assign(resultsName,
          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
          envir = .GlobalEnv)
-  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
+  plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 20, tag, sourceSinks)
+#  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
 }

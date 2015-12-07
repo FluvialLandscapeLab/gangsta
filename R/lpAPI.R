@@ -211,7 +211,9 @@ processEnergies = function(gangstaObjects, lpObject,
                            energy = sum(energy)
     )
     names(returnDF)[match("summarise", names(returnDF),  nomatch = 0)] = "energy"
-    returnDF = returnDF[, c("procSimple", "energy", "procType")]
+    rnames = returnDF$procSimple
+    returnDF = returnDF[, c("energy", "procType")]
+    row.names(returnDF) = rnames
   }
   if(simple) returnDF = subset(returnDF, energy != 0)
   return(returnDF)

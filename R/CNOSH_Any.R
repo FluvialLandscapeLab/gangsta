@@ -17,7 +17,7 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
     list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
     list(compoundName = "Aut" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
     list(compoundName = "Met" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
-#    list(compoundName = "DOMX", molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0),
+    #    list(compoundName = "DOMX", molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0),
     list(compoundName = "DOM" , molarRatios = c(C=1, N=DOMStoichN, O=DOMStoichO, S=DOMStoichS, H = DOMStoichH), initialMols = 0),
     list(compoundName = "CH4" , molarRatios = c(C=1, H=4),      initialMols = 0),
     list(compoundName = "NH4" , molarRatios = c(N=1, H=4),      initialMols = 0),
