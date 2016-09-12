@@ -85,6 +85,8 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
 
   initCompoundVarNames = makeCompoundStartMassVars(gangstaCompoundNames)
   initCompoundIndexes = match(initCompoundVarNames, dimnames(lpObject)[[2]])
+  initSinkCompoundVarNames = makeCompoundStartMassVars(gangstaSinkCompoundNames)
+  initSinkCompoundIndexes = match(initSinkCompoundVarNames, dimnames(lpObject)[[2]])
 
   existingCompoundVals = lpSolveAPI::get.bounds(lpObject, columns = initCompoundIndexes)
   if(!(identical(existingCompoundVals$lower, existingCompoundVals$upper))) {
@@ -129,6 +131,13 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
                            upper = initCompoundVals,
                            columns = initCompoundIndexes
     )
+    ### we always want to set the initial mols of a source/sink pool to zero!
+    numOfSinkCompounds = length(initSinkCompoundIndexes)
+    lpSolveAPI::set.bounds(lpObject,
+                           lower = rep(0, numOfSinkCompounds),
+                           upper = rep(0, numOfSinkCompounds),
+                           columns = initSinkCompoundIndexes
+    )
 
     lpStatus = suppressWarnings(lpSolveAPI::solve.lpExtPtr(lpObject))
 
@@ -164,6 +173,8 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
   return(gangstaResultsList)
 }
 
+gangstaResults = function(gangstaObjects, lpObject, leakInList = leakIn()) {}
+
 doItGangsta = function(gangstaObjects, tag, file = file.choose()){
   equations = makeEquations(gangstaObjects)
   writeGangstaModel(equations, file)
@@ -179,21 +190,21 @@ doItGangsta = function(gangstaObjects, tag, file = file.choose()){
 #   massTransfersPlot(gangstaObjects, results)
 # }
 
-doAll = function(tag, compoundParams, processParams, compoundNames, sourceSinks) {
-  gangstasName = paste0("gangstas", tag)
-  resultsName = paste0("results", tag)
-  modelName = paste0("lp.", tag)
+doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks) {
+  gangstasName = paste0("gangstas", modelNameTag)
+  resultsName = paste0("results", modelNameTag)
+  modelName = paste0("lp.", modelNameTag)
 
   assign(gangstasName,
          gangstaBuildCompoundsAndProcesses(compoundParams, processParams),
          envir = .GlobalEnv)
   gangstaObjects = get(gangstasName, envir = .GlobalEnv)
 
-  doItGangsta(gangstaObjects, tag, file = paste0("lpFiles/", tag, ".lp"))
+  doItGangsta(gangstaObjects, modelNameTag, file = paste0("lpFiles/", modelNameTag, ".lp"))
 
   assign(resultsName,
          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
          envir = .GlobalEnv)
-  plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 20, tag, sourceSinks)
+  plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, sourceSinks)
 #  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
 }

@@ -1,6 +1,14 @@
 CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
 
-  sourceSinks = c("CO2", "Ox", "Hx", sourceSinks)
+  sourceSinks = c(sourceSinks,
+                  "CO2",
+                  "Ox",
+                  "Hx")
+
+  activeElementTag = paste(activeElements, collapse = "")
+  sourceSinkTag = paste(sourceSinks, collapse = ".")
+
+  modelNameTag = paste0(activeElementTag, "_", sourceSinkTag, collapse = "")
 
   tag = paste(activeElements, collapse = "")
 
@@ -92,7 +100,7 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
     ),
     list(
       name = "AssimSO4",
-      energyTerm = -1.5E-04,  ## Value is made up -- need a real value
+      energyTerm = -9.28E-05,  ## Based on PAPS pathway in Shen and Buick (2004)
       fromCompoundNames = list(S = "SO4", O = "SO4"),
       # O must go to Ox, or else in an Oxygen only model, microbes can grow by ammimilating SO4
       toCompoundNames = list(S = ".", O = "Ox"),
@@ -101,7 +109,7 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
     ),
     list(
       name = "AssimHS",
-      energyTerm = -3E-05,  ## Value is made up -- need a real value
+      energyTerm = 0,  ## Based on Shen and Buick (2004) Fig 1
       fromCompoundNames = list(S = "HS", H = "HS"),
       # H must go to Hx, or else in an Hydrogen only model, microbes can grow by ammimilating HS
       toCompoundNames = list(S = ".", H = "Hx"),
@@ -230,6 +238,26 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
       processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
+      name = "SulfideOxidation",
+      energyTerm = 3.983E-04,
+      fromCompoundNames = list(
+        H = "HS",
+        S = "HS",
+        O = "O2"
+        ),
+      toCompoundNames = list(
+        H = "Hx",
+        S = "SO4",
+        O = "SO4"
+      ),
+      molarTerms = list(
+        H = 0.5,
+        S = 0.5,
+        O = 2
+      ),
+      organismName = "Aut"
+    ),
+    list(
       name = "Methanogenesis",
       energyTerm = 2.8E-05,
       fromCompoundNames = list(
@@ -337,6 +365,6 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
     }
   )
 
-  doAll(tag, compoundParams, processParams, compoundNames, sourceSinks)
+  doAll(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks)
 }
 

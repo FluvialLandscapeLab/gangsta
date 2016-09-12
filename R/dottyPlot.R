@@ -11,11 +11,12 @@ plotIt = function(results, dotFactor, lineFactor, tag, excludeCompounds = charac
   energyValList = lapply(results, "[[", "processEnergyVals")
   energyValList = lapply(energyValList, function(x) subset(x, x$procType == "catabolic"))
   newRowNames = c(
-    HetAerobic = "Aerobic Hetrphy",
+    HetAerobic = "Aerobic Heterotrophy",
     HetDenit = "Denitrification",
     HetSulfateRed = "Sulfate Reduction",
     HetMethanogenesis = "Methanogensis",
     AutNitrif = "Nitrification",
+    AutSulfideOxidation = "Sulfide Oxidation",
     MetMethaneOxid = "Methane Oxidation")
   energyValList =
     lapply(
@@ -30,11 +31,15 @@ plotIt = function(results, dotFactor, lineFactor, tag, excludeCompounds = charac
   transferDataList = list(list(), list(), transferList)
   variables = list(c("initial", "final"), c("energy"), c("initial", "final"))
   dotColors = list(c("red", "black"), c("black"), c("red", "black"))
-  graphTitles = list("Available reagents (mols of compound)", "Metabolic energy yield (joules)", "Elemental pools and transfers (mols of atoms)")
+  graphTitles = list(
+    expression(paste("(a) Available reagents (", mu, "mols)")),
+    "(b) Metabolic energy yield (kJ)",
+    expression(paste("(c) Elemental pools and transfers (", mu, "mols)"))
+  )
   xOffset = list(0,0.5,0)
 
   layout(matrix(c(1,2,3), 3, 1), heights = sapply(dotDataList, function(x) nrow(x[[1]])) + 1)
-  par(oma = c(6,8,3,1))
+  par(oma = c(6,11,3,1))
   mapply(subplotIt, dotDataList, transferDataList, variables, dotColors, xOffset, graphTitles, dotFactor, lineFactor, tag)
   axis(side = 1, at = 0:length(transferList), labels = F, cex.axis = 1.0)
   axis(side = 1, at = 0:(length(transferList)-1) + 0.5, labels = 1:length(transferList), cex.axis = 1.0, tick = F)

@@ -1,0 +1,546 @@
+
+library("ggplot2", lib.loc="~/R/win-library/3.2")
+library("plyr", lib.loc="~/R/win-library/3.2")
+library("scales", lib.loc="~/R/win-library/3.2")
+library("grid", lib.loc="~/R/win-library/3.2")
+library("gridExtra", lib.loc="~/R/win-library/3.2")
+
+gangstaSuperPlotInput = function(results = resultsCHONS_Ox.Hx, gangstas = gangstasCHONS_Ox.Hx, aggregateBio = T) {
+  imperfectResultsList = simplifyDataForAlluvialPlot(results, gangstas)
+  imperfectResultsList = unlist(imperfectResultsList, recursive = F)
+  imperfectResultsList = lapply(
+    1:length(imperfectResultsList),
+    function(ts) {
+      from = as.character(imperfectResultsList[[ts]]$fromPool)
+      to = as.character(imperfectResultsList[[ts]]$toPool)
+      element = substr(from, nchar(from), nchar(from))
+      from =  substr(from, 1, nchar(from)-2)
+      to = substr(to, 1, nchar(to)-2)
+      mols = imperfectResultsList[[ts]]$molsTransfered
+      return(data.frame(step = ts, from = from, to = to, element = element, mols = mols, stringsAsFactors = F))
+    }
+  )
+  perfectDF = do.call(rbind, imperfectResultsList)
+  if(aggregateBio == T) {
+    fromIsBio = (perfectDF$from == "Het" | perfectDF$from == "Aut" | perfectDF$from == "Met")
+    toIsBio = (perfectDF$to == "Het" | perfectDF$to == "Aut" | perfectDF$to == "Met")
+    perfectDF$from[fromIsBio] = "Bio"
+    perfectDF$to[toIsBio] = "Bio"
+  }
+  perfectDF = ddply(perfectDF, c("step", "from", "to", "element"), summarise, mols = sum(mols))
+}
+
+
+gangstaSuperPlot = function(
+  perfectDF = inputDF,
+  fileName = "moneyPlot_20160517.pdf",
+  makePDF = TRUE,
+
+  compoundOrder = c("Met", "Aut", "Het", "DOM", "Ox", "CO2", "CH4", "SO4", "HS", "Hx", "NH4", "NO3", "N2", "O2"),
+  # compoundOrder = c("Bio", "DOM", "Ox", "CO2", "CH4", "SO4", "HS", "Hx", "NH4", "NO3", "N2", "O2"),
+  # compoundOrder = c("O2", "CO2", "Bio", "DOM", "Hx", "Ox", "CH4", "SO4", "HS", "NH4", "NO3", "N2"),
+
+  elementOrder = c("C", "H", "O", "N", "S"),
+
+  # elementColor = c(C = "#FF0000", H = "#C0C0C0", O = "#000066", N = "#006400", S = "#FFFF00"),
+  # elementColor = c(C = "#B22222", H = "#C0C0C0", O = "#0000CD", N = "#228B22", S = "#FFD700"),
+
+  elementColor =
+    # rep("black", 5),
+
+    c(C = "#B22222", H = "#C0C0C0", O = "#0000CD", N = "#228B22", S = "magenta3"),
+
+
+  opacity = 0.9,
+  compoundSpacing = 0.2,
+  compoundBoxWidth = 0.2,
+  transferGap = 0.05,
+  poolGap = 0.01,
+  minPoolMols = 0,
+  minTransferMols = 0,
+  justBoxes = F,
+  backgroundCol = "black",
+  textCol = "white",
+  axisFontSize
+){
+
+  elementColor = rgb(t(col2rgb(elementColor)/255), alpha = opacity)
+  names(elementColor) = elementOrder
+
+  plotDF = perfectDF #getPlotDF(plotData)
+  # plotDF = plotDF[plotDF$element %in% c("S"), ]
+
+  # sum pools by "from" to get thickness of transfers out and by "to" to get thickness of tranfers in.
+  startPoolDF = ddply(plotDF, c("step", "from", "element"), summarize, mols = sum(mols))
+  endPoolDF = ddply(plotDF, c("step", "to", "element"), summarize, mols = sum(mols))
+  # adjust step of transfers out; then they are transfers in for next step.
+  endPoolDF$step = endPoolDF$step + 1
+
+  # "from" and "to" are the compound names in each DF
+  names(startPoolDF)[which(names(startPoolDF) %in% "from")] = "compound"
+  names(endPoolDF)[which(names(endPoolDF) %in% "to")] = "compound"
+
+  # This creates a data frame with one row for each pool for steps 1 and n, and
+  # two rows for each pool (one row for incoming and one for outgoing mols) for
+  # steps from 2 to n-1.
+  poolDF = rbind(startPoolDF, endPoolDF)
+  # The pool height should be the max of incoming or outgoing.
+  poolDF$minPoolMols = minPoolMols
+  poolDF$poolGap = poolGap
+  poolDF = ddply(poolDF, c("step", "compound", "element"), summarize, height = max(c(minPoolMols, max(mols))))
+
+  # add the poolGap to mols; use plusGapHeight later to calculate yVals of pools
+  poolDF$plusGapHeight = poolDF$height + poolGap
+
+
+  # order according to the element order list
+  activeElements = elementOrder[elementOrder %in% poolDF$element]
+  rowOrder = match(poolDF$element, activeElements)
+  poolDF = poolDF[order(rowOrder),]
+  poolDF = poolDF[order(poolDF$compound),]
+  poolDF = poolDF[order(poolDF$step),]
+  poolDF$priorHeight = ddply(poolDF, c("step", "compound"), summarize, priorHeight = c(0, cumsum(height))[1:length(height)])$priorHeight
+  poolDF$priorHeightPlusGap = ddply(poolDF, c("step", "compound"), summarize, priorHeightPlusGap = c(0, cumsum(plusGapHeight))[1:length(plusGapHeight)])$priorHeightPlusGap
+
+  badElements = !(unique(poolDF$element) %in% elementOrder)
+  if (any(badElements)) stop("Following elements in the data are not in the element ordering vector: ", paste(unique(poolDF$element)[badElements], collapse = ", "))
+
+  compoundDF = ddply(poolDF, c("step", "compound"), summarize, height = sum(height), plusGapHeight = sum(plusGapHeight))
+  badCompounds = !(unique(compoundDF$compound) %in% compoundOrder)
+  if (any(badCompounds)) stop("Following compounds in the data are not in the compound ordering vector: ", paste(unique(compoundDF$compound)[badCompounds], collapse = ", "))
+
+  #poolDF = join(poolDF, compoundDF, by = c("step", "compound"))
+
+  #poolDF$cmpdHeight = sapply(1:nrow(poolDF), function(.i) compoundDF[which(compoundDF$step == poolDF$step[.i] & compoundDF$compound == poolDF$compound[.i]),]$height)
+
+  rowDF = ddply(compoundDF, c("compound"), summarize, height = max(height), plusGapHeight = max(plusGapHeight))
+
+  #order the row height dataframe according to the inverse of the compoundOrder
+  activeCompounds = compoundOrder[compoundOrder %in% rowDF$compound]
+  rowOrder = length(activeCompounds) + 1 - match(rowDF$compound, activeCompounds)
+  rowDF = rowDF[order(rowOrder),]
+  rowDF$rowTop = cumsum(rowDF$plusGapHeight + compoundSpacing)
+  rowDF$rowCenter = rowDF$rowTop - (rowDF$plusGapHeight + compoundSpacing)/2
+
+  # move y values of row tops to the poolDFrowDF$plusGapHeight + compoundSpacing
+  poolDF = join(poolDF, rowDF[,c("compound", "rowCenter")], by = "compound")
+  compoundHeightDF = data.frame(step = compoundDF$step, compound = compoundDF$compound, compoundPlusGapHeight = compoundDF$plusGapHeight, stringsAsFactors = F)
+  poolDF = join(poolDF, compoundHeightDF, by = c("step", "compound"))
+
+  # caluelate y values for top of each pool
+  poolDF$compoundTop = poolDF$rowCenter + (poolDF$compoundPlusGapHeight - poolGap)/2
+  poolDF$poolTop = poolDF$compoundTop - poolDF$priorHeightPlusGap
+  poolDF$y = poolDF$poolTop - poolDF$height/2
+
+  # render pools at a ggplot
+  river = ggplot() +
+    scale_fill_manual(values = elementColor) +
+    geom_tile(data = poolDF, mapping = aes(x=step, y=y, height = height, width = compoundBoxWidth, fill = element))
+
+  # sort pools by to, from, element, and step
+  rowOrder = match(plotDF$to, activeCompounds)
+  plotDF = plotDF[order(rowOrder),]
+  rowOrder = match(plotDF$from, activeCompounds)
+  plotDF = plotDF[order(rowOrder),]
+  plotDF = plotDF[order(plotDF$element),]
+  plotDF = plotDF[order(plotDF$step),]
+
+  # make a cumulative sum of pool height for all rows with same step, from
+  # compound, and element.  This gives the offset from the y value of the top of
+  # the pool, which will be used to calcualte the y value where the transfer comes
+  # in.
+  plotDF$fromPrior = 0.0
+  for (i in 2:nrow(plotDF)) {
+    if(all(plotDF[i-1, c("step", "from", "element")] == plotDF[i, c("step", "from", "element")])) {
+      plotDF[i, "fromPrior"] = plotDF[i-1, "fromPrior"] + plotDF[i-1, "mols"]
+    }
+  }
+
+  # repeat two block above, but do it for outgoing transfers.
+  rowOrder = match(plotDF$from, activeCompounds)
+  plotDF = plotDF[order(rowOrder),]
+  rowOrder = match(plotDF$to, activeCompounds)
+  plotDF = plotDF[order(rowOrder),]
+  plotDF = plotDF[order(plotDF$element),]
+  plotDF = plotDF[order(plotDF$step),]
+
+  plotDF$toPrior = 0.0
+  for (i in 2:nrow(plotDF)) {
+    if(all(plotDF[i-1, c("step", "to", "element")] == plotDF[i, c("step", "to", "element")])) {
+      plotDF[i, "toPrior"] = plotDF[i-1, "toPrior"] + plotDF[i-1, "mols"]
+    }
+  }
+
+  # move the pool y location data over to the plotDF, where each row represents a
+  # transfer. First for "from"...
+  names(poolDF)[names(poolDF) == "compound"] = "from"
+  names(poolDF)[names(poolDF) == "poolTop"] = "fromTop"
+  plotDF = join(plotDF, poolDF[,c("step", "from", "fromTop", "element")], by = c("step", "from", "element"))
+
+  # then for to...
+  names(poolDF)[names(poolDF) == "from"] = "to"
+  names(poolDF)[names(poolDF) == "fromTop"] = "toTop"
+  poolDF$step = poolDF$step - 1
+  plotDF = join(plotDF, poolDF[,c("step", "to", "toTop", "element")], by = c("step", "to", "element"))
+
+  # Calculate y values of middle of each end of transfer.
+  plotDF$fromY = plotDF$fromTop - plotDF$fromPrior - plotDF$mols/2
+  plotDF$toY = plotDF$toTop - plotDF$toPrior - plotDF$mols/2
+
+  if(justBoxes == FALSE) {
+    plotIt = list()
+    for(.i in 1:nrow(plotDF)) {
+      plotIt[[.i]] = data.frame(
+        x = c((plotDF[.i, "step"] + compoundBoxWidth/2 + transferGap),(plotDF[.i, "step"] + 1 - compoundBoxWidth/2 - transferGap)),
+        y = c(plotDF[.i, "fromY"], plotDF[.i, "toY"]),
+        element = plotDF[.i, "element"],
+        var = plotDF[.i, "mols"]/2
+      )
+      if(plotDF[.i, "mols"] < minTransferMols) {
+        river = river + geom_line(data = plotIt[[.i]], mapping = aes(x = x, y = y, colour = element))
+      } else {
+        river = river + geom_ribbon(data = plotIt[[.i]], mapping = aes(x = x, y = y, ymin = y - var, ymax = y + var, fill = element))
+      }
+    }
+  }
+
+  #river = saveriver
+
+  river = river +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(plot.background = element_rect(fill = backgroundCol, colour = backgroundCol), panel.background = element_blank())
+
+  y.axisDF = ddply(poolDF, "to", summarise,  y = median(y))
+  y.axisDF = y.axisDF[with(y.axisDF, order(y)), ]
+
+  river = river +
+    scale_y_continuous(breaks = y.axisDF$y, labels = y.axisDF$to, name = "") +
+    scale_x_continuous(breaks = seq(1.5,9.5,1), labels = as.character(seq(1, 9, 1)), name = "") +
+    theme(axis.text = element_text(colour = textCol, size = rel(axisFontSize))) +
+    theme(
+      legend.background = element_rect(fill = backgroundCol),
+      legend.text = element_text(size = rel(1.5), colour = backgroundCol),
+      legend.position = "none"
+      # legend.position = "top"
+    )
+  river = river + theme(plot.margin = unit(c(0.5, 1, -0.5, 0.5), "lines"))
+  if(makePDF == TRUE) {
+    pdf(
+      fileName,
+      onefile = T,
+      paper = "USr",
+      # paper = "letter"
+      width = 10.5,
+      height = 7
+    )
+    print(river)
+    dev.off()
+  } else{
+    return(river)
+  }
+  # river
+}
+
+makeDissimEnergyPlot = function(
+  resultsList,
+  printPDF = F,
+  fileName = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\DissimEnergyPlots\\dissimEnergyPlot.pdf",
+  withLegend = F,
+  textCol,
+  backgroundCol,
+  axisFontSize
+) {
+  if(withLegend ==F) {
+    legendLocation = "none"
+  }else{
+    legendLocation = "top"
+  }
+
+  dissimEnergyList = lapply(resultsList, function(x) x$processEnergyVals[x$processEnergyVals$procType == "catabolic", ])
+  dissimEnergyDF = dissimEnergyList[[1]]
+  dissimEnergyDF = data.frame(energy = dissimEnergyDF$energy, timestep = 1, process = row.names(dissimEnergyDF))
+  for(i in 2:length(dissimEnergyList)){
+    newRow = data.frame(energy = dissimEnergyList[[i]]$energy, timestep = i, process = row.names(dissimEnergyList[[i]]))
+    dissimEnergyDF = rbind(dissimEnergyDF, newRow)
+  }
+  dissimEnergyDF$energyInJoules = dissimEnergyDF$energy * 1000
+
+  processNames =
+    c("AutNitrif", "AutSulfideOxidation", "HetAerobic", "HetDenit", "HetMethanogenesis", "HetSulfateRed", "MetMethaneOxid")
+  processColors =
+    c("chartreuse3", "darkorange", "blue3", "brown3", "purple", "yellow", "cyan3")
+  processLabels =
+    c("Nitrification", "Sulfide oxidation", "Aerobic heterotrophy", "Denitrification", "Methanogenesis", "Sulfate reduction", "Methane oxidation")
+  names(processColors) = processNames
+  names(processLabels) = processNames
+
+  processColors = processColors[names(processColors) %in% levels(dissimEnergyDF$process)]
+  processLabels = processLabels[names(processLabels) %in% levels(dissimEnergyDF$process)]
+
+  dissimEnergyPlot = ggplot(dissimEnergyDF, aes(x = timestep, y = energyInJoules, fill = process)) +
+    geom_bar(stat = "identity") +
+    expand_limits(y=c(0,0.1)) +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    theme(plot.background = element_rect(fill = backgroundCol, colour = backgroundCol),
+          panel.background = element_blank()) +
+    scale_x_continuous(
+      breaks = seq(1,9,1),
+      labels = as.character(seq(1, 9, 1)),
+      name = element_blank()
+    ) +
+    scale_y_continuous(
+      breaks = seq(0, 0.09, 0.03),
+      labels = as.character(seq(0, 0.09, 0.03)),
+      name = ""
+    ) +
+    theme(axis.text = element_text(colour = textCol, size = rel(axisFontSize))) +
+    theme(
+      legend.background = element_rect(fill = backgroundCol),
+      legend.text = element_text(size = rel(1.2), colour = textCol  ),
+      legend.position = legendLocation) +
+    scale_fill_manual(
+      values = processColors,
+      # c("chartreuse3", "darkorange", "blue3", "brown3", "purple", "yellow", "cyan3"),
+      labels = processLabels
+      # c("Nitrification", "Sulfide oxidation", "Aerobic heterotrophy", "Denitrification", "Methanogenesis", "Sulfate reduction", "Methane oxidation")
+    ) +
+    theme(plot.margin = unit(c(-0.60, 1, 0.02, 0.5), "lines"))
+  if(printPDF == TRUE) {
+    pdf(
+      fileName,
+      onefile = T,
+      paper = "USr",
+      # paper = "letter",
+      width = 11,
+      height = 4.5
+    )
+    print(dissimEnergyPlot)
+    dev.off()
+  } else {
+    return(dissimEnergyPlot)
+  }
+}
+
+
+makeFileName =
+  function(
+    fileID,
+    filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
+  ){
+    paste0(filePrefix, fileID, ".pdf")
+  }
+
+
+### multiplot is straight from Hadley http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+  if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+makeOutput =
+  function(
+    inputList =
+      list(
+        CN.anoxic = list(activeElements = c("C", "N"), sourceSinks =  c("Ox", "Hx")),
+        CN.oxic = list(activeElements = c("C", "N"), sourceSinks = c("Ox", "O2", "Hx")),
+        CNO = list(activeElements = c("C", "O", "N"), sourceSinks = c("Ox", "Hx")),
+        CHONS = list(activeElements = c("C", "O", "N", "S", "H"), sourceSinks = c("Ox", "Hx"))
+      )
+  ){
+    lapply(inputList, function(input) CNOSH_Any(input[["activeElements"]], input[["sourceSinks"]]))
+  }
+
+makePlots =
+  function(
+    resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"],
+    gangstaNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,8) == "gangstas"],
+    pdf = F,
+    aggregateBio = T,
+    elementalCyclesToPlot = NULL
+  ){
+    resultNames = sort(resultNames)
+    gangstaNames = sort(gangstaNames)
+
+    fileIDXs = resultNames
+
+    gangstaPerfectDFList =
+      lapply(1:length(resultNames), function(i)
+        perfectDF = gangstaSuperPlotInput(
+          results = get(resultNames[i], envir = .GlobalEnv),
+          gangstas = get(gangstaNames[i], envir = .GlobalEnv),
+          aggregateBio = aggregateBio
+        )
+      )
+
+    if(!is.null(elementalCyclesToPlot)) {
+      cycleNames = do.call(paste0, as.list(elementalCyclesToPlot))
+      fileIDXs  = paste0(resultNames, "_", cycleNames)
+      gangstaPerfectDFList =
+        lapply(
+          gangstaPerfectDFList, function(DF)
+            DF = DF[DF$element %in% elementalCyclesToPlot, ]
+        )
+    }
+
+    plotList =
+      lapply(
+        1:length(resultNames), function(i)
+          print(
+            gangstaSuperPlot(
+              perfectDF = gangstaPerfectDFList[[i]],
+              makePDF = pdf,
+              fileName = makeFileName(fileID = fileIDXs[i]),
+              backgroundCol = "white", textCol = "black",
+              axisFontSize = axisFontSize
+            )
+          )
+      )
+    if(pdf == F) return(plotList)
+  }
+
+
+combineRiverPlotsInPDF = function(
+  withLegend = F,
+  fileIdx,
+  resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"],
+  gangstaNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,8) == "gangstas"],
+  aggregateBio = F,
+  elementalCyclesToPlot = NULL,
+  cyclesSeparate = T,
+  axisFontSize
+){
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
+  fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
+
+  resultNames = sort(resultNames)
+  gangstaNames = sort(gangstaNames)
+
+  numColumns =
+    ifelse(
+      (length(elementalCyclesToPlot) > 1 && cyclesSeparate),
+      length(elementalCyclesToPlot),
+      1
+    )
+  numRows = length(resultNames)
+
+  gangstaPerfectDFList =
+    lapply(1:length(resultNames), function(i)
+      perfectDF = gangstaSuperPlotInput(
+        results = get(resultNames[i], envir = .GlobalEnv),
+        gangstas = get(gangstaNames[i], envir = .GlobalEnv),
+        aggregateBio = aggregateBio
+      )
+    )
+
+  if(length(elementalCyclesToPlot)>1) {
+    if(cyclesSeparate == F){
+      gangstaPerfectDFList =
+        lapply(gangstaPerfectDFList, function(DF) DF[DF$element %in% elementalCyclesToPlot, ])
+    } else {
+      numOfElCycles = length(elementalCyclesToPlot)
+      gangstaPerfectDFListOrig = gangstaPerfectDFList
+      gangstaPerfectDFList = list()
+      for(i in 1:length(gangstaPerfectDFListOrig)) {
+        tempDF = gangstaPerfectDFListOrig[[i]]
+        tempDFList = lapply(elementalCyclesToPlot, function(el) tempDF[tempDF$element == el, ])
+        gangstaPerfectDFList = append(gangstaPerfectDFList, tempDFList, length(gangstaPerfectDFList))
+      }
+    }
+  }
+  # https://github.com/wch/ggplot2/wiki/New-theme-system
+  new_theme_empty <- theme_bw()
+  new_theme_empty$line <- element_blank()
+  new_theme_empty$rect <- element_blank()
+  new_theme_empty$strip.text <- element_blank()
+  new_theme_empty$axis.text <- element_blank()
+  new_theme_empty$plot.title <- element_blank()
+  new_theme_empty$axis.title <- element_blank()
+  new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
+  ggsave(filename = fileName,
+         grid.arrange(
+           grobs =
+             lapply(
+               gangstaPerfectDFList,
+               function(DF)
+                 if(nrow(DF) > 0) {
+                 gangstaSuperPlot(DF, makePDF = F, backgroundCol = "white", textCol = "black", axisFontSize = axisFontSize)
+                 } else {
+                   ggplot(mapping = aes(a, b), data = data.frame(a = 0, b = 0)) + new_theme_empty
+                 }
+             ),
+           ncol = numColumns, nrow = numRows
+           # ,
+           # heights = rep(2, length(riverPlotList))
+         ),
+         width = 11,
+         height = 8.5,
+         units = "in",
+         dpi = 600
+  )
+}
+
+combineDissimEnergyPlotsInPDF = function(
+  withLegend = F,
+  fileIdx,
+  axisFontSize = 1.5
+  ){
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\DissimEnergyPlots\\"
+  fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
+  resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]
+  resultNames = sort(resultNames)
+
+  dissimPlotList =
+    lapply(
+      resultNames,
+      function(rN)
+        makeDissimEnergyPlot(
+          results =  get(rN, envir = .GlobalEnv),
+          withLegend = withLegend,
+          backgroundCol = "white", textCol = "black"
+        )
+    )
+  ggsave(
+    filename = fileName,
+    plot =
+      grid.arrange(
+        grobs = dissimPlotList,
+        ncol = 1, nrow = length(resultNames),
+        heights = rep(2, length(resultNames))
+      ),
+    height = 8.5,
+    width = 4,
+    dpi = 600
+  )
+}
