@@ -191,6 +191,15 @@ gangstaAttributeTags = function() {
 
 writeGangstaModel = function(equations, file = file.choose()) {
   file.create(file)
-  equations = sapply(equations, paste0, ";")
+  equations =
+    sapply(
+      equations,
+      function(eq)
+        ifelse(
+          substr(eq, 1, 2) != "/*",
+          paste0(eq, ";"),
+          eq
+        )
+    )
   write(equations, file)
 }

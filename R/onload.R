@@ -16,7 +16,6 @@
         comp = "compound",
         org = "organism",
         pool = "pool",
-        # bnd = "bound",
         proc = "process",
         metab = "metabolic",
         trans = "transformation"
@@ -24,27 +23,25 @@
 
     gangsta.vars =
       c(
-        respEnergy = "RespEnergy",
+        respEnergy = "respirationEnergyJoules",
         respRate = "RespRate",
 
-        startSuffix = "InitialMass",
-        endSuffix = "FinalMass",
-        energySuffix = "Energy",
-        massSuffix = "Mass",
-        transSuffix = "MassTrans"
+        startSuffix = "initialAmountMols",
+        endSuffix = "finalAmountMols",
+        energySuffix = "energyJoules",
+        transSuffix = "amountMolsTransfer"
       ),
 
     gangsta.attributes = c(
       name = "name",
       respRate = "respirationRate",
-#      refPool = "referencePoolName",
       orgName = "organismName",
       procName = "processName",
       compName = "compoundName",
       joulesToMols = "joulesToMolsRatio",
       fromPool = "from",
       toPool = "to",
-      limitToStartMass = "limitToInitMols",
+      limitToStartMols = "limitToInitMols",
       molRatio = "molarRatio",
       initMols = "initialMols",
       finalMols = "finalMols",

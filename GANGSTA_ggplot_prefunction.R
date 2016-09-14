@@ -1,7 +1,4 @@
 source('M:/gangsta/GANGSTA_ggplot_input_centering.R')
-source('M:/gangsta/leakInList.R')
-
-
 
 
 CNOSH_Any(c("C", "N"),
@@ -36,42 +33,6 @@ combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend")
 combineDissimEnergyPlotsInPDF(withLegend = T, fileIdx = "dissimPlots_withLegend")
 
 
-
-#
-# ############### DISSIM ENERGY PLOTS
-# combineDissimEnergyPlotsInPDF = function(withLegend = F, fileIdx){
-#
-#   filePrefix = "C:\\Users\\AnnMarie\\Documents\\Research\\Projects\\BGC\\SFS 2016\\DissimEnergyPlots\\"
-#   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
-#   dissimPlot.C =
-#     makeDissimEnergyPlot(results = resultsC_Ox.Hx, withLegend = withLegend)
-#   dissimPlot.C.aerobic =
-#     makeDissimEnergyPlot(results = resultsC_O2.Ox.Hx, withLegend = withLegend)
-
-#
-#   dissimPlotList =
-#     list(
-#       dissimPlot.C,
-#       dissimPlot.C.aerobic,
-#       dissimPlot.CO,
-#       dissimPlot.CON,
-#       dissimPlot.CHONS
-#     )
-#   pdf(
-#     fileName,
-#     onefile = T,
-#     paper = "USr",
-#     # paper = "letter"
-#     width = 10.5,
-#     height = 7.5
-#   )
-#   print(grid.arrange(grobs = dissimPlotList, ncol = 1))
-#   dev.off()
-# }
-# combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend")
-# combineDissimEnergyPlotsInPDF(withLegend = T, fileIdx = "dissimPlots_withLegend")
-#
-#
 
 
 

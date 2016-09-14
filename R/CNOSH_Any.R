@@ -1,9 +1,9 @@
-CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
+CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
 
-  sourceSinks = c(sourceSinks,
-                  "CO2",
-                  "Ox",
-                  "Hx")
+  # sourceSinks = c(sourceSinks,
+  #                 "CO2",
+  #                 "Ox",
+  #                 "Hx")
 
   activeElementTag = paste(activeElements, collapse = "")
   sourceSinkTag = paste(sourceSinks, collapse = ".")
@@ -22,7 +22,7 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
   DOMStoichH = 263/106
 
   compoundParams = list(
-    list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24), #respirationRate units kJ umol-1 Day-1
     list(compoundName = "Aut" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
     list(compoundName = "Met" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
     #    list(compoundName = "DOMX", molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0),
@@ -42,7 +42,7 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
   processParams = list(
     list(
       name = "AssimDOM",
-      energyTerm = -4.32E-04,
+      energyTerm = -4.32E-04, # units are kJ *(umols of compound)-1
       fromCompoundNames = list(
         C = "DOM",
         N = "DOM",
@@ -189,7 +189,7 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
         N = 4/5,
         O = 2,
         O = 2/5,
-        H = c(BioStoichN * 4, DOMStoichN * 4),
+        H = c(BioStoichN * 4, DOMStoichN * 4), ### Why do we have this instead of DOMStoichH ??  Same for next line...
         H = c(BioStoichS, DOMStoichS)
       ),
       organismName = "Het",
@@ -244,7 +244,7 @@ CNOSH_Any = function(activeElements, sourceSinks = character(0)) {
         H = "HS",
         S = "HS",
         O = "O2"
-        ),
+      ),
       toCompoundNames = list(
         H = "Hx",
         S = "SO4",
