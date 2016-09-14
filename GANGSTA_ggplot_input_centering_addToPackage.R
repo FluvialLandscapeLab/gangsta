@@ -61,7 +61,8 @@ gangstaSuperPlot = function(
   justBoxes = F,
   backgroundCol = "black",
   textCol = "white",
-  axisFontSize
+  axisFontSize,
+  yAxisMaxMols = 0
 ){
 
   elementColor = rgb(t(col2rgb(elementColor)/255), alpha = opacity)
@@ -122,6 +123,25 @@ gangstaSuperPlot = function(
   rowDF$rowTop = cumsum(rowDF$plusGapHeight + compoundSpacing)
   rowDF$rowCenter = rowDF$rowTop - (rowDF$plusGapHeight + compoundSpacing)/2
 
+  # begin plot rendering
+  river = ggplot()
+
+  # if yAxisMaxMols != 0, Adjust compound spacing to make max of y axis equal yAxisMaxMols
+  if(yAxisMaxMols > 0) {
+    # find current max value for y axis
+    yScaleMax = max(rowDF$rowTop)
+    # if current value exceeds requested value, ooops...
+    if(yScaleMax > yAxisMaxMols) {
+      stop("The 'yAxisMaxMols' parameter is too small.  Summed compound mols (", yScaleMax, ") can't exceed the 'yAxisMaxMols' parameter.")
+    }
+    # determine the height of a space that would center the whole graph on the y Axis
+    centeringGap = (yAxisMaxMols - yScaleMax)/2
+    rowDF$rowTop = rowDF$rowTop + centeringGap
+    rowDF$rowCenter = rowDF$rowCenter + centeringGap
+    river = river + coord_cartesian(ylim = c(0, yAxisMaxMols))
+  }
+
+
   # move y values of row tops to the poolDFrowDF$plusGapHeight + compoundSpacing
   poolDF = join(poolDF, rowDF[,c("compound", "rowCenter")], by = "compound")
   compoundHeightDF = data.frame(step = compoundDF$step, compound = compoundDF$compound, compoundPlusGapHeight = compoundDF$plusGapHeight, stringsAsFactors = F)
@@ -132,8 +152,8 @@ gangstaSuperPlot = function(
   poolDF$poolTop = poolDF$compoundTop - poolDF$priorHeightPlusGap
   poolDF$y = poolDF$poolTop - poolDF$height/2
 
-  # render pools at a ggplot
-  river = ggplot() +
+  # render pools as a ggplot
+  river = river +
     scale_fill_manual(values = elementColor) +
     geom_tile(data = poolDF, mapping = aes(x=step, y=y, height = height, width = compoundBoxWidth, fill = element))
 
@@ -223,6 +243,7 @@ gangstaSuperPlot = function(
       legend.position = "none"
       # legend.position = "top"
     )
+
   river = river + theme(plot.margin = unit(c(0.5, 1, -0.5, 0.5), "lines"))
   if(makePDF == TRUE) {
     pdf(
