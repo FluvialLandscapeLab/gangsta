@@ -1,4 +1,4 @@
-source('M:/gangsta/GANGSTA_ggplot_input_centering.R')
+source('M:/gangsta/GANGSTA_ggplot_input_centering_addToPackage.R')
 
 
 CNOSH_Any(c("C", "N"),
@@ -12,16 +12,17 @@ CNOSH_Any(c("C", "O", "N", "S", "H"),
 
 
 # makeOutput()
-# makePlots(pdf = T, aggregateBio = F)
+# makePlots(pdf = F, aggregateBio = F, yAxisMaxMols = 0)
 # makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="C")
 # makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="N")
 # makePlots(pdf = F, aggregateBio = F, elementalCyclesToPlot = c("C", "N"))
 
 combineRiverPlotsInPDF(
-  fileIdx = "CNOS_CombinedPlots_sep",
+  fileIdx = "CNOS_TEST",
   cyclesSeparate = T,
   elementalCyclesToPlot = c("C", "N", "O", "S"),
-  axisFontSize = 0.5
+  axisFontSize = 0.5,
+  yAxisMaxMols = 4.05
   )
 
 

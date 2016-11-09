@@ -83,7 +83,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       name = "AssimNO3",
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3"),
-      # O must go to Ox, or else in an Oxygen only model, microbes can grow by ammimilating NO3
+      # O must go to Ox, or else in an Oxygen only model, microbes can grow by assimilating NO3
       toCompoundNames = list(N = ".", O = "Ox"),
       molarTerms = list(N = 1, O = 3),
       organismName = c("Het", "Aut", "Met")

@@ -27,7 +27,7 @@ gangstaSuperPlotInput = function(results = resultsCHONS_Ox.Hx, gangstas = gangst
     perfectDF$from[fromIsBio] = "Bio"
     perfectDF$to[toIsBio] = "Bio"
   }
-  perfectDF = plyr::ddply(perfectDF, c("step", "from", "to", "element"), summarise, mols = sum(mols))
+  perfectDF = plyr::ddply(perfectDF, c("step", "from", "to", "element"), plyr::summarise, mols = sum(mols))
 }
 
 
@@ -72,8 +72,8 @@ gangstaSuperPlot = function(
   # plotDF = plotDF[plotDF$element %in% c("S"), ]
 
   # sum pools by "from" to get thickness of transfers out and by "to" to get thickness of tranfers in.
-  startPoolDF = plyr::ddply(plotDF, c("step", "from", "element"), summarize, mols = sum(mols))
-  endPoolDF = plyr::ddply(plotDF, c("step", "to", "element"), summarize, mols = sum(mols))
+  startPoolDF = plyr::ddply(plotDF, c("step", "from", "element"), plyr::summarise, mols = sum(mols))
+  endPoolDF = plyr::ddply(plotDF, c("step", "to", "element"), plyr::summarise, mols = sum(mols))
   # adjust step of transfers out; then they are transfers in for next step.
   endPoolDF$step = endPoolDF$step + 1
 
@@ -88,7 +88,7 @@ gangstaSuperPlot = function(
   # The pool height should be the max of incoming or outgoing.
   poolDF$minPoolMols = minPoolMols
   poolDF$poolGap = poolGap
-  poolDF = plyr::ddply(poolDF, c("step", "compound", "element"), summarize, height = max(c(minPoolMols, max(mols))))
+  poolDF = plyr::ddply(poolDF, c("step", "compound", "element"), plyr::summarise, height = max(c(minPoolMols, max(mols))))
 
   # add the poolGap to mols; use plusGapHeight later to calculate yVals of pools
   poolDF$plusGapHeight = poolDF$height + poolGap
@@ -100,13 +100,13 @@ gangstaSuperPlot = function(
   poolDF = poolDF[order(rowOrder),]
   poolDF = poolDF[order(poolDF$compound),]
   poolDF = poolDF[order(poolDF$step),]
-  poolDF$priorHeight = plyr::ddply(poolDF, c("step", "compound"), summarize, priorHeight = c(0, cumsum(height))[1:length(height)])$priorHeight
-  poolDF$priorHeightPlusGap = plyr::ddply(poolDF, c("step", "compound"), summarize, priorHeightPlusGap = c(0, cumsum(plusGapHeight))[1:length(plusGapHeight)])$priorHeightPlusGap
+  poolDF$priorHeight = plyr::ddply(poolDF, c("step", "compound"), plyr::summarise, priorHeight = c(0, cumsum(height))[1:length(height)])$priorHeight
+  poolDF$priorHeightPlusGap = plyr::ddply(poolDF, c("step", "compound"), plyr::summarise, priorHeightPlusGap = c(0, cumsum(plusGapHeight))[1:length(plusGapHeight)])$priorHeightPlusGap
 
   badElements = !(unique(poolDF$element) %in% elementOrder)
   if (any(badElements)) stop("Following elements in the data are not in the element ordering vector: ", paste(unique(poolDF$element)[badElements], collapse = ", "))
 
-  compoundDF = plyr::ddply(poolDF, c("step", "compound"), summarize, height = sum(height), plusGapHeight = sum(plusGapHeight))
+  compoundDF = plyr::ddply(poolDF, c("step", "compound"), plyr::summarise, height = sum(height), plusGapHeight = sum(plusGapHeight))
   badCompounds = !(unique(compoundDF$compound) %in% compoundOrder)
   if (any(badCompounds)) stop("Following compounds in the data are not in the compound ordering vector: ", paste(unique(compoundDF$compound)[badCompounds], collapse = ", "))
 
@@ -114,7 +114,7 @@ gangstaSuperPlot = function(
 
   #poolDF$cmpdHeight = sapply(1:nrow(poolDF), function(.i) compoundDF[which(compoundDF$step == poolDF$step[.i] & compoundDF$compound == poolDF$compound[.i]),]$height)
 
-  rowDF = plyr::ddply(compoundDF, c("compound"), summarize, height = max(height), plusGapHeight = max(plusGapHeight))
+  rowDF = plyr::ddply(compoundDF, c("compound"), plyr::summarise, height = max(height), plusGapHeight = max(plusGapHeight))
 
   #order the row height dataframe according to the inverse of the compoundOrder
   activeCompounds = compoundOrder[compoundOrder %in% rowDF$compound]
@@ -143,9 +143,9 @@ gangstaSuperPlot = function(
 
 
   # move y values of row tops to the poolDFrowDF$plusGapHeight + compoundSpacing
-  poolDF = join(poolDF, rowDF[,c("compound", "rowCenter")], by = "compound")
+  poolDF = plyr::join(poolDF, rowDF[,c("compound", "rowCenter")], by = "compound")
   compoundHeightDF = data.frame(step = compoundDF$step, compound = compoundDF$compound, compoundPlusGapHeight = compoundDF$plusGapHeight, stringsAsFactors = F)
-  poolDF = join(poolDF, compoundHeightDF, by = c("step", "compound"))
+  poolDF = plyr::join(poolDF, compoundHeightDF, by = c("step", "compound"))
 
   # caluelate y values for top of each pool
   poolDF$compoundTop = poolDF$rowCenter + (poolDF$compoundPlusGapHeight - poolGap)/2
@@ -195,13 +195,13 @@ gangstaSuperPlot = function(
   # transfer. First for "from"...
   names(poolDF)[names(poolDF) == "compound"] = "from"
   names(poolDF)[names(poolDF) == "poolTop"] = "fromTop"
-  plotDF = join(plotDF, poolDF[,c("step", "from", "fromTop", "element")], by = c("step", "from", "element"))
+  plotDF = plyr::join(plotDF, poolDF[,c("step", "from", "fromTop", "element")], by = c("step", "from", "element"))
 
   # then for to...
   names(poolDF)[names(poolDF) == "from"] = "to"
   names(poolDF)[names(poolDF) == "fromTop"] = "toTop"
   poolDF$step = poolDF$step - 1
-  plotDF = join(plotDF, poolDF[,c("step", "to", "toTop", "element")], by = c("step", "to", "element"))
+  plotDF = plyr::join(plotDF, poolDF[,c("step", "to", "toTop", "element")], by = c("step", "to", "element"))
 
   # Calculate y values of middle of each end of transfer.
   plotDF$fromY = plotDF$fromTop - plotDF$fromPrior - plotDF$mols/2
@@ -230,7 +230,7 @@ gangstaSuperPlot = function(
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
     theme(plot.background = element_rect(fill = backgroundCol, colour = backgroundCol), panel.background = element_blank())
 
-  y.axisDF = plyr::ddply(poolDF, "to", summarise,  y = median(y))
+  y.axisDF = plyr::ddply(poolDF, "to", plyr::summarise,  y = median(y))
   y.axisDF = y.axisDF[with(y.axisDF, order(y)), ]
 
   river = river +
@@ -293,7 +293,8 @@ makePlots =
     gangstaNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,8) == "gangstas"],
     pdf = F,
     aggregateBio = T,
-    elementalCyclesToPlot = NULL
+    elementalCyclesToPlot = NULL,
+    yAxisMaxMols
   ){
     resultNames = sort(resultNames)
     gangstaNames = sort(gangstaNames)
@@ -328,7 +329,8 @@ makePlots =
               makePDF = pdf,
               fileName = makeFileName(fileID = fileIDXs[i]),
               backgroundCol = "white", textCol = "black",
-              axisFontSize = axisFontSize
+              axisFontSize = axisFontSize,
+              yAxisMaxMols = yAxisMaxMols
             )
           )
       )
@@ -344,7 +346,8 @@ combineRiverPlotsInPDF = function(
   aggregateBio = F,
   elementalCyclesToPlot = NULL,
   cyclesSeparate = T,
-  axisFontSize
+  axisFontSize,
+  yAxisMaxMols = 0
 ){
   filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
@@ -400,7 +403,14 @@ combineRiverPlotsInPDF = function(
                gangstaPerfectDFList,
                function(DF)
                  if(nrow(DF) > 0) {
-                 gangstaSuperPlot(DF, makePDF = F, backgroundCol = "white", textCol = "black", axisFontSize = axisFontSize)
+                   gangstaSuperPlot(
+                     DF,
+                     makePDF = F,
+                     backgroundCol = "white",
+                     textCol = "black",
+                     axisFontSize = axisFontSize,
+                     yAxisMaxMols = yAxisMaxMols
+                   )
                  } else {
                    ggplot(mapping = aes(a, b), data = data.frame(a = 0, b = 0)) + new_theme_empty
                  }
