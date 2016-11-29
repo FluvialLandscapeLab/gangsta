@@ -1,10 +1,5 @@
 CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
 
-  # sourceSinks = c(sourceSinks,
-  #                 "CO2",
-  #                 "Ox",
-  #                 "Hx")
-
   activeElementTag = paste(activeElements, collapse = "")
   sourceSinkTag = paste(sourceSinks, collapse = ".")
 
@@ -41,6 +36,62 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
 
   processParams = list(
     list(
+      name = "ExcreteO",
+      energyTerm = 0,
+      fromCompoundNames = list(O = "."),
+      toCompoundNames = list(O = "Ox"),
+      molarTerms = list(O = 1),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "ExcreteH",
+      energyTerm = 0,
+      fromCompoundNames = list(H = "."),
+      toCompoundNames = list(H = "Hx"),
+      molarTerms = list(H = 1),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "ExcreteC",
+      energyTerm = 0,
+      fromCompoundNames = list(C = ".", O = "."),
+      toCompoundNames = list(C = "CO2", O = "CO2"),
+      molarTerms = list(C = 1, O = 2),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "ExcreteN",
+      energyTerm = 0,
+      fromCompoundNames = list(N = ".", H = "."),
+      toCompoundNames = list(N = "NH4", H = "NH4"),
+      molarTerms = list(N = 1, H = 4),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "ExcreteS",
+      energyTerm = 0,
+      fromCompoundNames = list(S = ".", H = "."),
+      toCompoundNames = list(S = "HS", H = "HS"),
+      molarTerms = list(S = 1, H = 1),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "AssimO",
+      energyTerm = 0,
+      fromCompoundNames = list(O = "Ox"),
+      toCompoundNames = list(O = "."),
+      molarTerms = list(O = 1),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "AssimH",
+      energyTerm = 0,
+      fromCompoundNames = list(H = "Hx"),
+      toCompoundNames = list(H = "."),
+      molarTerms = list(H = 1),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
       name = "AssimDOM",
       energyTerm = -4.32E-04, # units are kJ *(umols of compound)-1
       fromCompoundNames = list(
@@ -66,25 +117,24 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
     list(
       name = "AssimCO2",
       energyTerm = -3.5E-02,
-      fromCompoundNames = list(C = "CO2", O = "CO2", O = "CO2", H = "Hx"),
-      toCompoundNames = list(C = ".", O = ".", O = "Ox", H = "."),
-      molarTerms = list(C = 1, O = BioStoichO, O = 2 - BioStoichO, H = BioStoichH),
+      fromCompoundNames = list(C = "CO2", O = "CO2"),
+      toCompoundNames = list(C = ".", O = "."),
+      molarTerms = list(C = 1, O = 2),
       organismName = "Aut"
     ),
     list(
       name = "AssimCH4",
       energyTerm = -1.09E-03,
-      fromCompoundNames = list(C = "CH4", H = "CH4", H = "CH4", O = "Ox"),
-      toCompoundNames = list(C = ".", H = ".", H = "Hx", O = "."),
-      molarTerms = list(C = 1, H = BioStoichH, H = 4 - BioStoichH, O = BioStoichO),
+      fromCompoundNames = list(C = "CH4", H = "CH4"),
+      toCompoundNames = list(C = ".", H = "."),
+      molarTerms = list(C = 1, H = 4),
       organismName = "Met"
     ),
     list(
       name = "AssimNO3",
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3"),
-      # O must go to Ox, or else in an Oxygen only model, microbes can grow by assimilating NO3
-      toCompoundNames = list(N = ".", O = "Ox"),
+      toCompoundNames = list(N = ".", O = "."),
       molarTerms = list(N = 1, O = 3),
       organismName = c("Het", "Aut", "Met")
     ),
@@ -92,8 +142,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       name = "AssimNH4",
       energyTerm = -3.18E-05,
       fromCompoundNames = list(N = "NH4", H = "NH4"),
-      # H must go to Hx, or else in an Hydrogen only model, microbes can grow by assimilating NH4
-      toCompoundNames = list(N = ".", H = "Hx"),
+      toCompoundNames = list(N = ".", H = "."),
       molarTerms = list(N = 1, H = 4),
       organismName = c("Het", "Aut", "Met"),
       limitToInitMols = c(F, T, T)
@@ -102,19 +151,18 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       name = "AssimSO4",
       energyTerm = -9.28E-05,  ## Based on PAPS pathway in Shen and Buick (2004)
       fromCompoundNames = list(S = "SO4", O = "SO4"),
-      # O must go to Ox, or else in an Oxygen only model, microbes can grow by ammimilating SO4
-      toCompoundNames = list(S = ".", O = "Ox"),
+      toCompoundNames = list(S = ".", O = "."),
       molarTerms = list(S = 1, O = 4),
       organismName = c("Het", "Aut", "Met")
     ),
     list(
       name = "AssimHS",
-      energyTerm = 0,  ## Based on Shen and Buick (2004) Fig 1
+      energyTerm = 0.000000001,  ## Based on Shen and Buick (2004) Fig 1
       fromCompoundNames = list(S = "HS", H = "HS"),
-      # H must go to Hx, or else in an Hydrogen only model, microbes can grow by ammimilating HS
-      toCompoundNames = list(S = ".", H = "Hx"),
+      toCompoundNames = list(S = ".", H = "."),
       molarTerms = list(S = 1, H = 1),
-      organismName = c("Het", "Aut", "Met")
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, T, T)
     ),
     list(
       name = "Aerobic",
@@ -189,7 +237,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
         N = 4/5,
         O = 2,
         O = 2/5,
-        H = c(BioStoichN * 4, DOMStoichN * 4), ### Why do we have this instead of DOMStoichH ??  Same for next line...
+        H = c(BioStoichN * 4, DOMStoichN * 4),
         H = c(BioStoichS, DOMStoichS)
       ),
       organismName = "Het",
@@ -233,7 +281,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
 
         S = 0.5,
         O = 2,
-        H = 0.5 + c(BioStoichS, DOMStoichS)),
+        H = 0.5 + c(BioStoichS, DOMStoichS)), # Hx goes to HS when we make half a mol of HS PLUS we need to account for the HS-H produced from the breakdown of OM
       organismName = "Het",
       processSuffix = c("ofBiomass", "ofDOM")
     ),
@@ -304,7 +352,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       energyTerm = 3.485E-4, #((1.83E-04 *3) + 1.48E-04)/2,
       fromCompoundNames = list(N = "NH4", H = "NH4", O = "O2", O = "O2"),
       toCompoundNames = list(N = "NO3", H = "Hx", O = "NO3", O = "Ox"),
-      molarTerms = list(N = 1, H = 4, O = 3, O = 1),
+      molarTerms = list(N = 1, H = 4, O = 3, O = 2),
       organismName = "Aut"
     ),
     list(
@@ -325,25 +373,38 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
     )
   )
 
+  # tag for inclusion any compoundParams that have at least one active element in the molarRatios vector
   keep = sapply(compoundParams, function(x) any(names(x[["molarRatios"]]) %in% activeElements))
   compoundParams = compoundParams[keep]
+
+  #
   compoundParams = lapply(
     compoundParams,
     function(x) {
+      # keep the molar ratios for active elements ONLY
       x[["molarRatios"]] = x[["molarRatios"]][names(x[["molarRatios"]]) %in% activeElements]
-      # set molar ratio of first remaining element (reference element) to 1.0
-      # x[["molarRatios"]] = x[["molarRatios"]] / x[["molarRatios"]][1]
+      # for any compound in the sourceSinks list, add the sourceSink = T attribute to the compoundParams list
       if (x[["compoundName"]] %in% sourceSinks) x = c(x, list(sourceSink = T))
       return(x)
     }
   )
 
+  # make a vector of remaining compound names
   compoundNames = sapply(compoundParams, "[[", "compoundName")
 
+  # expand multi-process params into process params.  In other words, each
+  # process is replicated for each organismName vector and the organismName is
+  # appended to the process name.  Also, replaces "." in from/to compound vector
+  # with name of organism.
   processParams = unlist(lapply(processParams, expandMultiprocessSpec), recursive = F)
 
+  # Tag for inclusion all processes where from compounds involve active
+  # elements.
   keep = sapply(processParams, function(x) any(names(x[["fromCompoundNames"]]) %in% activeElements))
   processParams = processParams[keep]
+
+  # Tag for exclusion any process where the from compound has been removed from
+  # the compound list AND is not a source/sink.
   kill = sapply(
     processParams,
     function(x) {
@@ -355,6 +416,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
   )
   processParams = processParams[!kill]
 
+  # Remove any pools that contain elements not in the activeElements list.
   processParams = lapply(
     processParams,
     function(x) {
