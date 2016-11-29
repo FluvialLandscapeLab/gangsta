@@ -130,10 +130,6 @@ compoundFactory = function(compoundName, molarRatios, initialMols, respirationRa
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
   }
   elementNames = names(molarRatios)
-#   if(molarRatios[1]!=1.0) {
-#     stop("The molarRatio of the Reference Element (the first element in the molarRatios vector) must be 1.0")
-#   }
-#   molarRatios[1] = NA
   newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
   newCompound = list(compound(compoundName, initialMols, respirationRate, sourceSink))
@@ -249,9 +245,5 @@ transformation = function(gangstaObjects, processName, fromPoolName, toPoolName,
   return(newTransformation)
 }
 
-processSpec = function(listOfProcessFactoryArgs) {
-  checkProcessSpecNames(names(listOfProcessFactoryArgs))
-  class(listOfProcessFactoryArgs) = c("processSpec", "gangsta")
-  return(listOfProcessFactoryArgs)
-}
+
 

@@ -1,3 +1,6 @@
+
+
+
 print.gangsta = function(x) {
   classes = attr(x,"class")
   cat(classes[1], ":", x$name, "\n")
@@ -6,6 +9,7 @@ print.gangsta = function(x) {
   mapply(function(nm, val) cat(nm, ":", paste0(addNamesToValues(val), collapse = "; "), "\n"), names(otherVals),otherVals)
 }
 
+# function used by print.gangsta
 addNamesToValues = function(x) {
   if(is.null(names(x))) {
     return(x)
