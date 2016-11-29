@@ -5,7 +5,7 @@ makeDissimEnergyPlot = function(
   withLegend = F,
   textCol,
   backgroundCol,
-  axisFontSize
+  axisFontSize = 1.5
 ) {
   if(withLegend ==F) {
     legendLocation = "none"
