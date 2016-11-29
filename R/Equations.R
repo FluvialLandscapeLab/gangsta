@@ -457,9 +457,19 @@ makeEquations = function(gangstaObjects) {
     processEnergyEqns,
     energyBalEqns
   )
-
-  print("Damn it feels good to be a GANGSTA!")
-
   return(allEquations)
 }
 
+formatEquations = function(equations) {
+  equations =
+    sapply(
+      equations,
+      function(eq)
+        ifelse(
+          substr(eq, 1, 2) != "/*",
+          paste0(eq, ";"),
+          eq
+        )
+    )
+  return(equations)
+}
