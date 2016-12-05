@@ -1,9 +1,4 @@
 
-library("ggplot2", lib.loc="~/R/win-library/3.2")
-##library("plyr", lib.loc="~/R/win-library/3.2")
-library("scales", lib.loc="~/R/win-library/3.2")
-library("grid", lib.loc="~/R/win-library/3.2")
-library("gridExtra", lib.loc="~/R/win-library/3.2")
 
 gangstaSuperPlotInput = function(results = resultsCHONS_Ox.Hx, gangstas = gangstasCHONS_Ox.Hx, aggregateBio = T) {
   imperfectResultsList = simplifyDataForAlluvialPlot(results, gangstas)
@@ -124,7 +119,7 @@ gangstaSuperPlot = function(
   rowDF$rowCenter = rowDF$rowTop - (rowDF$plusGapHeight + compoundSpacing)/2
 
   # begin plot rendering
-  river = ggplot()
+  river = ggplot2::ggplot()
 
   # if yAxisMaxMols != 0, Adjust compound spacing to make max of y axis equal yAxisMaxMols
   if(yAxisMaxMols > 0) {
@@ -138,7 +133,7 @@ gangstaSuperPlot = function(
     centeringGap = (yAxisMaxMols - yScaleMax)/2
     rowDF$rowTop = rowDF$rowTop + centeringGap
     rowDF$rowCenter = rowDF$rowCenter + centeringGap
-    river = river + coord_cartesian(ylim = c(0, yAxisMaxMols))
+    river = river + ggplot2::coord_cartesian(ylim = c(0, yAxisMaxMols))
   }
 
 
@@ -154,8 +149,17 @@ gangstaSuperPlot = function(
 
   # render pools as a ggplot
   river = river +
-    scale_fill_manual(values = elementColor) +
-    geom_tile(data = poolDF, mapping = aes(x=step, y=y, height = height, width = compoundBoxWidth, fill = element))
+    ggplot2::scale_fill_manual(values = elementColor) +
+    ggplot2::geom_tile(
+      data = poolDF,
+      mapping = ggplot2::aes(
+        x=step,
+        y=y,
+        height = height,
+        width = compoundBoxWidth,
+        fill = element
+        )
+      )
 
   # sort pools by to, from, element, and step
   rowOrder = match(plotDF$to, activeCompounds)
@@ -217,9 +221,15 @@ gangstaSuperPlot = function(
         var = plotDF[.i, "mols"]/2
       )
       if(plotDF[.i, "mols"] < minTransferMols) {
-        river = river + geom_line(data = plotIt[[.i]], mapping = aes(x = x, y = y, colour = element))
+        river = river + ggplot2::geom_line(data = plotIt[[.i]], mapping = ggplot2::aes(x = x, y = y, colour = element))
       } else {
-        river = river + geom_ribbon(data = plotIt[[.i]], mapping = aes(x = x, y = y, ymin = y - var, ymax = y + var, fill = element))
+        river = river + ggplot2::geom_ribbon(data = plotIt[[.i]], mapping = ggplot2::aes(
+          x = x,
+          # y = y,
+          ymin = y - var,
+          ymax = y + var,
+          fill = element)
+          )
       }
     }
   }
@@ -227,24 +237,24 @@ gangstaSuperPlot = function(
   #river = saveriver
 
   river = river +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-    theme(plot.background = element_rect(fill = backgroundCol, colour = backgroundCol), panel.background = element_blank())
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank()) +
+    ggplot2::theme(plot.background = ggplot2::element_rect(fill = backgroundCol, colour = backgroundCol), panel.background = ggplot2::element_blank())
 
   y.axisDF = plyr::ddply(poolDF, "to", plyr::summarise,  y = median(y))
   y.axisDF = y.axisDF[with(y.axisDF, order(y)), ]
 
   river = river +
-    scale_y_continuous(breaks = y.axisDF$y, labels = y.axisDF$to, name = "") +
-    scale_x_continuous(breaks = seq(1.5,9.5,1), labels = as.character(seq(1, 9, 1)), name = "") +
-    theme(axis.text = element_text(colour = textCol, size = rel(axisFontSize))) +
-    theme(
-      legend.background = element_rect(fill = backgroundCol),
-      legend.text = element_text(size = rel(1.5), colour = backgroundCol),
+    ggplot2::scale_y_continuous(breaks = y.axisDF$y, labels = y.axisDF$to, name = "") +
+    ggplot2::scale_x_continuous(breaks = seq(1.5,9.5,1), labels = as.character(seq(1, 9, 1)), name = "") +
+    ggplot2::theme(axis.text = ggplot2::element_text(colour = textCol, size = ggplot2::rel(axisFontSize))) +
+    ggplot2::theme(
+      legend.background = ggplot2::element_rect(fill = backgroundCol),
+      legend.text = ggplot2::element_text(size = ggplot2::rel(1.5), colour = backgroundCol),
       legend.position = "none"
       # legend.position = "top"
     )
 
-  river = river + theme(plot.margin = unit(c(0.5, 1, -0.5, 0.5), "lines"))
+  river = river + ggplot2::theme(plot.margin = grid::unit(c(0.5, 1, -0.5, 0.5), "lines"))
   if(makePDF == TRUE) {
     pdf(
       fileName,
@@ -294,7 +304,8 @@ makePlots =
     pdf = F,
     aggregateBio = T,
     elementalCyclesToPlot = NULL,
-    yAxisMaxMols
+    yAxisMaxMols,
+    axisFontSize
   ){
     resultNames = sort(resultNames)
     gangstaNames = sort(gangstaNames)
@@ -388,41 +399,41 @@ combineRiverPlotsInPDF = function(
     }
   }
   # https://github.com/wch/ggplot2/wiki/New-theme-system
-  new_theme_empty <- theme_bw()
-  new_theme_empty$line <- element_blank()
-  new_theme_empty$rect <- element_blank()
-  new_theme_empty$strip.text <- element_blank()
-  new_theme_empty$axis.text <- element_blank()
-  new_theme_empty$plot.title <- element_blank()
-  new_theme_empty$axis.title <- element_blank()
+  new_theme_empty <- ggplot2::theme_bw()
+  new_theme_empty$line <- ggplot2::element_blank()
+  new_theme_empty$rect <- ggplot2::element_blank()
+  new_theme_empty$strip.text <- ggplot2::element_blank()
+  new_theme_empty$axis.text <- ggplot2::element_blank()
+  new_theme_empty$plot.title <- ggplot2::element_blank()
+  new_theme_empty$axis.title <- ggplot2::element_blank()
   new_theme_empty$plot.margin <- structure(c(0, 0, -1, -1), unit = "lines", valid.unit = 3L, class = "unit")
-  ggsave(filename = fileName,
-         grid.arrange(
-           grobs =
-             lapply(
-               gangstaPerfectDFList,
-               function(DF)
-                 if(nrow(DF) > 0) {
-                   gangstaSuperPlot(
-                     DF,
-                     makePDF = F,
-                     backgroundCol = "white",
-                     textCol = "black",
-                     axisFontSize = axisFontSize,
-                     yAxisMaxMols = yAxisMaxMols
-                   )
-                 } else {
-                   ggplot(mapping = aes(a, b), data = data.frame(a = 0, b = 0)) + new_theme_empty
-                 }
-             ),
-           ncol = numColumns, nrow = numRows
-           # ,
-           # heights = rep(2, length(riverPlotList))
-         ),
-         width = 11,
-         height = 8.5,
-         units = "in",
-         dpi = 600
+  ggplot2::ggsave(filename = fileName,
+                  gridExtra::grid.arrange(
+                    grobs =
+                      lapply(
+                        gangstaPerfectDFList,
+                        function(DF)
+                          if(nrow(DF) > 0) {
+                            gangstaSuperPlot(
+                              DF,
+                              makePDF = F,
+                              backgroundCol = "white",
+                              textCol = "black",
+                              axisFontSize = axisFontSize,
+                              yAxisMaxMols = yAxisMaxMols
+                            )
+                          } else {
+                            ggplot2::ggplot(mapping = ggplot2::aes(a, b), data = data.frame(a = 0, b = 0)) + new_theme_empty
+                          }
+                      ),
+                    ncol = numColumns, nrow = numRows
+                    # ,
+                    # heights = rep(2, length(riverPlotList))
+                  ),
+                  width = 11,
+                  height = 8.5,
+                  units = "in",
+                  dpi = 600
   )
 }
 
