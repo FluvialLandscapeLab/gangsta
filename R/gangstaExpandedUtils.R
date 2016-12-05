@@ -61,47 +61,6 @@ replaceDotWithOrganism = function(compoundNames, organismName) {
   return(compoundNames)
 }
 
-# replaceNAWithMolarRatio = function(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects) {
-#
-#   isNA = is.na(molarTerms)
-#   if(any(isNA)) {
-#     fromCompounds = getGangstas(gangstaObjects, fromCompoundNames)
-#     refPoolNames = getGangstaAttribute(fromCompounds, gangstaAttributeName("refPool"))
-#     refPoolIndexes = match(refPoolNames, fromPoolNames)
-#     missingRefPools = (is.na(refPoolIndexes) & isNA)
-#     if(any(missingRefPools)) {
-#       stop("When molarTerms are 'NA' in a process specification, the molarTerm of the reference pool must be specified in the vector.\n  The molarTerm(s) for ",
-#            paste0(fromPoolNames[match(refPoolNames[missingRefPools], refPoolNames)], collapse = " and "),
-#            " = NA, but expected molarTerm(s) for reference pool(s) ",
-#            paste0(refPoolNames[missingRefPools], collapse = " and "),
-#            " are not in the molarTerms vector.\n  Error occurred where fromPools = ",
-#            paste0(fromPoolNames, collapse = "; ")
-#       )
-#     }
-#     # in case the refPool is specified as the fromPool for more than one
-#     # transformation (e.g., DOM -> CO2 and DOM -> CH4 in denitrification), we
-#     # sum the molarTerms for all instances of each referencePool in fromPools
-#     refPoolMolarTerms = sapply(refPoolNames, function(rP) (sum(molarTerms[rP == fromPoolNames])))
-#     isNARefMolarTerms = (is.na(refPoolMolarTerms) & isNA)
-#     if(any(isNARefMolarTerms)) {
-#       stop("The molarTerms for reference pools can not be 'NA' in a process specification.\n  The molarTerm(s) for ",
-#            paste0(unique(refPoolNames[isNARefMolarTerms]), collapse = " and "),
-#            " were specified as 'NA'.\n  Error occurred where fromPools = ",
-#            paste0(fromPoolNames, collapse = "; ")
-#       )
-#     }
-#     fromPools = getGangstas(gangstaObjects, fromPoolNames)
-#     fromPoolMolarRatioList = getGangstaAttribute(fromPools, gangstaAttributeName("molRatio"))
-#     fromPoolMolarRatios = sapply(
-#       fromPoolMolarRatioList,
-#       function(x) {
-#         if (is.null(x)) return(NA)
-#         return(x)
-#       }
-#     )
-#     molarTerms[isNA] = refPoolMolarTerms[isNA] * fromPoolMolarRatios[isNA]
-#   }
-#   return(molarTerms)
-# }
+
 
 
