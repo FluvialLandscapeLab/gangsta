@@ -48,47 +48,6 @@ checkProcessSpecNames = function(processSpecNames, additionalValidNames = NULL) 
   return(T)
 }
 
-# Return the names of all of the paramers of the processFactory() function that
-# don't have default values.  Test for new default value is whether or not
-# eval() throws an error.  If so, there is no default.
-processSpecRequiredNames = function() {
-  argHasNoDefault = function(x) {
-    evaluated = tryCatch(
-      eval(x),
-      error = function(e) return(">>NODEF<<")
-    )
-    if(identical(evaluated, ">>NODEF<<")) {
-      return(T)
-    } else {
-      return(F)
-    }
-  }
-
-  processFactoryParams = formals(processFactory)
-  processFactoryParams = processFactoryParams[2:length(processFactoryParams)]
-  hasNoDefault = sapply(processFactoryParams, argHasNoDefault)
-  names(hasNoDefault) = names(processFactoryParams)
-  return(hasNoDefault)
-}
-
-checkProcessSpecNames = function(processSpecNames, additionalValidNames = NULL) {
-  namesAreRequired = processSpecRequiredNames()
-  validNames = c(names(namesAreRequired), additionalValidNames)
-  isInvalid = !(processSpecNames %in% validNames)
-  if(any(isInvalid)) {
-    stop("The following names are not permitted in a process specification: ", paste0(processSpecNames[isInvalid], collapse = "; "), "\n  (Valid names are: ", paste0(validNames, collapse = "; "), ")")
-  }
-
-  # hint: namesAreRequired is a boolean vector, so this next line returnes the
-  # names where the vector value is T
-  requiredNames = names(namesAreRequired[namesAreRequired])
-  isMissing = !(requiredNames %in% processSpecNames)
-  if(any(isMissing)) {
-    stop("The following names are required in a process specification but are missing: ", paste0(requiredNames[isMissing], collapse = "; "))
-  }
-
-  return(T)
-}
 
 
 
