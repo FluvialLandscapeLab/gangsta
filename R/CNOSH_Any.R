@@ -157,7 +157,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
     ),
     list(
       name = "AssimHS",
-      energyTerm = 0.000000001,  ## Based on Shen and Buick (2004) Fig 1
+      energyTerm = 0,  ## Based on Shen and Buick (2004) Fig 1
       fromCompoundNames = list(S = "HS", H = "HS"),
       toCompoundNames = list(S = ".", H = "."),
       molarTerms = list(S = 1, H = 1),
