@@ -37,43 +37,48 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
   processParams = list(
     list(
       name = "ExcreteO",
-      energyTerm = 0,
+      energyTerm = -1E-10,
       fromCompoundNames = list(O = "."),
       toCompoundNames = list(O = "Ox"),
       molarTerms = list(O = 1),
-      organismName = c("Het", "Aut", "Met")
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, F, F)
     ),
     list(
       name = "ExcreteH",
-      energyTerm = 0,
+      energyTerm = -1E-10,
       fromCompoundNames = list(H = "."),
       toCompoundNames = list(H = "Hx"),
       molarTerms = list(H = 1),
-      organismName = c("Het", "Aut", "Met")
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, F, F)
     ),
     list(
       name = "ExcreteC",
-      energyTerm = 0,
+      energyTerm = -1E-10,
       fromCompoundNames = list(C = ".", O = "."),
       toCompoundNames = list(C = "CO2", O = "CO2"),
       molarTerms = list(C = 1, O = 2),
-      organismName = c("Het", "Aut", "Met")
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, F, F)
     ),
     list(
       name = "ExcreteN",
-      energyTerm = 0,
+      energyTerm = -1E-10,
       fromCompoundNames = list(N = ".", H = "."),
       toCompoundNames = list(N = "NH4", H = "NH4"),
       molarTerms = list(N = 1, H = 4),
-      organismName = c("Het", "Aut", "Met")
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, F, F)
     ),
     list(
       name = "ExcreteS",
-      energyTerm = 0,
+      energyTerm = -1E-10,
       fromCompoundNames = list(S = ".", H = "."),
       toCompoundNames = list(S = "HS", H = "HS"),
       molarTerms = list(S = 1, H = 1),
-      organismName = c("Het", "Aut", "Met")
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, F, F)
     ),
     list(
       name = "AssimO",
@@ -157,7 +162,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
     ),
     list(
       name = "AssimHS",
-      energyTerm = 0,  ## Based on Shen and Buick (2004) Fig 1
+      energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero
       fromCompoundNames = list(S = "HS", H = "HS"),
       toCompoundNames = list(S = ".", H = "."),
       molarTerms = list(S = 1, H = 1),
