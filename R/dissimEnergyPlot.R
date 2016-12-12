@@ -13,7 +13,7 @@ makeDissimEnergyPlot = function(
     legendLocation = "top"
   }
 
-  dissimEnergyList = lapply(resultsList, function(x) x$processEnergyVals[x$processEnergyVals$procType == "catabolic", ])
+  dissimEnergyList = base::lapply(resultsList, function(x) x$processEnergyVals[x$processEnergyVals$procType == "catabolic", ])
   dissimEnergyDF = dissimEnergyList[[1]]
   dissimEnergyDF = data.frame(energy = dissimEnergyDF$energy, timestep = 1, process = row.names(dissimEnergyDF))
   for(i in 2:length(dissimEnergyList)){
@@ -34,34 +34,34 @@ makeDissimEnergyPlot = function(
   processColors = processColors[names(processColors) %in% levels(dissimEnergyDF$process)]
   processLabels = processLabels[names(processLabels) %in% levels(dissimEnergyDF$process)]
 
-  dissimEnergyPlot = ggplot(dissimEnergyDF, aes(x = timestep, y = energyInJoules, fill = process)) +
-    geom_bar(stat = "identity") +
-    expand_limits(y=c(0,0.1)) +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-    theme(plot.background = element_rect(fill = backgroundCol, colour = backgroundCol),
-          panel.background = element_blank()) +
-    scale_x_continuous(
+  dissimEnergyPlot = ggplot2::ggplot(dissimEnergyDF, ggplot2::aes(x = timestep, y = energyInJoules, fill = process)) +
+    ggplot2::geom_bar(stat = "identity") +
+    ggplot2::expand_limits(y=c(0,0.1)) +
+    ggplot2::theme(panel.grid.major = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank()) +
+    ggplot2::theme(plot.background = ggplot2::element_rect(fill = backgroundCol, colour = backgroundCol),
+          panel.background = ggplot2::element_blank()) +
+    ggplot2::scale_x_continuous(
       breaks = seq(1,9,1),
       labels = as.character(seq(1, 9, 1)),
-      name = element_blank()
+      name = ggplot2::element_blank()
     ) +
-    scale_y_continuous(
+    ggplot2::scale_y_continuous(
       breaks = seq(0, 0.09, 0.03),
       labels = as.character(seq(0, 0.09, 0.03)),
       name = ""
     ) +
-    theme(axis.text = element_text(colour = textCol, size = rel(axisFontSize))) +
-    theme(
-      legend.background = element_rect(fill = backgroundCol),
-      legend.text = element_text(size = rel(1.2), colour = textCol  ),
+    ggplot2::theme(axis.text = ggplot2::element_text(colour = textCol, size = ggplot2::rel(axisFontSize))) +
+    ggplot2::theme(
+      legend.background = ggplot2::element_rect(fill = backgroundCol),
+      legend.text = ggplot2::element_text(size = ggplot2::rel(1.2), colour = textCol  ),
       legend.position = legendLocation) +
-    scale_fill_manual(
+    ggplot2::scale_fill_manual(
       values = processColors,
       # c("chartreuse3", "darkorange", "blue3", "brown3", "purple", "yellow", "cyan3"),
       labels = processLabels
       # c("Nitrification", "Sulfide oxidation", "Aerobic heterotrophy", "Denitrification", "Methanogenesis", "Sulfate reduction", "Methane oxidation")
     ) +
-    theme(plot.margin = unit(c(-0.60, 1, 0.02, 0.5), "lines"))
+    ggplot2::theme(plot.margin = grid::unit(c(-0.60, 1, 0.02, 0.5), "lines"))
   if(printPDF == TRUE) {
     pdf(
       fileName,
@@ -89,7 +89,7 @@ combineDissimEnergyPlotsInPDF = function(
   resultNames = sort(resultNames)
 
   dissimPlotList =
-    lapply(
+    base::lapply(
       resultNames,
       function(rN)
         makeDissimEnergyPlot(
@@ -98,10 +98,10 @@ combineDissimEnergyPlotsInPDF = function(
           backgroundCol = "white", textCol = "black"
         )
     )
-  ggsave(
+  ggplot2::ggsave(
     filename = fileName,
     plot =
-      grid.arrange(
+      gridExtra::grid.arrange(
         grobs = dissimPlotList,
         ncol = 1, nrow = length(resultNames),
         heights = rep(2, length(resultNames))
