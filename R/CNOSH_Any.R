@@ -357,7 +357,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       energyTerm = 3.485E-4, #((1.83E-04 *3) + 1.48E-04)/2,
       fromCompoundNames = list(N = "NH4", H = "NH4", O = "O2", O = "O2"),
       toCompoundNames = list(N = "NO3", H = "Hx", O = "NO3", O = "Ox"),
-      molarTerms = list(N = 1, H = 4, O = 3, O = 2),
+      molarTerms = list(N = 1, H = 4, O = 3, O = 1),
       organismName = "Aut"
     ),
     list(

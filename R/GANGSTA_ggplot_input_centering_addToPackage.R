@@ -149,7 +149,8 @@ gangstaSuperPlot = function(
 
   # render pools as a ggplot
   river = river +
-    ggplot2::scale_fill_manual(values = elementColor) +
+    ggplot2::scale_fill_manual(values = elementColor)
+  river = river +
     ggplot2::geom_tile(
       data = poolDF,
       mapping = ggplot2::aes(

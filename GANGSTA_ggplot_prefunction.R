@@ -12,13 +12,13 @@ CNOSH_Any(c("C", "O", "N", "S", "H"),
 
 
 # makeOutput()
-# makePlots(pdf = F, aggregateBio = F, yAxisMaxMols = 0)
+makePlots(pdf = T, aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
 # makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="C")
 # makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="N")
 # makePlots(pdf = F, aggregateBio = F, elementalCyclesToPlot = c("C", "N"))
 
 combineRiverPlotsInPDF(
-  fileIdx = "CNOS_TEST_20161129",
+  fileIdx = "CNOS_TEST_20161212",
   cyclesSeparate = T,
   elementalCyclesToPlot = c("C", "N", "O", "S"),
   axisFontSize = 0.5,
@@ -30,5 +30,5 @@ combineRiverPlotsInPDF(
 # ############### DISSIM ENERGY PLOTS
 
 
-combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend_11292016", axisFontSize = 2)
+combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend_12122016", axisFontSize = 2)
 combineDissimEnergyPlotsInPDF(withLegend = T, fileIdx = "dissimPlots_withLegend_11292016")

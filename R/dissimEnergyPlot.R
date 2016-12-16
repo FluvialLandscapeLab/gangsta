@@ -13,7 +13,7 @@ makeDissimEnergyPlot = function(
     legendLocation = "top"
   }
 
-  dissimEnergyList = base::lapply(resultsList, function(x) x$processEnergyVals[x$processEnergyVals$procType == "catabolic", ])
+  dissimEnergyList = lapply(resultsList, function(x) x$processEnergyVals[x$processEnergyVals$procType == "catabolic", ])
   dissimEnergyDF = dissimEnergyList[[1]]
   dissimEnergyDF = data.frame(energy = dissimEnergyDF$energy, timestep = 1, process = row.names(dissimEnergyDF))
   for(i in 2:length(dissimEnergyList)){
