@@ -35,153 +35,109 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
   )
 
   processParams = list(
-    list(
-      name = "ExcreteO",
-      energyTerm = -1E-10,
-      fromCompoundNames = list(O = "."),
-      toCompoundNames = list(O = "Ox"),
-      molarTerms = list(O = 1),
-      organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, F, F)
-    ),
-    list(
-      name = "ExcreteH",
-      energyTerm = -1E-10,
-      fromCompoundNames = list(H = "."),
-      toCompoundNames = list(H = "Hx"),
-      molarTerms = list(H = 1),
-      organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, F, F)
-    ),
-    list(
-      name = "ExcreteC",
-      energyTerm = -1E-10,
-      fromCompoundNames = list(C = ".", O = "."),
-      toCompoundNames = list(C = "CO2", O = "CO2"),
-      molarTerms = list(C = 1, O = 2),
-      organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, F, F)
-    ),
-    list(
-      name = "ExcreteN",
-      energyTerm = -1E-10,
-      fromCompoundNames = list(N = ".", H = "."),
-      toCompoundNames = list(N = "NH4", H = "NH4"),
-      molarTerms = list(N = 1, H = 4),
-      organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, F, F)
-    ),
-    list(
-      name = "ExcreteS",
-      energyTerm = -1E-10,
-      fromCompoundNames = list(S = ".", H = "."),
-      toCompoundNames = list(S = "HS", H = "HS"),
-      molarTerms = list(S = 1, H = 1),
-      organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, F, F)
-    ),
-    list(
-      name = "AssimO",
-      energyTerm = 0,
-      fromCompoundNames = list(O = "Ox"),
-      toCompoundNames = list(O = "."),
-      molarTerms = list(O = 1),
-      organismName = c("Het", "Aut", "Met")
-    ),
-    list(
-      name = "AssimH",
-      energyTerm = 0,
-      fromCompoundNames = list(H = "Hx"),
-      toCompoundNames = list(H = "."),
-      molarTerms = list(H = 1),
-      organismName = c("Het", "Aut", "Met")
-    ),
-    list(
-      name = "AssimDOM",
-      energyTerm = -4.32E-04, # units are kJ *(umols of compound)-1
-      fromCompoundNames = list(
-        C = "DOM",
-        N = "DOM",
-        O = "DOM",
-        S = "DOM",
-        H = "DOM"),
-      toCompoundNames = list(
-        C = ".",
-        N = ".",
-        O = ".",
-        S = ".",
-        H = "."),
-      molarTerms = list(
-        C = 1,
-        N = DOMStoichN,
-        O = DOMStoichO,
-        S = DOMStoichS,
-        H = DOMStoichH),
-      organismName = "Het"
-    ),
-    list(
-      name = "AssimCO2",
-      energyTerm = -3.5E-02,
-      fromCompoundNames = list(C = "CO2", O = "CO2"),
-      toCompoundNames = list(C = ".", O = "."),
-      molarTerms = list(C = 1, O = 2),
-      organismName = "Aut"
-    ),
-    list(
-      name = "AssimCH4",
-      energyTerm = -1.09E-03,
-      fromCompoundNames = list(C = "CH4", H = "CH4"),
-      toCompoundNames = list(C = ".", H = "."),
-      molarTerms = list(C = 1, H = 4),
-      organismName = "Met"
-    ),
-    list(
-      name = "AssimNO3",
-      energyTerm = -1.55E-04,
-      fromCompoundNames = list(N = "NO3", O = "NO3"),
-      toCompoundNames = list(N = ".", O = "."),
-      molarTerms = list(N = 1, O = 3),
-      organismName = c("Het", "Aut", "Met")
-    ),
-    list(
-      name = "AssimNH4",
-      energyTerm = -3.18E-05,
-      fromCompoundNames = list(N = "NH4", H = "NH4"),
-      toCompoundNames = list(N = ".", H = "."),
-      molarTerms = list(N = 1, H = 4),
-      organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, T, T)
-    ),
-    list(
-      name = "AssimSO4",
-      energyTerm = -9.28E-05,  ## Based on PAPS pathway in Shen and Buick (2004)
-      fromCompoundNames = list(S = "SO4", O = "SO4"),
-      toCompoundNames = list(S = ".", O = "."),
-      molarTerms = list(S = 1, O = 4),
-      organismName = c("Het", "Aut", "Met")
-    ),
-    list(
-      name = "AssimHS",
-      energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero
-      fromCompoundNames = list(S = "HS", H = "HS"),
-      toCompoundNames = list(S = ".", H = "."),
-      molarTerms = list(S = 1, H = 1),
-      organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, T, T)
-    ),
+    # list(
+    #   name = "AssimO",
+    #   energyTerm = 0,
+    #   fromCompoundNames = list(O = "Ox"),
+    #   toCompoundNames = list(O = "."),
+    #   molarTerms = list(O = 1),
+    #   organismName = c("Het", "Aut", "Met")
+    # ),
+    # list(
+    #   name = "AssimH",
+    #   energyTerm = 0,
+    #   fromCompoundNames = list(H = "Hx"),
+    #   toCompoundNames = list(H = "."),
+    #   molarTerms = list(H = 1),
+    #   organismName = c("Het", "Aut", "Met")
+    # ),
+    # list(
+    #   name = "AssimDOM",
+    #   energyTerm = -4.32E-04, # units are kJ *(umols of compound)-1
+    #   fromCompoundNames = list(
+    #     C = "DOM",
+    #     N = "DOM",
+    #     O = "DOM",
+    #     S = "DOM",
+    #     H = "DOM"),
+    #   toCompoundNames = list(
+    #     C = ".",
+    #     N = ".",
+    #     O = ".",
+    #     S = ".",
+    #     H = "."),
+    #   molarTerms = list(
+    #     C = 1,
+    #     N = DOMStoichN,
+    #     O = DOMStoichO,
+    #     S = DOMStoichS,
+    #     H = DOMStoichH),
+    #   organismName = "Het"
+    # ),
+    # list(
+    #   name = "AssimCO2",
+    #   energyTerm = -3.5E-02,
+    #   fromCompoundNames = list(C = "CO2", O = "CO2"),
+    #   toCompoundNames = list(C = ".", O = c(".", "Ox")),
+    #   molarTerms = list(C = 1, O = 2),
+    #   organismName = "Aut"
+    # ),
+    # list(
+    #   name = "AssimCH4",
+    #   energyTerm = -1.09E-03,
+    #   fromCompoundNames = list(C = "CH4", H = "CH4"),
+    #   toCompoundNames = list(C = ".", H = c(".", "Hx")),
+    #   molarTerms = list(C = 1, H = 4),
+    #   organismName = "Met"
+    # ),
+    # list(
+    #   name = "AssimNO3",
+    #   energyTerm = -1.55E-04,
+    #   fromCompoundNames = list(N = "NO3", O = "NO3"),
+    #   toCompoundNames = list(N = ".", O = c(".", "Ox")),
+    #   molarTerms = list(N = 1, O = 3),
+    #   organismName = c("Het", "Aut", "Met")
+    # ),
+    # list(
+    #   name = "AssimNH4",
+    #   energyTerm = -3.18E-05,
+    #   fromCompoundNames = list(N = "NH4", H = "NH4"),
+    #   toCompoundNames = list(N = ".", H = c(".", "Hx")),
+    #   molarTerms = list(N = 1, H = 4),
+    #   organismName = c("Het", "Aut", "Met"),
+    #   limitToInitMols = c(F, T, T)
+    # ),
+    # list(
+    #   name = "AssimSO4",
+    #   energyTerm = -9.28E-05,  ## Based on PAPS pathway in Shen and Buick (2004)
+    #   fromCompoundNames = list(S = "SO4", O = "SO4"),
+    #   toCompoundNames = list(S = ".", O = c(".", "Ox")),
+    #   molarTerms = list(S = 1, O = 4),
+    #   organismName = c("Het", "Aut", "Met")
+    # ),
+    # list(
+    #   name = "AssimHS",
+    #   energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero
+    #   fromCompoundNames = list(S = "HS", H = "HS"),
+    #   toCompoundNames = list(S = ".", H = c(".", "Hx")),
+    #   molarTerms = list(S = 1, H = 1),
+    #   organismName = c("Het", "Aut", "Met"),
+    #   limitToInitMols = c(F, T, T)
+    # ),
     list(
       name = "Aerobic",
       energyTerm = 4.37E-04,
       fromCompoundNames = list(
-        C = c(".", "DOM"),
-        N = c(".", "DOM"),
-        O = c(".", "DOM"),
-        S = c(".", "DOM"),
-        H = c(".", "DOM"),
+        C = list(".", "DOM"),
+        N = list(".", "DOM"),
+        O = list(".", "DOM"),
+        S = list(".", "DOM"),
+        H = list(".", "DOM"),
 
         H = "Hx",
         H = "Hx",
-        O = "O2"),
+        O = "O2"
+        ),
       toCompoundNames = list(
         C = "CO2",
         N = "NH4",
@@ -209,11 +165,11 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       name = "Denit",
       energyTerm = 4.102E-4, # ((2 * 2.88E-04) + (2 * 4.15E-04) + 6.45E-04)/5,
       fromCompoundNames = list(
-        C = c(".", "DOM"),
-        N = c(".", "DOM"),
-        O = c(".", "DOM"),
-        S = c(".", "DOM"),
-        H = c(".", "DOM"),
+        C = list(".", "DOM"),
+        N = list(".", "DOM"),
+        O = list(".", "DOM"),
+        S = list(".", "DOM"),
+        H = list(".", "DOM"),
 
         N = "NO3",
         O = "NO3",
@@ -252,11 +208,11 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       name = "SulfateRed",
       energyTerm = 3.8E-05,
       fromCompoundNames = list(
-        C = c(".", "DOM"),
-        N = c(".", "DOM"),
-        O = c(".", "DOM"),
-        S = c(".", "DOM"),
-        H = c(".", "DOM"),
+        C = list(".", "DOM"),
+        N = list(".", "DOM"),
+        O = list(".", "DOM"),
+        S = list(".", "DOM"),
+        H = list(".", "DOM"),
 
         H = "Hx",
 
@@ -314,12 +270,12 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       name = "Methanogenesis",
       energyTerm = 2.8E-05,
       fromCompoundNames = list(
-        C = c(".", "DOM"),
-        C = c(".", "DOM"),
-        N = c(".", "DOM"),
-        O = c(".", "DOM"),
-        S = c(".", "DOM"),
-        H = c(".", "DOM"),
+        C = list(".", "DOM"),
+        C = list(".", "DOM"),
+        N = list(".", "DOM"),
+        O = list(".", "DOM"),
+        S = list(".", "DOM"),
+        H = list(".", "DOM"),
 
         O = "Ox",
         H = "Hx",

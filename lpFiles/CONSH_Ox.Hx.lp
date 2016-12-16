@@ -183,12 +183,6 @@ AutExcreteS.energyJoules = -1e-10 AutExcreteS_Aut_S_HS_S.amountMolsTransfer;
 AutExcreteS.energyJoules = -1e-10 AutExcreteS_Aut_H_HS_H.amountMolsTransfer;
 MetExcreteS.energyJoules = -1e-10 MetExcreteS_Met_S_HS_S.amountMolsTransfer;
 MetExcreteS.energyJoules = -1e-10 MetExcreteS_Met_H_HS_H.amountMolsTransfer;
-HetAssimO.energyJoules = -1e-10 HetAssimO_Ox_O_Het_O.amountMolsTransfer;
-AutAssimO.energyJoules = -1e-10 AutAssimO_Ox_O_Aut_O.amountMolsTransfer;
-MetAssimO.energyJoules = -1e-10 MetAssimO_Ox_O_Met_O.amountMolsTransfer;
-HetAssimH.energyJoules = -1e-10 HetAssimH_Hx_H_Het_H.amountMolsTransfer;
-AutAssimH.energyJoules = -1e-10 AutAssimH_Hx_H_Aut_H.amountMolsTransfer;
-MetAssimH.energyJoules = -1e-10 MetAssimH_Hx_H_Met_H.amountMolsTransfer;
 HetAssimDOM.energyJoules = -0.000432 HetAssimDOM_DOM_C_Het_C.amountMolsTransfer;
 HetAssimDOM.energyJoules = -0.002862 HetAssimDOM_DOM_N_Het_N.amountMolsTransfer;
 HetAssimDOM.energyJoules = -0.000416290909090909 HetAssimDOM_DOM_O_Het_O.amountMolsTransfer;
@@ -385,9 +379,9 @@ Het.respirationEnergyJoules = -6.792e-05 Het.finalAmountMols;
 Aut.respirationEnergyJoules = -6.792e-05 Aut.finalAmountMols;
 Met.respirationEnergyJoules = -6.792e-05 Met.finalAmountMols;
 /***** The net energy associated with assimilatory and dissimilatory processes must equal the summed energy of each assimilatory and dissimilatory process  (Exprsn. 15) *****/
-Het.energyJoules = HetExcreteO.energyJoules + HetExcreteH.energyJoules + HetExcreteC.energyJoules + HetExcreteN.energyJoules + HetExcreteS.energyJoules + HetAssimO.energyJoules + HetAssimH.energyJoules + HetAssimDOM.energyJoules + HetAssimNO3.energyJoules + HetAssimNH4.energyJoules + HetAssimSO4.energyJoules + HetAssimHS.energyJoules + HetAerobicofBiomass.energyJoules + HetAerobicofDOM.energyJoules + HetDenitofBiomass.energyJoules + HetDenitofDOM.energyJoules + HetSulfateRedofBiomass.energyJoules + HetSulfateRedofDOM.energyJoules + HetMethanogenesisofBiomass.energyJoules + HetMethanogenesisofDOM.energyJoules;
-Aut.energyJoules = AutExcreteO.energyJoules + AutExcreteH.energyJoules + AutExcreteC.energyJoules + AutExcreteN.energyJoules + AutExcreteS.energyJoules + AutAssimO.energyJoules + AutAssimH.energyJoules + AutAssimCO2.energyJoules + AutAssimNO3.energyJoules + AutAssimNH4.energyJoules + AutAssimSO4.energyJoules + AutAssimHS.energyJoules + AutSulfideOxidation.energyJoules + AutNitrif.energyJoules;
-Met.energyJoules = MetExcreteO.energyJoules + MetExcreteH.energyJoules + MetExcreteC.energyJoules + MetExcreteN.energyJoules + MetExcreteS.energyJoules + MetAssimO.energyJoules + MetAssimH.energyJoules + MetAssimCH4.energyJoules + MetAssimNO3.energyJoules + MetAssimNH4.energyJoules + MetAssimSO4.energyJoules + MetAssimHS.energyJoules + MetMethaneOxid.energyJoules;
+Het.energyJoules = HetExcreteO.energyJoules + HetExcreteH.energyJoules + HetExcreteC.energyJoules + HetExcreteN.energyJoules + HetExcreteS.energyJoules + HetAssimDOM.energyJoules + HetAssimNO3.energyJoules + HetAssimNH4.energyJoules + HetAssimSO4.energyJoules + HetAssimHS.energyJoules + HetAerobicofBiomass.energyJoules + HetAerobicofDOM.energyJoules + HetDenitofBiomass.energyJoules + HetDenitofDOM.energyJoules + HetSulfateRedofBiomass.energyJoules + HetSulfateRedofDOM.energyJoules + HetMethanogenesisofBiomass.energyJoules + HetMethanogenesisofDOM.energyJoules;
+Aut.energyJoules = AutExcreteO.energyJoules + AutExcreteH.energyJoules + AutExcreteC.energyJoules + AutExcreteN.energyJoules + AutExcreteS.energyJoules + AutAssimCO2.energyJoules + AutAssimNO3.energyJoules + AutAssimNH4.energyJoules + AutAssimSO4.energyJoules + AutAssimHS.energyJoules + AutSulfideOxidation.energyJoules + AutNitrif.energyJoules;
+Met.energyJoules = MetExcreteO.energyJoules + MetExcreteH.energyJoules + MetExcreteC.energyJoules + MetExcreteN.energyJoules + MetExcreteS.energyJoules + MetAssimCH4.energyJoules + MetAssimNO3.energyJoules + MetAssimNH4.energyJoules + MetAssimSO4.energyJoules + MetAssimHS.energyJoules + MetMethaneOxid.energyJoules;
 /***** Organisms must meet their respiratory energy demands (Exprsn. 16) *****/
 0 = Het.respirationEnergyJoules + Het.energyJoules;
 0 = Aut.respirationEnergyJoules + Aut.energyJoules;

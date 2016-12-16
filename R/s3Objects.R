@@ -139,32 +139,38 @@ compoundFactory = function(compoundName, molarRatios, initialMols, respirationRa
 
 #' @rdname compoundFactory
 processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, organismName = "", limitToInitMols = T) {
+
+  # check to be sure the specifeid organism already exists in gangstaObjects
   if(!identical(organismName, "")) {
     gangstasExist(gangstaObjects, organismName, "organism")
   }
 
+  # check to be sure some parameters are vectors of length 1
   inputList = list(name, energyTerm, organismName, limitToInitMols)
   if(any(plyr::laply(inputList, length) != 1)) {
     stop(paste0("Process: ", name, "\n The arguments name, energyTerm, orgaismName, and limitToInitMols must be vectors of length() = 1."))
   }
 
+  # check to be sure some vectors are equal in length
   inputList = list(fromCompoundNames, toCompoundNames, molarTerms)
   if(length(unique(plyr::laply(inputList, length)))!=1) {
     stop(paste0("Process: ", name, "\n The length of fromCompoundNames, toCompoundNames, and molarTerms vectors must be equal."))
   }
 
+  # check to be sure some required names are present
   nullNames = plyr::laply(inputList, function(x) is.null(names(x)), .drop = F)
   if(any(nullNames)) {
     stop(stop(paste0("Process: ", name, "\n The members of lists fromCompoundNames, toCompoundNames, and molarTerms must be named.")))
   }
 
+  # check to be sure from, to and molarTerms have same names
   elementMatrix = plyr::laply(inputList, names, .drop = F)
-
   differentNamesAcrossLists = apply(elementMatrix, 2, function(x) length(unique(x)) != 1)
   if(any(differentNamesAcrossLists)) {
     stop(paste0("Process: ", name,": \n The members of 'fromCompoundNames,' 'toCompoundNames,' and 'molarTerms' lists must have the same names in the same order across lists."))
   }
 
+  # create the process object
   newProcess = list(process(name, energyTerm, organismName))
   names(newProcess) = name
 
@@ -216,10 +222,11 @@ pool = function(compoundName, elementName, molarRatio) {
 #' @rdname compoundFactory
 process = function(name, energyTerm, organismName = "") {
   processClassNames = c(gangstaClassName("proc"), gangstaClassName("base"))
-  newProcess = list(name = name, energyTerm = energyTerm)
+  newProcess = list(name = name, energyTerm = energyTerm, organismName = organismName)
   class(newProcess) = processClassNames
   if(energyTerm != 0) {
-    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
+    class(newProcess) = c(gangstaClassName("metab"), class(newProcess))
+#    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
   }
   return(newProcess)
 }
