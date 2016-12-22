@@ -11,11 +11,11 @@ gangstaProcesses = function(processParams, compounds) {
   return(processes)
 }
 
-gangstaBuildCompoundsAndProcesses = function(compoundParams, processParams){
-  compounds = gangstaCompounds(compoundParams)
-  processes = gangstaProcesses(processParams, compounds)
-  return(c(compounds, processes))
-}
+# gangstaBuildCompoundsAndProcesses = function(compoundParams, processParams){
+#   compounds = gangstaCompounds(compoundParams)
+#   processes = gangstaProcesses(processParams, compounds)
+#   return(c(compounds, processes))
+# }
 
 leakIn = function(compoundNames, leakInList = leakInListInput){
   leakInList = lapply(
@@ -151,15 +151,20 @@ doItGangsta = function(gangstaObjects, tag, file = file.choose()){
 #   massTransfersPlot(gangstaObjects, results)
 # }
 
+
 doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks) {
   gangstasName = paste0("gangstas", modelNameTag)
   resultsName = paste0("results", modelNameTag)
   modelName = paste0("lp.", modelNameTag)
 
-  assign(gangstasName,
-         gangstaBuildCompoundsAndProcesses(compoundParams, processParams),
-         envir = .GlobalEnv)
-  gangstaObjects = get(gangstasName, envir = .GlobalEnv)
+  compounds = gangstaCompounds(compoundParams)
+  gangstaObjects =
+    c(
+      compounds,
+      gangstaProcesses(processParams, compounds)
+    )
+
+  assign(gangstasName, gangstaObjects, envir = .GlobalEnv)
 
   doItGangsta(gangstaObjects, modelNameTag, file = paste0("lpFiles/", modelNameTag, ".lp"))
 
@@ -169,3 +174,22 @@ doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames
   plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, sourceSinks)
 #  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
 }
+
+# doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks) {
+#   gangstasName = paste0("gangstas", modelNameTag)
+#   resultsName = paste0("results", modelNameTag)
+#   modelName = paste0("lp.", modelNameTag)
+#
+#   assign(gangstasName,
+#          gangstaBuildCompoundsAndProcesses(compoundParams, processParams),
+#          envir = .GlobalEnv)
+#   gangstaObjects = get(gangstasName, envir = .GlobalEnv)
+#
+#   doItGangsta(gangstaObjects, modelNameTag, file = paste0("lpFiles/", modelNameTag, ".lp"))
+#
+#   assign(resultsName,
+#          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
+#          envir = .GlobalEnv)
+#   plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, sourceSinks)
+#   #  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
+# }

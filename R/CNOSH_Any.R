@@ -35,95 +35,95 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
   )
 
   processParams = list(
-    # list(
-    #   name = "AssimO",
-    #   energyTerm = 0,
-    #   fromCompoundNames = list(O = "Ox"),
-    #   toCompoundNames = list(O = "."),
-    #   molarTerms = list(O = 1),
-    #   organismName = c("Het", "Aut", "Met")
-    # ),
-    # list(
-    #   name = "AssimH",
-    #   energyTerm = 0,
-    #   fromCompoundNames = list(H = "Hx"),
-    #   toCompoundNames = list(H = "."),
-    #   molarTerms = list(H = 1),
-    #   organismName = c("Het", "Aut", "Met")
-    # ),
-    # list(
-    #   name = "AssimDOM",
-    #   energyTerm = -4.32E-04, # units are kJ *(umols of compound)-1
-    #   fromCompoundNames = list(
-    #     C = "DOM",
-    #     N = "DOM",
-    #     O = "DOM",
-    #     S = "DOM",
-    #     H = "DOM"),
-    #   toCompoundNames = list(
-    #     C = ".",
-    #     N = ".",
-    #     O = ".",
-    #     S = ".",
-    #     H = "."),
-    #   molarTerms = list(
-    #     C = 1,
-    #     N = DOMStoichN,
-    #     O = DOMStoichO,
-    #     S = DOMStoichS,
-    #     H = DOMStoichH),
-    #   organismName = "Het"
-    # ),
-    # list(
-    #   name = "AssimCO2",
-    #   energyTerm = -3.5E-02,
-    #   fromCompoundNames = list(C = "CO2", O = "CO2"),
-    #   toCompoundNames = list(C = ".", O = c(".", "Ox")),
-    #   molarTerms = list(C = 1, O = 2),
-    #   organismName = "Aut"
-    # ),
-    # list(
-    #   name = "AssimCH4",
-    #   energyTerm = -1.09E-03,
-    #   fromCompoundNames = list(C = "CH4", H = "CH4"),
-    #   toCompoundNames = list(C = ".", H = c(".", "Hx")),
-    #   molarTerms = list(C = 1, H = 4),
-    #   organismName = "Met"
-    # ),
-    # list(
-    #   name = "AssimNO3",
-    #   energyTerm = -1.55E-04,
-    #   fromCompoundNames = list(N = "NO3", O = "NO3"),
-    #   toCompoundNames = list(N = ".", O = c(".", "Ox")),
-    #   molarTerms = list(N = 1, O = 3),
-    #   organismName = c("Het", "Aut", "Met")
-    # ),
-    # list(
-    #   name = "AssimNH4",
-    #   energyTerm = -3.18E-05,
-    #   fromCompoundNames = list(N = "NH4", H = "NH4"),
-    #   toCompoundNames = list(N = ".", H = c(".", "Hx")),
-    #   molarTerms = list(N = 1, H = 4),
-    #   organismName = c("Het", "Aut", "Met"),
-    #   limitToInitMols = c(F, T, T)
-    # ),
-    # list(
-    #   name = "AssimSO4",
-    #   energyTerm = -9.28E-05,  ## Based on PAPS pathway in Shen and Buick (2004)
-    #   fromCompoundNames = list(S = "SO4", O = "SO4"),
-    #   toCompoundNames = list(S = ".", O = c(".", "Ox")),
-    #   molarTerms = list(S = 1, O = 4),
-    #   organismName = c("Het", "Aut", "Met")
-    # ),
-    # list(
-    #   name = "AssimHS",
-    #   energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero
-    #   fromCompoundNames = list(S = "HS", H = "HS"),
-    #   toCompoundNames = list(S = ".", H = c(".", "Hx")),
-    #   molarTerms = list(S = 1, H = 1),
-    #   organismName = c("Het", "Aut", "Met"),
-    #   limitToInitMols = c(F, T, T)
-    # ),
+    list(
+      name = "AssimO",
+      energyTerm = 0,
+      fromCompoundNames = list(O = "Ox"),
+      toCompoundNames = list(O = "."),
+      molarTerms = list(O = 1),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "AssimH",
+      energyTerm = 0,
+      fromCompoundNames = list(H = "Hx"),
+      toCompoundNames = list(H = "."),
+      molarTerms = list(H = 1),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "AssimDOM",
+      energyTerm = -4.32E-04, # units are kJ *(umols of compound)-1
+      fromCompoundNames = list(
+        C = "DOM",
+        N = "DOM",
+        O = "DOM",
+        S = "DOM",
+        H = "DOM"),
+      toCompoundNames = list(
+        C = ".",
+        N = ".",
+        O = ".",
+        S = ".",
+        H = "."),
+      molarTerms = list(
+        C = 1,
+        N = DOMStoichN,
+        O = DOMStoichO,
+        S = DOMStoichS,
+        H = DOMStoichH),
+      organismName = "Het"
+    ),
+    list(
+      name = "AssimCO2",
+      energyTerm = -3.5E-02,
+      fromCompoundNames = list(C = "CO2", O = "CO2"),
+      toCompoundNames = list(C = ".", O = c(".", "Ox")),
+      molarTerms = list(C = 1, O = 2),
+      organismName = "Aut"
+    ),
+    list(
+      name = "AssimCH4",
+      energyTerm = -1.09E-03,
+      fromCompoundNames = list(C = "CH4", H = "CH4"),
+      toCompoundNames = list(C = ".", H = c(".", "Hx")),
+      molarTerms = list(C = 1, H = 4),
+      organismName = "Met"
+    ),
+    list(
+      name = "AssimNO3",
+      energyTerm = -1.55E-04,
+      fromCompoundNames = list(N = "NO3", O = "NO3"),
+      toCompoundNames = list(N = ".", O = c(".", "Ox")),
+      molarTerms = list(N = 1, O = 3),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "AssimNH4",
+      energyTerm = -3.18E-05,
+      fromCompoundNames = list(N = "NH4", H = "NH4"),
+      toCompoundNames = list(N = ".", H = c(".", "Hx")),
+      molarTerms = list(N = 1, H = 4),
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, T, T)
+    ),
+    list(
+      name = "AssimSO4",
+      energyTerm = -9.28E-05,  ## Based on PAPS pathway in Shen and Buick (2004)
+      fromCompoundNames = list(S = "SO4", O = "SO4"),
+      toCompoundNames = list(S = ".", O = c(".", "Ox")),
+      molarTerms = list(S = 1, O = 4),
+      organismName = c("Het", "Aut", "Met")
+    ),
+    list(
+      name = "AssimHS",
+      energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero
+      fromCompoundNames = list(S = "HS", H = "HS"),
+      toCompoundNames = list(S = ".", H = c(".", "Hx")),
+      molarTerms = list(S = 1, H = 1),
+      organismName = c("Het", "Aut", "Met"),
+      limitToInitMols = c(F, T, T)
+    ),
     list(
       name = "Aerobic",
       energyTerm = 4.37E-04,
@@ -334,6 +334,8 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
     )
   )
 
+  names(compoundParams) = sapply(compoundParams, "[[", "compoundName")
+
   # tag for inclusion any compoundParams that have at least one active element in the molarRatios vector
   keep = sapply(compoundParams, function(x) any(names(x[["molarRatios"]]) %in% activeElements))
   compoundParams = compoundParams[keep]
@@ -351,7 +353,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
   )
 
   # make a vector of remaining compound names
-  compoundNames = sapply(compoundParams, "[[", "compoundName")
+  compoundNames = names(compoundParams)
 
   # expand multi-process params into process params.  In other words, each
   # process is replicated for each organismName vector and the organismName is
@@ -377,16 +379,45 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
   )
   processParams = processParams[!kill]
 
-  # Remove any pools that contain elements not in the activeElements list.
-  processParams = lapply(
-    processParams,
-    function(x) {
-      for(i in c("fromCompoundNames", "toCompoundNames", "molarTerms")) {
-        x[[i]] = x[[i]][names(x[[i]]) %in% activeElements]
-      }
-      return(x)
+  # this local function is used in the lapply, below.  It changes any indexes in
+  # the transfer groups to 0 if they are associated with transfers of elements
+  # that are not active and subtracts 1 from all larger indexes.  keep is a
+  # logical of whether the element of a transfer is active.
+  keepTransferOptions = function (transferOptions, keep) {
+    #get indexs of transfers to kill
+    kill = which(!keep)
+    #need to kill indexes from largest to smallest.  killing smaller index first
+    #changes the value of any larger indexes that need to be removed.
+    if(length(kill) > 0) kill = kill[length(kill):1]
+    for(k in kill) {
+      transferOptions =
+        lapply (
+          transferOptions,
+          function(opt) {
+            opt[opt == k] = 0
+            opt[opt > k] = opt[opt > k] - 1
+            return(opt)
+          }
+        )
     }
-  )
+    transferOptions = lapply(transferOptions, function(opt) opt = opt[opt > 0])
+    transferOptions = transferOptions[sapply(transferOptions, length) > 0]
+    return(transferOptions)
+  }
+
+  # Remove any pools that contain elements not in the activeElements list.
+  processParams =
+    lapply(
+      processParams,
+      function(pp) {
+        keep = names(pp$fromCompoundNames) %in% activeElements
+        pp$fromCompoundNames = pp$fromCompoundNames[keep]
+        pp$toCompoundNames = pp$toCompoundNames[keep]
+        pp$molarTerms = pp$molarTerms[keep]
+        pp$transferOptions = keepTransferOptions(pp$transferOptions, keep)
+        return(pp)
+      }
+    )
 
   doAll(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks)
 }

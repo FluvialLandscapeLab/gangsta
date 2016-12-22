@@ -96,6 +96,15 @@
 #'   number represents a process that yeilds energy, a negative number
 #'   represents a process that consumes energy.  Units are kJ (or J, etc.) of
 #'   energy per mol (or umol, etc.) listed in \code{molarTerms} parameter.
+#' @param transferOptions. A list of integer or numeric vectors containing the
+#'   indexes of transfers in a process.  Indexes are grouped when transfers
+#'   represent optional pathways.  For instance, if a process has four transfers
+#'   (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the second and
+#'   third transfers can represent an option.  fromB can go to either toB1 or
+#'   toB2, so long as the sum of the two options is in stoicheometric balance
+#'   with the A and C tranfers.  To represent such an option, the transferOption
+#'   list would be list(1, 2:3, 4).  When transferOptions is NULL, no option
+#'   groups will be created.
 #' @param fromCompoundNames Named \code{list} of compound names where the name
 #'   of each \code{list} member is the a chemical element derived from the
 #'   compound.  For instance, to track carbon flux from the oxidation of
@@ -107,9 +116,9 @@
 #'   comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
 #'   same and in the same order as those of \code{fromCompoundNames}.
 #' @param molarTerms Named list containing the mols (or uMols, etc.) of each
-#'   element that are transformed by the process.  The names of \code{molarTerms}
-#'   must be the same and in the same order as those of \code{fromCompoundNames}
-#'   and \code{toCompoundNames}.
+#'   element that are transformed by the process.  The names of
+#'   \code{molarTerms} must be the same and in the same order as those of
+#'   \code{fromCompoundNames} and \code{toCompoundNames}.
 #' @param organismNames A vector of organisms that utilize the process.
 #' @param elementName The name of the element contained by the created
 #'   \code{pool}.
@@ -138,7 +147,7 @@ compoundFactory = function(compoundName, molarRatios, initialMols, respirationRa
 }
 
 #' @rdname compoundFactory
-processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, organismName = "", limitToInitMols = T) {
+processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, transferOptions = NULL, organismName = "", limitToInitMols = T) {
 
   # check to be sure the specifeid organism already exists in gangstaObjects
   if(!identical(organismName, "")) {
@@ -171,14 +180,17 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
   }
 
   # create the process object
-  newProcess = list(process(name, energyTerm, organismName))
+  if(is.null(transferOptions)) transferOptions = structure(as.list(1:length(fromCompoundNames)), names = names(fromCompoundNames))
+  newProcess = list(process(name, energyTerm, transferOptions, organismName))
   names(newProcess) = name
 
   fromCompoundNames = replaceDotWithOrganism(fromCompoundNames, organismName)
   toCompoundNames = replaceDotWithOrganism(toCompoundNames, organismName)
   fromPoolNames = makePoolNames(fromCompoundNames, gangstaObjects = gangstaObjects)
   toPoolNames = makePoolNames(toCompoundNames, gangstaObjects = gangstaObjects)
-#  molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
+
+  # expandedMolarTerms = rep.int(sapply(molarTerms, "[[", "value"), times = sapply(molarTerms, function(x) length(x$groupIdx)))
+  # molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
   newTransformations = mapply(transformation, fromPoolNames, toPoolNames, molarTerms,
                               MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = name, limitToInitMols = limitToInitMols),
@@ -220,9 +232,9 @@ pool = function(compoundName, elementName, molarRatio) {
 }
 
 #' @rdname compoundFactory
-process = function(name, energyTerm, organismName = "") {
+process = function(name, energyTerm, transferOptions, organismName = "") {
   processClassNames = c(gangstaClassName("proc"), gangstaClassName("base"))
-  newProcess = list(name = name, energyTerm = energyTerm, organismName = organismName)
+  newProcess = list(name = name, energyTerm = energyTerm, organismName = organismName, transferOptions = transferOptions)
   class(newProcess) = processClassNames
   if(energyTerm != 0) {
     class(newProcess) = c(gangstaClassName("metab"), class(newProcess))
