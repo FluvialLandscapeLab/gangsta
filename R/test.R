@@ -1,5 +1,7 @@
 gangstaCompounds = function(compoundParams) {
-  return(unlist(lapply(compoundParams, do.call, what = "compoundFactory"), recursive = F))
+  compounds = unlist(lapply(compoundParams, do.call, what = "compoundFactory"), recursive = F)
+  names(compounds) = getGangstaAttribute(compounds, gangstaAttributeName("name"))
+  return(compounds)
 }
 
 gangstaProcesses = function(processParams, compounds) {
@@ -39,7 +41,7 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
   nameAttrName = gangstaAttributeName("name")
   numberOfSteps = length(leakInList)
 
-  gangstaCompounds = subsetGangstas(gangstaObjects,"class", "compound")
+  gangstaCompounds = subsetGangstas(gangstaObjects, "class", "compound")
   gangstaCompoundNames = names(gangstaCompounds)
   gangstaSinkCompounds = subsetGangstas(gangstaCompounds, "sourceSink", T)
   gangstaSinkCompoundNames = names(gangstaSinkCompounds)

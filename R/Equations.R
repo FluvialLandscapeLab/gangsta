@@ -93,6 +93,7 @@ makeEquations = function(gangstaObjects) {
   sourceSinkAttrName = gangstaAttributeName("sourceSink")
   energyTermAttrName = gangstaAttributeName("energy")
   elementAttrName = gangstaAttributeName("element")
+  transOptionsAttrName = gangstaAttributeName("transOptions")
 
   eqnMaxBiomass = function() {
     organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
@@ -307,21 +308,47 @@ makeEquations = function(gangstaObjects) {
 
     metabolics = subsetGangstas(gangstaObjects, "class", metabolicClassName)
     metabolicNames = getGangstaAttribute(metabolics, nameAttrName)
+    transferOptions = getGangstaAttribute(metabolics, transOptionsAttrName)
 
     transformations = subsetGangstas(gangstaObjects, "class", transClassName)
     metabolicTransformations = lapply(metabolicNames, subsetGangstas, gangstaObjects = transformations, attributeName = procNameAttrName)
-    metabolicTransformations = unlist(metabolicTransformations, recursive = F)
+  #  metabolicTransformations = unlist(metabolicTransformations, recursive = F)
 
-    metabolicTransformationNames = getGangstaAttribute(metabolicTransformations, nameAttrName)
-    metabolicTransformationMassTransVars = makeTransformationMassTransVars(metabolicTransformationNames)
+    metabolicTransformationNames = lapply(metabolicTransformations, getGangstaAttribute, attribName = nameAttrName)
+    metabolicTransformationMassTransVars = lapply(metabolicTransformationNames, makeTransformationMassTransVars)
 
-    metabolicProcessNames = getGangstaAttribute(metabolicTransformations, procNameAttrName)
-    metabolicProcessEnergyVars = makeProcessEnergyVars(metabolicProcessNames)
+  #  metabolicProcessNames = lapply(metabolicTransformations, getGangstaAttribute, attribName = procNameAttrName)
+    metabolicProcessEnergyVars = makeProcessEnergyVars(metabolicNames)
 
-    energyToMolsRatios = getGangstaAttribute(metabolicTransformations, energyToMolsAttrName)
+    energyToMolsRatios = lapply(metabolicTransformations, getGangstaAttribute, attribName = energyToMolsAttrName)
 
-    equations = paste(metabolicProcessEnergyVars, "=", energyToMolsRatios, metabolicTransformationMassTransVars)
+    nestedEqnTransformation = function(metabolicProcessEnergyVars, energyToMolsRatios, metabolicTransformationMassTransVars, transferOptions) {
+        return(
+          sapply(
+            transferOptions,
+            function(idx) {
+              paste(
+                metabolicProcessEnergyVars,
+                "=",
+                paste(energyToMolsRatios[idx], metabolicTransformationMassTransVars[idx], collapse = " + ")
+              )
+            }
+          )
+        )
+    }
 
+    equations =
+      unlist(
+        mapply(
+          nestedEqnTransformation,
+          metabolicProcessEnergyVars,
+          energyToMolsRatios,
+          metabolicTransformationMassTransVars,
+          transferOptions
+        )
+      )
+
+    # equations = paste(metabolicProcessEnergyVars, "=", energyToMolsRatios, metabolicTransformationMassTransVars)
 
     transferHeader =
       makeLPSolveHeader("The energy and molar transfer for each process must be in accordance with the stoichiometry and free energy yield of the process (Exprsn. 11)", F)
