@@ -134,9 +134,11 @@ aggregatedUniqueTransfers = function(
 
   summedTransfers = rbind(summedTransfers, newRowsToAdd)
 
-  sourceSinkLogicalVector = unlist(getGangstaAttribute(gangstas, gangstaAttributeName("sourceSink")))
-  compoundNames = names(sourceSinkLogicalVector)
-  sourceSinks = compoundNames[sourceSinkLogicalVector == TRUE]
+  compounds = subsetGangstas(gangstas, "class", gangstaClassName("comp"))
+  sourceSinkLogicalVector = getGangstaAttribute(compounds, gangstaAttributeName("sourceSink"))
+  compoundNames = getGangstaAttribute(compounds, gangstaAttributeName("name"))
+  names(sourceSinkLogicalVector) = compoundNames
+  sourceSinks = compoundNames[sourceSinkLogicalVector]
 
   fromNames = as.character(summedTransfers$fromPool)
   toNames = as.character(summedTransfers$toPool)
