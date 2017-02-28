@@ -25,18 +25,22 @@ makeOrgansimEnergyVars = function(organismNames) {
 
 makeCompoundStartMassVars = function(compoundNames) {
   return(makeGenericVars(compoundNames, "startSuffixCompound"))
+  # return(makeGenericVars(compoundNames, "startSuffix"))
 }
 
 makeCompoundEndMassVars = function(compoundNames) {
   return(makeGenericVars(compoundNames, "endSuffixCompound"))
+  # return(makeGenericVars(compoundNames, "endSuffix"))
 }
 
 makePoolStartMassVars = function(poolNames) {
   return(makeGenericVars(poolNames, "startSuffixPool"))
+  # return(makeGenericVars(poolNames, "startSuffix"))
 }
 
 makePoolEndMassVars = function(poolNames) {
   return(makeGenericVars(poolNames, "endSuffixPool"))
+  # return(makeGenericVars(poolNames, "endSuffix"))
 }
 
 makeRespEnergyVars = function(organismNames) {
@@ -47,9 +51,6 @@ makeTransformationMassTransVars = function(transformationNames) {
   return(makeGenericVars(transformationNames,"transSuffix"))
 }
 
-makeBiomassRemainingVars = function(poolNames) {
-  return(makeGenericVars(poolNames, "endSuffix"))
-}
 
 makeLPSolveHeader = function(headerText, majorHeader = F) {
   if(majorHeader){
@@ -63,18 +64,16 @@ makeLPSolveHeader = function(headerText, majorHeader = F) {
 makeEquations = function(gangstaObjects) {
 
   ## Get gangsta.option values
-  # endSuffix = gangstaVarName("endSuffix")
-  endSuffixCompound = gangstaVarName("endSuffixCompound")
-  endSuffixPool = gangstaVarName("endSuffixPool")
 
-  # energySuffix = gangstaVarName("energySuffix")
+
+  endSuffixPool = gangstaVarName("endSuffixPool")
+  endSuffixCompound = gangstaVarName("endSuffixCompound")
+
   energySuffixProcess = gangstaVarName("energySuffixProcess")
   energySuffixOrganism = gangstaVarName("energySuffixOrganism")
 
-
-  # startSuffix = gangstaVarName("startSuffix")
-  startSuffixCompound = gangstaVarName("startSuffixCompound")
   startSuffixPool = gangstaVarName("startSuffixPool")
+  startSuffixCompound = gangstaVarName("startSuffixCompound")
 
   transSuffix = gangstaVarName("transSuffix")
 
@@ -208,7 +207,7 @@ makeEquations = function(gangstaObjects) {
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
     initialCompoundMols = getGangstaAttribute(compounds, initialMolsAttrName)
-    compoundStartMassVarNames = makePoolStartMassVars(compoundNames)
+    compoundStartMassVarNames = makeCompoundStartMassVars(compoundNames)
 
     initMolsHeader =
       makeLPSolveHeader("Set FiniteCompound.initialMolecules (Exprsn. 3) & InfiniteCompound.initialMolecules (Exprsn. 4)", F)

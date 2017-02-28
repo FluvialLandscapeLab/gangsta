@@ -4,7 +4,7 @@
   op.gangsta <- list(
     gangsta.path = "~/R-dev",
     gangsta.install.args = "",
-    gangsta.name = "Geoffrey Poole", ## What about Ann Marie?  She did some work too ;-)
+    gangsta.name = "Geoffrey Poole",
     gangsta.desc.author = '"Geoffrey Poole <gpoole@montana.edu> [aut, cre]"',
     gangsta.desc.license = "What license is it under?",
     gangsta.desc.suggests = NULL,
@@ -17,7 +17,7 @@
         org = "organism",
         pool = "pool",
         proc = "process",
-        metab = "metabolic",
+        metab = "metabolic", ## Metabolic is not a class in the current version of the model.
         trans = "transformation"
       ),
 
@@ -27,9 +27,9 @@
         respRate = "respirationRate",
 
         startSuffixPool = "initialAtoms",
-        endSuffixPool = "finalAtoms",
-
         startSuffixCompound = "initialMolecules",
+
+        endSuffixPool = "finalAtoms",
         endSuffixCompound = "finalMolecules",
 
         energySuffixProcess = "netEnergy",

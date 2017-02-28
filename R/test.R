@@ -36,7 +36,7 @@ leakIn = function(compoundNames, leakInList = leakInListInput){
 }
 
 iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
-  # startSuffix = gangstaVarName("startSuffix")
+  startSuffix = gangstaVarName("startSuffix")
   gangstaResultsList = list()
   nameAttrName = gangstaAttributeName("name")
   numberOfSteps = length(leakInList)
