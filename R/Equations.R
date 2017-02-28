@@ -16,27 +16,27 @@ makeGenericVars = function(prefixes, varTag, separator = ".") {
 }
 
 makeProcessEnergyVars = function(processNames) {
-  return(makeGenericVars(processNames, "energySuffix"))
+  return(makeGenericVars(processNames, "energySuffixProcess"))
 }
 
 makeOrgansimEnergyVars = function(organismNames) {
-  return(makeGenericVars(organismNames, "energySuffix"))
+  return(makeGenericVars(organismNames, "energySuffixOrganism"))
 }
 
 makeCompoundStartMassVars = function(compoundNames) {
-  return(makeGenericVars(compoundNames, "startSuffix"))
+  return(makeGenericVars(compoundNames, "startSuffixCompound"))
 }
 
 makeCompoundEndMassVars = function(compoundNames) {
-  return(makeGenericVars(compoundNames, "endSuffix"))
+  return(makeGenericVars(compoundNames, "endSuffixCompound"))
 }
 
 makePoolStartMassVars = function(poolNames) {
-  return(makeGenericVars(poolNames, "startSuffix"))
+  return(makeGenericVars(poolNames, "startSuffixPool"))
 }
 
 makePoolEndMassVars = function(poolNames) {
-  return(makeGenericVars(poolNames, "endSuffix"))
+  return(makeGenericVars(poolNames, "endSuffixPool"))
 }
 
 makeRespEnergyVars = function(organismNames) {
@@ -63,9 +63,19 @@ makeLPSolveHeader = function(headerText, majorHeader = F) {
 makeEquations = function(gangstaObjects) {
 
   ## Get gangsta.option values
-  endSuffix = gangstaVarName("endSuffix")
-  energySuffix = gangstaVarName("energySuffix")
-  startSuffix = gangstaVarName("startSuffix")
+  # endSuffix = gangstaVarName("endSuffix")
+  endSuffixCompound = gangstaVarName("endSuffixCompound")
+  endSuffixPool = gangstaVarName("endSuffixPool")
+
+  # energySuffix = gangstaVarName("energySuffix")
+  energySuffixProcess = gangstaVarName("energySuffixProcess")
+  energySuffixOrganism = gangstaVarName("energySuffixOrganism")
+
+
+  # startSuffix = gangstaVarName("startSuffix")
+  startSuffixCompound = gangstaVarName("startSuffixCompound")
+  startSuffixPool = gangstaVarName("startSuffixPool")
+
   transSuffix = gangstaVarName("transSuffix")
 
   respEnergyVarName = gangstaVarName("respEnergy")
@@ -109,9 +119,9 @@ makeEquations = function(gangstaObjects) {
     equations =
       c(
         goalEqnHeader,
-        paste0("MAX: ", makePoolEndMassVars("Total_Biomass")),
+        paste0("MAX: ", makeCompoundEndMassVars("Total_Biomass")),
         totalBiomassHeader,
-        paste(makePoolEndMassVars("Total_Biomass"),"=", paste0(organismEndMassVarNames, collapse = " + "))
+        paste(makeCompoundEndMassVars("Total_Biomass"),"=", paste0(organismEndMassVarNames, collapse = " + "))
       )
     return(equations)
   }

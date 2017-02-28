@@ -4,7 +4,7 @@
   op.gangsta <- list(
     gangsta.path = "~/R-dev",
     gangsta.install.args = "",
-    gangsta.name = "Geoffrey Poole",
+    gangsta.name = "Geoffrey Poole", ## What about Ann Marie?  She did some work too ;-)
     gangsta.desc.author = '"Geoffrey Poole <gpoole@montana.edu> [aut, cre]"',
     gangsta.desc.license = "What license is it under?",
     gangsta.desc.suggests = NULL,
@@ -23,13 +23,19 @@
 
     gangsta.vars =
       c(
-        respEnergy = "respirationEnergyJoules",
-        respRate = "RespRate",
+        respEnergy = "respirationEnergy",
+        respRate = "respirationRate",
 
-        startSuffix = "initialAmountMols",
-        endSuffix = "finalAmountMols",
-        energySuffix = "energyJoules",
-        transSuffix = "amountMolsTransfer"
+        startSuffixPool = "initialAtoms",
+        endSuffixPool = "finalAtoms",
+
+        startSuffixCompound = "initialMolecules",
+        endSuffixCompound = "finalMolecules",
+
+        energySuffixProcess = "netEnergy",
+        energySuffixOrganism = "totalProcessEnergy",
+
+        transSuffix = "atoms"
       ),
 
     gangsta.attributes = c(
