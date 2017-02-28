@@ -18,7 +18,7 @@ makePlots(pdf = T, aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
 # makePlots(pdf = F, aggregateBio = F, elementalCyclesToPlot = c("C", "N"))
 
 combineRiverPlotsInPDF(
-  fileIdx = "CNOS_TEST_20161212",
+  fileIdx = "CNOS_TEST_20170214",
   cyclesSeparate = T,
   elementalCyclesToPlot = c("C", "N", "O", "S"),
   axisFontSize = 0.5,
@@ -30,5 +30,5 @@ combineRiverPlotsInPDF(
 # ############### DISSIM ENERGY PLOTS
 
 
-combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend_12122016", axisFontSize = 2)
-combineDissimEnergyPlotsInPDF(withLegend = T, fileIdx = "dissimPlots_withLegend_11292016")
+combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend_20170214", axisFontSize = 2)
+combineDissimEnergyPlotsInPDF(withLegend = T, fileIdx = "dissimPlots_withLegend_20170214")

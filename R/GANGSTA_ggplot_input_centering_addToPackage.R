@@ -277,7 +277,7 @@ gangstaSuperPlot = function(
 makeFileName =
   function(
     fileID,
-    filePrefix = "C:\\Users\\goff\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
+    filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
   ){
     paste0(filePrefix, fileID, ".pdf")
   }
@@ -361,7 +361,7 @@ combineRiverPlotsInPDF = function(
   axisFontSize,
   yAxisMaxMols = 0
 ){
-  filePrefix = "C:\\Users\\goff\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
 
   resultNames = sort(resultNames)
