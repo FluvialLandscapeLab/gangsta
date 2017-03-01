@@ -4,7 +4,7 @@
   op.gangsta <- list(
     gangsta.path = "~/R-dev",
     gangsta.install.args = "",
-    gangsta.name = "Geoffrey Poole",
+    gangsta.name = "Geoffrey Poole",  ## what about AM Reinhold?
     gangsta.desc.author = '"Geoffrey Poole <gpoole@montana.edu> [aut, cre]"',
     gangsta.desc.license = "What license is it under?",
     gangsta.desc.suggests = NULL,
@@ -21,7 +21,7 @@
         trans = "transformation"
       ),
 
-    gangsta.vars =
+    gangsta.vars =  ## according to the new UML, all of these are attributes
       c(
         respEnergy = "respirationEnergy",
         respRate = "respirationRate",
@@ -41,20 +41,22 @@
     gangsta.attributes = c(
       name = "name",
       respRate = "respirationRate",
-      orgName = "organismName",
+
+      orgName = "organismName",  ## should these next 3 just be "name" or "Organism.name", "Process.name", and "Compound.name"
       procName = "processName",
       compName = "compoundName",
-      joulesToMols = "joulesToMolsRatio",
+
+      molarAffinity = "molarAffinity",
       fromPool = "from",
       toPool = "to",
-      limitToStartMols = "limitToInitMols",
+      limitToStartMols = "limitToInitMolecules",  ## I think we need to add this to our UML diagram
       molRatio = "molarRatio",
-      initMols = "initialMols",
-      finalMols = "finalMols",
-      sourceSink = "sourceSink",
+      initialMolecules = "initialMolecules",
+      finalMolecules = "finalMolecules",
+      InfinteCompound = "InfinteCompound",  ## This is actually a class
       energy = "energyTerm",
-      element = "elementName",
-      transOptions = "transferOptions"
+      element = "elementName", ## I think we need to add this to our UML diagram
+      transOptions = "transferOptions"  ## I think that we should change this to "multiToPools"
     )
 
 

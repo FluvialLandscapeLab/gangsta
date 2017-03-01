@@ -34,7 +34,7 @@ makeTransferTable = function(gangstas) {
   fromValues = paste0(simpleMolarTerms, sepVec, fromNames)
   toValues = paste0(simpleMolarTerms, sepVec, toNames)
   transferValues = paste(fromValues, "-->", toValues)
-  jouleToMolRatios = scales::scientific(vectorizeTransferInfo(gangstas, "joulesToMolsRatio"), digits = 3)
+  jouleToMolRatios = scales::scientific(vectorizeTransferInfo(gangstas, "molarAffinity"), digits = 3)
   organismName = substr(processNames, 1, 3)
   processSimpleNames = substr(processNames, 4, nchar(processNames))
   element = substr(fromNames, nchar(fromNames), nchar(fromNames))

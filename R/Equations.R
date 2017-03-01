@@ -93,13 +93,13 @@ makeEquations = function(gangstaObjects) {
   toPoolAttrName = gangstaAttributeName("toPool")
   respAttrName = gangstaAttributeName("respRate")
   procNameAttrName = gangstaAttributeName("procName")
-  energyToMolsAttrName =  gangstaAttributeName("joulesToMols")
+  energyToMolsAttrName =  gangstaAttributeName("molarAffinity")
   limitToStartAttrName = gangstaAttributeName("limitToStartMols")
   molarRatioAttrName = gangstaAttributeName("molRatio")
-  initialMolsAttrName = gangstaAttributeName("initMols")
-  finalMolsAttrName = gangstaAttributeName("finalMols")
+  initialMolsAttrName = gangstaAttributeName("initialMolecules")
+  # finalMoleculesAttrName = gangstaAttributeName("finalMolecules")
   compNameAttrName =  gangstaAttributeName("compName")
-  sourceSinkAttrName = gangstaAttributeName("sourceSink")
+  InfinteCompoundAttrName = gangstaAttributeName("InfinteCompound")
   energyTermAttrName = gangstaAttributeName("energy")
   elementAttrName = gangstaAttributeName("element")
   transOptionsAttrName = gangstaAttributeName("transOptions")
@@ -164,11 +164,11 @@ makeEquations = function(gangstaObjects) {
 
 
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
-    compounds = subsetGangstas(compounds, sourceSinkAttrName, T)
+    compounds = subsetGangstas(compounds, InfinteCompoundAttrName, T)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
     compoundVarNames = makeCompoundEndMassVars(compoundNames)
 
-    sourceSinkCompoundEquations = c(eqnPaste("-Inf <", compoundVarNames, "< +Inf"))
+    InfinteCompoundCompoundEquations = c(eqnPaste("-Inf <", compoundVarNames, "< +Inf"))
 
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
     pools = lapply(compoundNames, subsetGangstas, gangstaObjects = pools, attributeName = compNameAttrName)
@@ -176,11 +176,11 @@ makeEquations = function(gangstaObjects) {
     poolNames = getGangstaAttribute(pools, nameAttrName)
     poolVarNames = c(makePoolEndMassVars(poolNames), makePoolStartMassVars(poolNames))
 
-    sourceSinkPoolEquations = c(eqnPaste("-Inf <", poolVarNames, "< +Inf"))
+    InfinteCompoundPoolEquations = c(eqnPaste("-Inf <", poolVarNames, "< +Inf"))
 
-    sourceSinkCompoundHeader =
+    InfinteCompoundCompoundHeader =
       makeLPSolveHeader("For each InfiniteCompound, remove constraints on InfiniteCompound.finalMolecules (Exprsn. 5)", F)
-    sourceSinkPoolHeader =
+    InfinteCompoundPoolHeader =
       makeLPSolveHeader("For each Pool associated with an InfiniteCompound, remove constraints on Pool.finalAtoms (Exprsn. 6)", F)
     decayDissimAndAssimHeader =
       makeLPSolveHeader("For each Process, the Process.netEnergy is unconstrained (Exprsn. 7)", F)
@@ -188,11 +188,11 @@ makeEquations = function(gangstaObjects) {
       makeLPSolveHeader("For each Organism type, the Organism.respirationEnergy is unconstrained (Exprsn. 8)", F)
 
     equations = c(
-      sourceSinkCompoundHeader,
-      sourceSinkCompoundEquations,
+      InfinteCompoundCompoundHeader,
+      InfinteCompoundCompoundEquations,
 
-      sourceSinkPoolHeader,
-      sourceSinkPoolEquations,
+      InfinteCompoundPoolHeader,
+      InfinteCompoundPoolEquations,
 
       decayDissimAndAssimHeader,
       decayDissimAndAssimEquations,
@@ -209,11 +209,11 @@ makeEquations = function(gangstaObjects) {
     initialCompoundMols = getGangstaAttribute(compounds, initialMolsAttrName)
     compoundStartMassVarNames = makeCompoundStartMassVars(compoundNames)
 
-    initMolsHeader =
+    initialMoleculesHeader =
       makeLPSolveHeader("Set FiniteCompound.initialMolecules (Exprsn. 3) & InfiniteCompound.initialMolecules (Exprsn. 4)", F)
     equations =
       c(
-        initMolsHeader,
+        initialMoleculesHeader,
         paste(compoundStartMassVarNames, "=", initialCompoundMols)
       )
     return(equations)
@@ -408,7 +408,7 @@ makeEquations = function(gangstaObjects) {
 
   eqnLimitToStartingMass = function() {
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
-    compounds = subsetGangstas(compounds, sourceSinkAttrName, F)
+    compounds = subsetGangstas(compounds, InfinteCompoundAttrName, F)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
 
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)

@@ -43,7 +43,7 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
 
   gangstaCompounds = subsetGangstas(gangstaObjects, "class", "compound")
   gangstaCompoundNames = names(gangstaCompounds)
-  gangstaSinkCompounds = subsetGangstas(gangstaCompounds, "sourceSink", T)
+  gangstaSinkCompounds = subsetGangstas(gangstaCompounds, "InfinteCompound", T)
   gangstaSinkCompoundNames = names(gangstaSinkCompounds)
 
   initCompoundVarNames = makeCompoundStartMassVars(gangstaCompoundNames)
@@ -154,7 +154,7 @@ doItGangsta = function(gangstaObjects, tag, file = file.choose()){
 # }
 
 
-doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks) {
+doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, InfinteCompounds) {
   gangstasName = paste0("gangstas", modelNameTag)
   resultsName = paste0("results", modelNameTag)
   modelName = paste0("lp.", modelNameTag)
@@ -173,11 +173,11 @@ doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames
   assign(resultsName,
          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
          envir = .GlobalEnv)
-  plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, sourceSinks)
-#  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
+  plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, InfinteCompounds)
+#  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, InfinteCompounds = InfinteCompounds)
 }
 
-# doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks) {
+# doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, InfinteCompounds) {
 #   gangstasName = paste0("gangstas", modelNameTag)
 #   resultsName = paste0("results", modelNameTag)
 #   modelName = paste0("lp.", modelNameTag)
@@ -192,6 +192,6 @@ doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames
 #   assign(resultsName,
 #          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
 #          envir = .GlobalEnv)
-#   plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, sourceSinks)
-#   #  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, sourceSinks = sourceSinks)
+#   plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, InfinteCompounds)
+#   #  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, InfinteCompounds = InfinteCompounds)
 # }

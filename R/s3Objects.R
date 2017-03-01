@@ -85,7 +85,7 @@
 #'   reference element. When \code{respirationRate} is numeric, an
 #'   \code{organism} object is returnd.  When NA, a \code{compound} object is
 #'   returned.
-#' @param sourceSink Boolean when set to TRUE tags a compound as being unlimited
+#' @param InfinteCompound Boolean when set to TRUE tags a compound as being unlimited
 #'   in supply for the purposes of the model.
 #' @param gangstaObjects A list of compounds and pools, typically created by
 #'   calling \code{compoundFactory}.  Error checking in \code{processFactory}
@@ -133,7 +133,7 @@
 #'   \code{transformation} objects.  The remaining constructor methods return an
 #'   individual GANGSTA object of the class corresponding to the function name.
 
-compoundFactory = function(compoundName, molarRatios, initialMols, respirationRate = NA, sourceSink = F) {
+compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, InfinteCompound = F) {
   checkNames = unique(names(molarRatios))==""
   if(any(checkNames) || (length(checkNames) != length(molarRatios))) {
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
@@ -141,13 +141,13 @@ compoundFactory = function(compoundName, molarRatios, initialMols, respirationRa
   elementNames = names(molarRatios)
   newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
-  newCompound = list(compound(compoundName, initialMols, respirationRate, sourceSink))
+  newCompound = list(compound(compoundName, initialMolecules, respirationRate, InfinteCompound))
   names(newCompound) = compoundName
   return(c(newCompound, newPools))
 }
 
 #' @rdname compoundFactory
-processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, transferOptions = NULL, organismName = "", limitToInitMols = T) {
+processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, transferOptions = NULL, organismName = "", limitToInitMolecules = T) {
 
   # check to be sure the specifeid organism already exists in gangstaObjects
   if(!identical(organismName, "")) {
@@ -155,9 +155,9 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
   }
 
   # check to be sure some parameters are vectors of length 1
-  inputList = list(name, energyTerm, organismName, limitToInitMols)
+  inputList = list(name, energyTerm, organismName, limitToInitMolecules)
   if(any(plyr::laply(inputList, length) != 1)) {
-    stop(paste0("Process: ", name, "\n The arguments name, energyTerm, orgaismName, and limitToInitMols must be vectors of length() = 1."))
+    stop(paste0("Process: ", name, "\n The arguments name, energyTerm, orgaismName, and limitToInitMolecules must be vectors of length() = 1."))
   }
 
   # check to be sure some vectors are equal in length
@@ -193,7 +193,7 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
   # molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
   newTransformations = mapply(transformation, fromPoolNames, toPoolNames, molarTerms,
-                              MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = name, limitToInitMols = limitToInitMols),
+                              MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = name, limitToInitMolecules = limitToInitMolecules),
                               SIMPLIFY = F)
   names(newTransformations) = sapply(newTransformations, function(x) x$name)
 
@@ -206,10 +206,10 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
 }
 
 #' @rdname compoundFactory
-compound = function(compoundName, initialMols, respirationRate = NA, sourceSink) {
-  newCompound = list(name = compoundName, initialMols = initialMols, sourceSink = sourceSink)
-  #  compound = function(compoundName, referencePoolName, initialMols, respirationRate = NA, sourceSink) {
-  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMols = initialMols, sourceSink = sourceSink)
+compound = function(compoundName, initialMolecules, respirationRate = NA, InfinteCompound) {
+  newCompound = list(name = compoundName, initialMolecules = initialMolecules, InfinteCompound = InfinteCompound)
+  #  compound = function(compoundName, referencePoolName, initialMolecules, respirationRate = NA, InfinteCompound) {
+  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMolecules = initialMolecules, InfinteCompound = InfinteCompound)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     if(respirationRate > 0) {
@@ -244,7 +244,7 @@ process = function(name, energyTerm, transferOptions, organismName = "") {
 }
 
 #' @rdname compoundFactory
-transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, molarTerm, limitToInitMols = T){
+transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, molarTerm, limitToInitMolecules = T){
   # Calling fromToPair does some key error checking.
   pools = fromToPair(gangstaObjects, fromPoolName, toPoolName)
   transformationName = paste(processName, fromPoolName, toPoolName, sep="_")
@@ -256,9 +256,9 @@ transformation = function(gangstaObjects, processName, fromPoolName, toPoolName,
       from = fromPoolName,
       to = toPoolName,
       molarTerm = molarTerm,
-      joulesToMolsRatio = energyToMolsRatio,
+      molarAffinity = energyToMolsRatio,
       processName = processName,
-      limitToInitMols = limitToInitMols
+      limitToInitMolecules = limitToInitMolecules
     )
   class(newTransformation) = c("transformation", "gangsta")
   return(newTransformation)

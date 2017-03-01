@@ -36,7 +36,7 @@ expandMultiprocessSpec = function(multiprocessSpec) {
   organismName = rep(organismName, each = length(processSuffix))
   name = paste0(organismName, name, processSuffix)
   # 2) if limitToMols is specified, replicate that as well
-  if(!is.null(spec[["limitToInitMols"]])) limitToInitMols = rep(limitToInitMols, each = length(processSuffix))
+  if(!is.null(spec[["limitToInitMolecules"]])) limitToInitMolecules = rep(limitToInitMolecules, each = length(processSuffix))
   # 3) create a list of from vectors where the length of the list is equal to
   # the highest number of specified fromCompounds and the other fromCompounds
   # are recycled
@@ -52,7 +52,7 @@ expandMultiprocessSpec = function(multiprocessSpec) {
   paramList = lapply(names(spec)[1:nListElementsToReturn], function(x) eval(parse(text = x)))
   # Now use do.call to call mapply on the "list" fuction.  This is the same as
   # executing: mapply(FUN = list, name, energyTerm, fromCompoundNames,
-  # toCompoundNames, molarTerms, organismName, limitToInitMols)
+  # toCompoundNames, molarTerms, organismName, limitToInitMolecules)
   # which obviously(?) creates multiple processSpecs from the recyled
   # combinations of the expanded elements of the multiProcessSpec
   expandedSpecs = do.call(mapply, c(list(FUN = "list", SIMPLIFY = F), paramList))

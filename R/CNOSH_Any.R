@@ -1,9 +1,9 @@
-CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
+CNOSH_Any = function(activeElements, InfinteCompounds = c("Ox", "Hx")) {
 
   activeElementTag = paste(activeElements, collapse = "")
-  sourceSinkTag = paste(sourceSinks, collapse = ".")
+  InfinteCompoundTag = paste(InfinteCompounds, collapse = ".")
 
-  modelNameTag = paste0(activeElementTag, "_", sourceSinkTag, collapse = "")
+  modelNameTag = paste0(activeElementTag, "_", InfinteCompoundTag, collapse = "")
 
   tag = paste(activeElements, collapse = "")
 
@@ -17,21 +17,21 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
   DOMStoichH = 263/106
 
   compoundParams = list(
-    list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24), #respirationRate units kJ umol-1 Day-1
-    list(compoundName = "Aut" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "Met" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMols = 0, respirationRate = -2.83E-6 * 24),
-    #    list(compoundName = "DOMX", molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMols = 0),
-    list(compoundName = "DOM" , molarRatios = c(C=1, N=DOMStoichN, O=DOMStoichO, S=DOMStoichS, H = DOMStoichH), initialMols = 0),
-    list(compoundName = "CH4" , molarRatios = c(C=1, H=4),      initialMols = 0),
-    list(compoundName = "NH4" , molarRatios = c(N=1, H=4),      initialMols = 0),
-    list(compoundName = "NO3" , molarRatios = c(N=1, O=3),      initialMols = 0),
-    list(compoundName = "O2"  , molarRatios = c(O=2),           initialMols = 0),
-    list(compoundName = "SO4" , molarRatios = c(S=1, O=4),      initialMols = 0),
-    list(compoundName = "CO2" , molarRatios = c(C=1, O=2),      initialMols = 0),
-    list(compoundName = "N2"  , molarRatios = c(N=2),           initialMols = 0),
-    list(compoundName = "HS"  , molarRatios = c(S=1, H=1),      initialMols = 0),
-    list(compoundName = "Ox"  , molarRatios = c(O=1),           initialMols = 0),
-    list(compoundName = "Hx"  , molarRatios = c(H=1),           initialMols = 0)
+    list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * 24), #respirationRate units kJ umol-1 Day-1
+    list(compoundName = "Aut" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "Met" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * 24),
+    #    list(compoundName = "DOMX", molarRatios = c(C=1, N=BioStoichN, O=BioStoichO), initialMolecules = 0),
+    list(compoundName = "DOM" , molarRatios = c(C=1, N=DOMStoichN, O=DOMStoichO, S=DOMStoichS, H = DOMStoichH), initialMolecules = 0),
+    list(compoundName = "CH4" , molarRatios = c(C=1, H=4),      initialMolecules = 0),
+    list(compoundName = "NH4" , molarRatios = c(N=1, H=4),      initialMolecules = 0),
+    list(compoundName = "NO3" , molarRatios = c(N=1, O=3),      initialMolecules = 0),
+    list(compoundName = "O2"  , molarRatios = c(O=2),           initialMolecules = 0),
+    list(compoundName = "SO4" , molarRatios = c(S=1, O=4),      initialMolecules = 0),
+    list(compoundName = "CO2" , molarRatios = c(C=1, O=2),      initialMolecules = 0),
+    list(compoundName = "N2"  , molarRatios = c(N=2),           initialMolecules = 0),
+    list(compoundName = "HS"  , molarRatios = c(S=1, H=1),      initialMolecules = 0),
+    list(compoundName = "Ox"  , molarRatios = c(O=1),           initialMolecules = 0),
+    list(compoundName = "Hx"  , molarRatios = c(H=1),           initialMolecules = 0)
   )
 
   processParams = list(
@@ -105,7 +105,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       toCompoundNames = list(N = ".", H = c(".", "Hx")),
       molarTerms = list(N = 1, H = 4),
       organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, T, T)
+      limitToInitMolecules = c(F, T, T)
     ),
     list(
       name = "AssimSO4",
@@ -122,7 +122,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       toCompoundNames = list(S = ".", H = c(".", "Hx")),
       molarTerms = list(S = 1, H = 1),
       organismName = c("Het", "Aut", "Met"),
-      limitToInitMols = c(F, T, T)
+      limitToInitMolecules = c(F, T, T)
     ),
     list(
       name = "Aerobic",
@@ -346,8 +346,8 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
     function(x) {
       # keep the molar ratios for active elements ONLY
       x[["molarRatios"]] = x[["molarRatios"]][names(x[["molarRatios"]]) %in% activeElements]
-      # for any compound in the sourceSinks list, add the sourceSink = T attribute to the compoundParams list
-      if (x[["compoundName"]] %in% sourceSinks) x = c(x, list(sourceSink = T))
+      # for any compound in the InfinteCompounds list, add the InfinteCompound = T attribute to the compoundParams list
+      if (x[["compoundName"]] %in% InfinteCompounds) x = c(x, list(InfinteCompound = T))
       return(x)
     }
   )
@@ -373,7 +373,7 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
     function(x) {
       froms = x[["fromCompoundNames"]]
       froms[froms == "."] = x[["organismName"]]
-      noGood = any(!(froms %in% compoundNames) & !(froms %in% sourceSinks))
+      noGood = any(!(froms %in% compoundNames) & !(froms %in% InfinteCompounds))
       return(noGood)
     }
   )
@@ -419,6 +419,6 @@ CNOSH_Any = function(activeElements, sourceSinks = c("Ox", "Hx")) {
       }
     )
 
-  doAll(tag, modelNameTag, compoundParams, processParams, compoundNames, sourceSinks)
+  doAll(tag, modelNameTag, compoundParams, processParams, compoundNames, InfinteCompounds)
 }
 

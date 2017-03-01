@@ -135,19 +135,19 @@ aggregatedUniqueTransfers = function(
   summedTransfers = rbind(summedTransfers, newRowsToAdd)
 
   compounds = subsetGangstas(gangstas, "class", gangstaClassName("comp"))
-  sourceSinkLogicalVector = getGangstaAttribute(compounds, gangstaAttributeName("sourceSink"))
+  InfinteCompoundLogicalVector = getGangstaAttribute(compounds, gangstaAttributeName("InfinteCompound"))
   compoundNames = getGangstaAttribute(compounds, gangstaAttributeName("name"))
-  names(sourceSinkLogicalVector) = compoundNames
-  sourceSinks = compoundNames[sourceSinkLogicalVector]
+  names(InfinteCompoundLogicalVector) = compoundNames
+  InfinteCompounds = compoundNames[InfinteCompoundLogicalVector]
 
   fromNames = as.character(summedTransfers$fromPool)
   toNames = as.character(summedTransfers$toPool)
   fromToIdentical = (fromNames == toNames)
   compoundNamesInTransfersDF = substr(fromNames, 1, nchar(fromNames)-2)
-  isSourceSink = (compoundNamesInTransfersDF %in% sourceSinks)
+  isSourceSink = (compoundNamesInTransfersDF %in% InfinteCompounds)
 
-  sourceSinkRemovalCriteria = (fromToIdentical & isSourceSink)
-  keep = !(sourceSinkRemovalCriteria)
+  InfinteCompoundRemovalCriteria = (fromToIdentical & isSourceSink)
+  keep = !(InfinteCompoundRemovalCriteria)
   summedTransfers = summedTransfers[keep, ]
 
   return(summedTransfers)
