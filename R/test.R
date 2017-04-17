@@ -120,6 +120,7 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
     mt = massTransfers(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE)
     mtp = massTransfers(gangstaObjects, lpObject, simple = TRUE, byProcess = TRUE)
     pe = processEnergies(gangstaObjects, lpObject, simple = FALSE, catabolic = TRUE, anabolic = TRUE)
+    re = respirationEnergies(gangstaObjects, lpObject)
 
     stepOutput = list(objective = lpSolveAPI::get.objective(lpObject),
                       status = lpStatus,
@@ -129,7 +130,8 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
                       leakInPoolVals = poolMolsAdded,
                       leakInCompoundVals = compoundMolsAdded,
                       compoundVals = compoundDifDF,
-                      processEnergyVals = pe)
+                      processEnergyVals = pe,
+                      respirationEnergyVals = re)
     gangstaResultsList[[i]] = stepOutput
     names(gangstaResultsList)[i] = paste0("Iteration_", i)
   }
@@ -173,7 +175,9 @@ doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames
   assign(resultsName,
          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
          envir = .GlobalEnv)
-  plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, InfinteCompounds)
+  # plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, InfinteCompounds)
+
+
 #  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, InfinteCompounds = InfinteCompounds)
 }
 

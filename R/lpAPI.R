@@ -218,3 +218,24 @@ processEnergies = function(gangstaObjects, lpObject,
   if(simple) returnDF = subset(returnDF, energy != 0)
   return(returnDF)
 }
+
+respirationEnergies = function(
+  gangstaObjects,
+  lpObject){
+  nameAttrName = gangstaAttributeName("name")
+
+  respEnergyVarName = gangstaVarName("respEnergy")
+
+  organismClassName = gangstaClassName("org")
+  organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
+  organismNames = getGangstaAttribute(organisms, nameAttrName)
+
+  respEnergyVarNames = makeGenericVars(organismNames, "respEnergy")
+
+  df.lp = solvedDataFrame.lp(lpObject, simple = F)
+
+  respEnergyVals = df.lp[respEnergyVarNames,]
+  names(respEnergyVals) = respEnergyVarNames
+
+  return(respEnergyVals)
+}
