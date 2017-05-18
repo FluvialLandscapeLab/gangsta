@@ -1,6 +1,6 @@
 
 
-gangstaSuperPlotInput = function(results = resultsCHONS_Ox.Hx, gangstas = gangstasCHONS_Ox.Hx, aggregateBio = T) {
+gangstaSuperPlotInput = function(results, gangstas, aggregateBio = T) {
   imperfectResultsList = simplifyDataForAlluvialPlot(results, gangstas)
   imperfectResultsList = unlist(imperfectResultsList, recursive = F)
   imperfectResultsList = lapply(
@@ -28,7 +28,7 @@ gangstaSuperPlotInput = function(results = resultsCHONS_Ox.Hx, gangstas = gangst
 
 gangstaSuperPlot = function(
   perfectDF = inputDF,
-  fileName = "moneyPlot_20160517.pdf",
+  fileName = "moneyPlot_20170518.pdf",
   makePDF = TRUE,
 
   compoundOrder = c("Met", "Aut", "Het", "DOM", "Ox", "CO2", "CH4", "SO4", "HS", "Hx", "NH4", "NO3", "N2", "O2"),

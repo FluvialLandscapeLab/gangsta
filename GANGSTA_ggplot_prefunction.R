@@ -10,6 +10,8 @@ CNOSH_Any(c("C", "O", "N"),
 CNOSH_Any(c("C", "O", "N", "S", "H"),
           c("Ox", "Hx"))
 
+makePlots("resultsCON_Ox.Hx", "gangstasCON_Ox.Hx", elementalCyclesToPlot = "O", aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
+makePlots("resultsCONSH_Ox.Hx", "gangstasCONSH_Ox.Hx", elementalCyclesToPlot = "O", aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
 
 # makeOutput()
 makePlots(pdf = F, aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
