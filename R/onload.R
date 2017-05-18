@@ -53,7 +53,7 @@
       molRatio = "molarRatio",
       initialMolecules = "initialMolecules",
       finalMolecules = "finalMolecules",
-      InfinteCompound = "InfinteCompound",  ## This is actually a class
+      InfiniteCompound = "InfiniteCompound",  ## This is actually a class
       energy = "energyTerm",
       element = "elementName", ## I think we need to add this to our UML diagram
       transOptions = "transferOptions"  ## I think that we should change this to "multiToPools"

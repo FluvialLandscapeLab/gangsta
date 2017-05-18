@@ -289,13 +289,13 @@ makeOutput =
   function(
     inputList =
       list(
-        CN.anoxic = list(activeElements = c("C", "N"), InfinteCompounds =  c("Ox", "Hx")),
-        CN.oxic = list(activeElements = c("C", "N"), InfinteCompounds = c("Ox", "O2", "Hx")),
-        CNO = list(activeElements = c("C", "O", "N"), InfinteCompounds = c("Ox", "Hx")),
-        CHONS = list(activeElements = c("C", "O", "N", "S", "H"), InfinteCompounds = c("Ox", "Hx"))
+        CN.anoxic = list(activeElements = c("C", "N"), InfiniteCompounds =  c("Ox", "Hx")),
+        CN.oxic = list(activeElements = c("C", "N"), InfiniteCompounds = c("Ox", "O2", "Hx")),
+        CNO = list(activeElements = c("C", "O", "N"), InfiniteCompounds = c("Ox", "Hx")),
+        CHONS = list(activeElements = c("C", "O", "N", "S", "H"), InfiniteCompounds = c("Ox", "Hx"))
       )
   ){
-    lapply(inputList, function(input) CNOSH_Any(input[["activeElements"]], input[["InfinteCompounds"]]))
+    lapply(inputList, function(input) CNOSH_Any(input[["activeElements"]], input[["InfiniteCompounds"]]))
   }
 
 makePlots =

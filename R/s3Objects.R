@@ -85,7 +85,7 @@
 #'   reference element. When \code{respirationRate} is numeric, an
 #'   \code{organism} object is returnd.  When NA, a \code{compound} object is
 #'   returned.
-#' @param InfinteCompound Boolean when set to TRUE tags a compound as being unlimited
+#' @param InfiniteCompound Boolean when set to TRUE tags a compound as being unlimited
 #'   in supply for the purposes of the model.
 #' @param gangstaObjects A list of compounds and pools, typically created by
 #'   calling \code{compoundFactory}.  Error checking in \code{processFactory}
@@ -133,7 +133,7 @@
 #'   \code{transformation} objects.  The remaining constructor methods return an
 #'   individual GANGSTA object of the class corresponding to the function name.
 
-compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, InfinteCompound = F) {
+compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, InfiniteCompound = F) {
   checkNames = unique(names(molarRatios))==""
   if(any(checkNames) || (length(checkNames) != length(molarRatios))) {
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
@@ -141,7 +141,7 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
   elementNames = names(molarRatios)
   newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
-  newCompound = list(compound(compoundName, initialMolecules, respirationRate, InfinteCompound))
+  newCompound = list(compound(compoundName, initialMolecules, respirationRate, InfiniteCompound))
   names(newCompound) = compoundName
   return(c(newCompound, newPools))
 }
@@ -206,10 +206,10 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
 }
 
 #' @rdname compoundFactory
-compound = function(compoundName, initialMolecules, respirationRate = NA, InfinteCompound) {
-  newCompound = list(name = compoundName, initialMolecules = initialMolecules, InfinteCompound = InfinteCompound)
-  #  compound = function(compoundName, referencePoolName, initialMolecules, respirationRate = NA, InfinteCompound) {
-  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMolecules = initialMolecules, InfinteCompound = InfinteCompound)
+compound = function(compoundName, initialMolecules, respirationRate = NA, InfiniteCompound) {
+  newCompound = list(name = compoundName, initialMolecules = initialMolecules, InfiniteCompound = InfiniteCompound)
+  #  compound = function(compoundName, referencePoolName, initialMolecules, respirationRate = NA, InfiniteCompound) {
+  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMolecules = initialMolecules, InfiniteCompound = InfiniteCompound)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     if(respirationRate > 0) {

@@ -1,4 +1,4 @@
-biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", textCol = "black"){
+biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", textCol = "black", axisFontSize = 1.5){
 
   if(withLegend ==F) {
     legendLocation = "none"
@@ -33,10 +33,11 @@ biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", tex
       legend.background = ggplot2::element_rect(fill = backgroundCol),
       legend.text = ggplot2::element_text(size = ggplot2::rel(1.2), colour = textCol  ),
       legend.position = legendLocation) +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(size = 20),
-      axis.text.y = ggplot2::element_text(size = 20)
-    ) +
+    ggplot2::theme(axis.text = ggplot2::element_text(colour = textCol, size = ggplot2::rel(axisFontSize))) +
+    # ggplot2::theme(
+    #   axis.text.x = ggplot2::element_text(size = 20),
+    #   axis.text.y = ggplot2::element_text(size = 20)
+    # ) +
     ggplot2::labs(x = "", y = "") +
     # ggplot2::geom_hline(ggplot2::aes(yintercept = 0))+
     ggplot2::scale_y_continuous(

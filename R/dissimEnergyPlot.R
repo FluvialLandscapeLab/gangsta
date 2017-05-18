@@ -51,6 +51,10 @@ makeDissimEnergyPlot = function(
       name = ""
     ) +
     ggplot2::theme(axis.text = ggplot2::element_text(colour = textCol, size = ggplot2::rel(axisFontSize))) +
+    # ggplot2::theme(
+    #   axis.text.x = ggplot2::element_text(size = 20),
+    #   axis.text.y = ggplot2::element_text(size = 20)
+    # ) +
     ggplot2::theme(
       legend.background = ggplot2::element_rect(fill = backgroundCol),
       legend.text = ggplot2::element_text(size = ggplot2::rel(1.2), colour = textCol  ),
@@ -60,8 +64,9 @@ makeDissimEnergyPlot = function(
       # c("chartreuse3", "darkorange", "blue3", "brown3", "purple", "yellow", "cyan3"),
       labels = processLabels
       # c("Nitrification", "Sulfide oxidation", "Aerobic heterotrophy", "Denitrification", "Methanogenesis", "Sulfate reduction", "Methane oxidation")
-    ) +
-    ggplot2::theme(plot.margin = grid::unit(c(-0.60, 1, 0.02, 0.5), "lines"))
+    )
+  # +
+    # ggplot2::theme(plot.margin = grid::unit(c(-0.60, 1, 0.02, 0.5), "lines"))
   if(printPDF == TRUE) {
     pdf(
       fileName,

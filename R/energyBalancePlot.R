@@ -1,4 +1,4 @@
-energyBalPlot = function(resultsList, withLegend = F, backgroundCol = "white", textCol = "black"){
+energyBalPlot = function(resultsList, withLegend = F, backgroundCol = "white", textCol = "black", axisFontSize = 1.5){
 
   if(withLegend ==F) {
     legendLocation = "none"
@@ -19,9 +19,9 @@ energyBalPlot = function(resultsList, withLegend = F, backgroundCol = "white", t
 
   energyDF =
     rbind(
-      data.frame(ts = as.character(1:9), type = "Dissimilatory Energy", energy = dissimEnergiesByTimeStep),
-      data.frame(ts = as.character(1:9), type = "Assimilatory Energy", energy = assimEnergiesByTimeStep),
-      data.frame(ts = as.character(1:9), type = "Respiration Energy", energy = respEnergiesByTimeStep)
+      data.frame(ts = as.character(1:9), type = "Dissimilatory", energy = dissimEnergiesByTimeStep),
+      data.frame(ts = as.character(1:9), type = "Assimilatory", energy = assimEnergiesByTimeStep),
+      data.frame(ts = as.character(1:9), type = "Respiration", energy = respEnergiesByTimeStep)
     )
 
   energyDF$energyInJoules = energyDF$energy * 1000
@@ -39,10 +39,11 @@ energyBalPlot = function(resultsList, withLegend = F, backgroundCol = "white", t
       legend.background = ggplot2::element_rect(fill = backgroundCol),
       legend.text = ggplot2::element_text(size = ggplot2::rel(1.2), colour = textCol  ),
       legend.position = legendLocation) +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(size = 20),
-      axis.text.y = ggplot2::element_text(size = 20)
-    ) +
+    ggplot2::theme(axis.text = ggplot2::element_text(colour = textCol, size = ggplot2::rel(axisFontSize))) +
+    # ggplot2::theme(
+    #   axis.text.x = ggplot2::element_text(size = 20),
+    #   axis.text.y = ggplot2::element_text(size = 20)
+    # ) +
     ggplot2::labs(x = "", y = "") +
     ggplot2::geom_hline(ggplot2::aes(yintercept = 0))+
     ggplot2::scale_y_continuous(

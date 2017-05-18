@@ -99,7 +99,7 @@ makeEquations = function(gangstaObjects) {
   initialMolsAttrName = gangstaAttributeName("initialMolecules")
   # finalMoleculesAttrName = gangstaAttributeName("finalMolecules")
   compNameAttrName =  gangstaAttributeName("compName")
-  InfinteCompoundAttrName = gangstaAttributeName("InfinteCompound")
+  InfiniteCompoundAttrName = gangstaAttributeName("InfiniteCompound")
   energyTermAttrName = gangstaAttributeName("energy")
   elementAttrName = gangstaAttributeName("element")
   transOptionsAttrName = gangstaAttributeName("transOptions")
@@ -164,11 +164,11 @@ makeEquations = function(gangstaObjects) {
 
 
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
-    compounds = subsetGangstas(compounds, InfinteCompoundAttrName, T)
+    compounds = subsetGangstas(compounds, InfiniteCompoundAttrName, T)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
     compoundVarNames = makeCompoundEndMassVars(compoundNames)
 
-    InfinteCompoundCompoundEquations = c(eqnPaste("-Inf <", compoundVarNames, "< +Inf"))
+    InfiniteCompoundCompoundEquations = c(eqnPaste("-Inf <", compoundVarNames, "< +Inf"))
 
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
     pools = lapply(compoundNames, subsetGangstas, gangstaObjects = pools, attributeName = compNameAttrName)
@@ -176,11 +176,11 @@ makeEquations = function(gangstaObjects) {
     poolNames = getGangstaAttribute(pools, nameAttrName)
     poolVarNames = c(makePoolEndMassVars(poolNames), makePoolStartMassVars(poolNames))
 
-    InfinteCompoundPoolEquations = c(eqnPaste("-Inf <", poolVarNames, "< +Inf"))
+    InfiniteCompoundPoolEquations = c(eqnPaste("-Inf <", poolVarNames, "< +Inf"))
 
-    InfinteCompoundCompoundHeader =
+    InfiniteCompoundCompoundHeader =
       makeLPSolveHeader("For each InfiniteCompound, remove constraints on InfiniteCompound.finalMolecules (Exprsn. 5)", F)
-    InfinteCompoundPoolHeader =
+    InfiniteCompoundPoolHeader =
       makeLPSolveHeader("For each Pool associated with an InfiniteCompound, remove constraints on Pool.finalAtoms (Exprsn. 6)", F)
     decayDissimAndAssimHeader =
       makeLPSolveHeader("For each Process, the Process.netEnergy is unconstrained (Exprsn. 7)", F)
@@ -188,11 +188,11 @@ makeEquations = function(gangstaObjects) {
       makeLPSolveHeader("For each Organism type, the Organism.respirationEnergy is unconstrained (Exprsn. 8)", F)
 
     equations = c(
-      InfinteCompoundCompoundHeader,
-      InfinteCompoundCompoundEquations,
+      InfiniteCompoundCompoundHeader,
+      InfiniteCompoundCompoundEquations,
 
-      InfinteCompoundPoolHeader,
-      InfinteCompoundPoolEquations,
+      InfiniteCompoundPoolHeader,
+      InfiniteCompoundPoolEquations,
 
       decayDissimAndAssimHeader,
       decayDissimAndAssimEquations,
@@ -408,7 +408,7 @@ makeEquations = function(gangstaObjects) {
 
   eqnLimitToStartingMass = function() {
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
-    compounds = subsetGangstas(compounds, InfinteCompoundAttrName, F)
+    compounds = subsetGangstas(compounds, InfiniteCompoundAttrName, F)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
 
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
