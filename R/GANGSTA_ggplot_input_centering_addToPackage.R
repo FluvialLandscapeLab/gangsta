@@ -152,7 +152,7 @@ gangstaSuperPlot = function(
     ggplot2::scale_fill_manual(values = elementColor)
   river = river +
     ggplot2::geom_tile(
-      data = poolDF,
+      data = poolDF[poolDF$height > 0, ],
       mapping = ggplot2::aes(
         x=step,
         y=y,
@@ -221,16 +221,18 @@ gangstaSuperPlot = function(
         element = plotDF[.i, "element"],
         var = plotDF[.i, "mols"]/2
       )
-      if(plotDF[.i, "mols"] < minTransferMols) {
-        river = river + ggplot2::geom_line(data = plotIt[[.i]], mapping = ggplot2::aes(x = x, y = y, colour = element))
-      } else {
-        river = river + ggplot2::geom_ribbon(data = plotIt[[.i]], mapping = ggplot2::aes(
-          x = x,
-          # y = y,
-          ymin = y - var,
-          ymax = y + var,
-          fill = element)
+      if(plotDF[.i, "mols"] > 0) {
+        if(plotDF[.i, "mols"] < minTransferMols) {
+          river = river + ggplot2::geom_line(data = plotIt[[.i]], mapping = ggplot2::aes(x = x, y = y, colour = element))
+        } else {
+          river = river + ggplot2::geom_ribbon(data = plotIt[[.i]], mapping = ggplot2::aes(
+            x = x,
+            # y = y,
+            ymin = y - var,
+            ymax = y + var,
+            fill = element)
           )
+        }
       }
     }
   }
@@ -358,25 +360,27 @@ combineRiverPlotsInPDF = function(
   aggregateBio = F,
   elementalCyclesToPlot = NULL,
   cyclesSeparate = T,
+  # rowHeights = list(),
   axisFontSize,
   yAxisMaxMols = 0
 ){
+  # create file for output
   filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
 
+  # resultNames and gangstaNames are pulled from the global environment by default.  Sort them.
   resultNames = sort(resultNames)
   gangstaNames = sort(gangstaNames)
 
-  numColumns =
-    ifelse(
-      (length(elementalCyclesToPlot) > 1 && cyclesSeparate),
-      length(elementalCyclesToPlot),
-      1
-    )
-  numRows = length(resultNames)
+  # calculate number of rows and columns in plot space.  cyclesSeparate = T
+  # means that each element will be plotted on its own, in separte plots
+  numRows = ifelse(cyclesSeparate, length(elementalCyclesToPlot), 1)
+  numColumns = length(resultNames)
 
+  # create input for the plots.  Each item in gangstaPerfetcDFList has a
+  # dataframe that contains mols transferred between pools for all elements from the run.
   gangstaPerfectDFList =
-    lapply(1:length(resultNames), function(i)
+    lapply(1:numColumns, function(i)
       perfectDF = gangstaSuperPlotInput(
         results = get(resultNames[i], envir = .GlobalEnv),
         gangstas = get(gangstaNames[i], envir = .GlobalEnv),
@@ -384,21 +388,45 @@ combineRiverPlotsInPDF = function(
       )
     )
 
+
+  #Strip out any elements that are not in the "elementalCyclesToPlot" vector.
+  #If cyclesSeparate, create a list of dataframes where each element is
+  #in its own dataframes.
   if(length(elementalCyclesToPlot)>1) {
-    if(cyclesSeparate == F){
-      gangstaPerfectDFList =
-        lapply(gangstaPerfectDFList, function(DF) DF[DF$element %in% elementalCyclesToPlot, ])
-    } else {
+    # for seperate cycles...
+    if(cyclesSeparate){
+      # calculate number of cycles being plotted
       numOfElCycles = length(elementalCyclesToPlot)
+      # make a copy of the perfect data frame list
       gangstaPerfectDFListOrig = gangstaPerfectDFList
+      # clear out the list so it can be rebuilt in the for loop, below.  Then
+      # break into DFs by element.
       gangstaPerfectDFList = list()
       for(i in 1:length(gangstaPerfectDFListOrig)) {
         tempDF = gangstaPerfectDFListOrig[[i]]
         tempDFList = lapply(elementalCyclesToPlot, function(el) tempDF[tempDF$element == el, ])
         gangstaPerfectDFList = append(gangstaPerfectDFList, tempDFList, length(gangstaPerfectDFList))
       }
+    } else {
+      # if !cyclesSeparate, just get rid of elements your don't want in the dataframes.
+      gangstaPerfectDFList =
+        lapply(gangstaPerfectDFList, function(DF) DF[DF$element %in% elementalCyclesToPlot, ])
     }
   }
+
+  # in order to plot correctly, ggplot needs gangstaPerfectDFList to be "row
+  # major," that is, the plots for each data.frame will be creating by filling
+  # each rows before skipping down to the next row.  Currently, the list is
+  # "column major."  To convert from row major to column major we use some deep
+  # knowledge of R.  Matrices in R are a vector with dimensions and the data in
+  # the vector is stored "column major."  So, if we create a matrix of
+  # 1:(nrow*ncol) using the "byrow = T" option, the resulting vector that
+  # underlies the list will be the indices requires to convert "column major" to
+  # "row major."
+
+  reorderIndex = as.numeric(matrix(data = 1:(numRows*numColumns), nrow = numRows, byrow = T))
+  gangstaPerfectDFList = gangstaPerfectDFList[reorderIndex]
+
   # https://github.com/wch/ggplot2/wiki/New-theme-system
   new_theme_empty <- ggplot2::theme_bw()
   new_theme_empty$line <- ggplot2::element_blank()
@@ -429,7 +457,7 @@ combineRiverPlotsInPDF = function(
                       ),
                     ncol = numColumns, nrow = numRows
                     # ,
-                    # heights = rep(2, length(riverPlotList))
+                    # heights = rowHeights
                   ),
                   width = 11,
                   height = 8.5,

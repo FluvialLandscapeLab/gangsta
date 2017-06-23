@@ -22,17 +22,39 @@ makeDissimEnergyPlot = function(
   }
   dissimEnergyDF$energyInJoules = dissimEnergyDF$energy * 1000
 
+
   processNames =
     c("AutNitrif", "AutSulfideOxidation", "HetAerobic", "HetDenit", "HetMethanogenesis", "HetSulfateRed", "MetMethaneOxid")
   processColors =
-    c("chartreuse3", "darkorange", "blue3", "brown3", "purple", "yellow", "cyan3")
+    c("#FF7F00", "#984EA3", "#377EB8", "#FFFF33", "#E41A1C", "#F781BF", "#4DAF4A")
+  # c("chartreuse3", "darkorange", "blue3", "brown3", "purple", "yellow", "cyan3")
   processLabels =
     c("Nitrification", "Sulfide oxidation", "Aerobic heterotrophy", "Denitrification", "Methanogenesis", "Sulfate reduction", "Methane oxidation")
   names(processColors) = processNames
   names(processLabels) = processNames
 
+  dissimEnergyDF$process =
+    factor(
+      dissimEnergyDF$process,
+      levels =
+        c(
+          "HetMethanogenesis",
+          "AutNitrif",
+          "HetSulfateRed",
+          "AutSulfideOxidation",
+          "HetDenit",
+          "HetAerobic",
+          "MetMethaneOxid"
+          ),
+      ordered = T
+    )
+
+
   processColors = processColors[names(processColors) %in% levels(dissimEnergyDF$process)]
   processLabels = processLabels[names(processLabels) %in% levels(dissimEnergyDF$process)]
+
+  barHeights = plyr::ddply(dissimEnergyDF, "timestep", plyr::summarise, energyInJ = sum(energyInJoules))
+  print(max(barHeights$energyInJ))
 
   dissimEnergyPlot = ggplot2::ggplot(dissimEnergyDF, ggplot2::aes(x = timestep, y = energyInJoules, fill = process)) +
     ggplot2::geom_bar(stat = "identity") +
@@ -48,25 +70,22 @@ makeDissimEnergyPlot = function(
     ggplot2::scale_y_continuous(
       breaks = seq(0, 0.09, 0.03),
       labels = as.character(seq(0, 0.09, 0.03)),
+      # name = "Joules"
       name = ""
     ) +
     ggplot2::theme(axis.text = ggplot2::element_text(colour = textCol, size = ggplot2::rel(axisFontSize))) +
-    # ggplot2::theme(
-    #   axis.text.x = ggplot2::element_text(size = 20),
-    #   axis.text.y = ggplot2::element_text(size = 20)
-    # ) +
     ggplot2::theme(
       legend.background = ggplot2::element_rect(fill = backgroundCol),
       legend.text = ggplot2::element_text(size = ggplot2::rel(1.2), colour = textCol  ),
       legend.position = legendLocation) +
     ggplot2::scale_fill_manual(
       values = processColors,
-      # c("chartreuse3", "darkorange", "blue3", "brown3", "purple", "yellow", "cyan3"),
       labels = processLabels
-      # c("Nitrification", "Sulfide oxidation", "Aerobic heterotrophy", "Denitrification", "Methanogenesis", "Sulfate reduction", "Methane oxidation")
-    )
-  # +
-    # ggplot2::theme(plot.margin = grid::unit(c(-0.60, 1, 0.02, 0.5), "lines"))
+    )+
+    # ggplot2::labs(x = "", y = "Joules")+
+    ggplot2::theme(axis.title.y = ggplot2::element_text(size = ggplot2::rel(1.2)))
+
+
   if(printPDF == TRUE) {
     pdf(
       fileName,
@@ -86,14 +105,14 @@ makeDissimEnergyPlot = function(
 combineDissimEnergyPlotsInPDF = function(
   withLegend = F,
   fileIdx,
-  axisFontSize = 1.5
+  axisFontSize = 1.2
 ){
   filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\DissimEnergyPlots\\"
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
   resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]
   resultNames = sort(resultNames)
 
-  dissimPlotList =
+  plotList =
     base::lapply(
       resultNames,
       function(rN)
@@ -107,12 +126,12 @@ combineDissimEnergyPlotsInPDF = function(
     filename = fileName,
     plot =
       gridExtra::grid.arrange(
-        grobs = dissimPlotList,
-        ncol = 1, nrow = length(resultNames),
-        heights = rep(2, length(resultNames))
+        grobs = plotList,
+        ncol = length(resultNames), nrow = 1,
+        heights = 4
       ),
-    height = 8.5,
-    width = 4,
+    height = 4,
+    width = 8.5,
     dpi = 600
   )
 }

@@ -22,12 +22,14 @@ biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", tex
   )
   ggplot2::ggplot(bioDF, ggplot2::aes(x = ts, y = mols, fill = type)) +
     ggplot2::geom_bar(stat = "identity") +
-    ggplot2::scale_fill_manual(values = c("turquoise4", "tan1", "mediumvioletred")) +
+    # ggplot2::scale_fill_manual(values = c("turquoise4", "tan1", "mediumvioletred")) +
+    ggplot2::scale_fill_manual(values = c("grey", "grey", "grey")) +
+
     ggplot2::theme_bw() +
     ggplot2::theme(panel.border = ggplot2::element_blank(), panel.grid.major = ggplot2::element_blank(),
                    panel.grid.minor = ggplot2::element_blank(), axis.line = ggplot2::element_line(colour = "white")
     ) +
-    ggplot2::expand_limits(y=c(0,0.16)) +
+    ggplot2::expand_limits(y=c(0,0.20)) +
     ggplot2::guides(fill = ggplot2::guide_legend(title=""))  +
     ggplot2::theme(
       legend.background = ggplot2::element_rect(fill = backgroundCol),
@@ -41,8 +43,8 @@ biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", tex
     ggplot2::labs(x = "", y = "") +
     # ggplot2::geom_hline(ggplot2::aes(yintercept = 0))+
     ggplot2::scale_y_continuous(
-      breaks = seq(0, 0.15, 0.05),
-      labels = as.character(seq(0, 0.15, 0.05)),
+      breaks = seq(0, 0.20, 0.01),
+      labels = as.character(seq(0, 0.20, 0.01)),
       name = ""
     )
 }
@@ -51,14 +53,14 @@ biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", tex
 combineBiomassPlotsInPDF = function(
   withLegend = F,
   fileIdx,
-  axisFontSize = 1.5
+  axisFontSize = 1.2
 ){
   filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\BiomassPlots\\"
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
   resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]
   resultNames = sort(resultNames)
 
-  biomassPlotList =
+  plotList =
     base::lapply(
       resultNames,
       function(rN)
@@ -72,12 +74,12 @@ combineBiomassPlotsInPDF = function(
     filename = fileName,
     plot =
       gridExtra::grid.arrange(
-        grobs = biomassPlotList,
-        ncol = 1, nrow = length(resultNames),
-        heights = rep(2, length(resultNames))
+        grobs = plotList,
+        ncol = length(resultNames), nrow = 1,
+        heights = 3
       ),
-    height = 8.5,
-    width = 4,
+    height = 3,
+    width = 8.5,
     dpi = 600
   )
 }

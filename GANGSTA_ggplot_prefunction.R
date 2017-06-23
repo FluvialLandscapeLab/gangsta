@@ -20,29 +20,30 @@ makePlots(pdf = F, aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
 # makePlots(pdf = F, aggregateBio = F, elementalCyclesToPlot = c("C", "N"))
 
 combineRiverPlotsInPDF(
-  fileIdx = "CNOS_TEST_20170301",
+  fileIdx = "CNOS_TEST_20170623",
   cyclesSeparate = T,
   elementalCyclesToPlot = c("C", "N", "O", "S"),
-  axisFontSize = 0.5,
+  axisFontSize = 0.75,
   yAxisMaxMols = 4.05
   )
 
-
-
-# ############### DISSIM ENERGY PLOTS
-
-
-combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend_20170424", axisFontSize = 1.5)
-combineDissimEnergyPlotsInPDF(withLegend = T, fileIdx = "dissimPlots_withLegend_20170410")
-
-
 ########## Energy balance plots
-combineEnergyBalPlotsInPDF(withLegend = F, fileIdx = "energyBalPlots_noLegend_20170424", axisFontSize = 1.5)
+combineEnergyBalPlotsInPDF(withLegend = F, fileIdx = "energyBalPlots_noLegend_20170623", axisFontSize = 1.2)
 
 
 #### Biomass plots
-combineBiomassPlotsInPDF(withLegend = F, fileIdx = "biomassPlots_noLegend_20170424", axisFontSize = 1.5)
+combineBiomassPlotsInPDF(withLegend = F, fileIdx = "biomassPlots_noLegend_20170623", axisFontSize = 1.2)
 
+# ############### DISSIM ENERGY PLOTS
+combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend_20170623", axisFontSize = 1.2)
 
-### Substrates and products plots
-combineSubstrProdPlots(fileIdx = "reactantsAndProductsPlots_noLegend20170424", axisFontSize = 1.5)
+### combine leakIn  plots
+combineLeakInPlots(fileIdx = "leakInPlots_noLegend20170620", axisFontSize = 1.2)
+combineCompleteLeakInListPlots(fileIdx = "completeLeakInPlots_noLegend20170623", axisFontSize = 1.2)
+
+### combine product  plots
+combineProductsPlots(fileIdx = "ProductsPlots_noLegend20170623", axisFontSize = 1.2)
+
+# I used the following to get legends of the same size for the dissim and leak in/prod plots:
+makeDissimEnergyPlot(resultsList = resultsCONSH_Ox.Hx, withLegend = T, printPDF = T, textCol = "black", backgroundCol = "white", axisFontSize = 1.2)
+productsPlot(resultsList = resultsCONSH_Ox.Hx, withLegend = T, printPDF = T, textCol = "black", backgroundCol = "white", axisFontSize = 1.2)

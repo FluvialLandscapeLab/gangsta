@@ -99,41 +99,72 @@ aggregatedUniqueTransfers = function(
 ) {
   colNames = c("toPool", "fromPool")
 
+  # Get results from results list for the time step indicated
   tableObject = getResultDF(results, timestep, DFname)
+  # Rename the "massTransfered" column name
   names(tableObject)[names(tableObject) == summedColName] = "col.2.sum"
 
+  # Combine the transfers where the toPools and fromPools are the same
   summedTransfers = plyr::ddply(tableObject, colNames, plyr::summarise, molsTransfered = sum(col.2.sum))
-  summedTransfers = summedTransfers[round(summedTransfers$molsTransfered, digits = 12) != 0, ]
 
+  # Sum the mols transfered by fromPool
   totalMolsTransfered = plyr::ddply(summedTransfers, colNames[2], plyr::summarise, totalMolsTransfered = sum(molsTransfered))
+  # Get the heights of the boxes for each pool
   molsInBoxes = boxHeights(results, timestep)
-  zeroMols = row.names(molsInBoxes)[!(row.names(molsInBoxes) %in% totalMolsTransfered$fromPool)]
-  if(length(zeroMols) > 0) {
-    zeroMolsTransfered =
-      data.frame(
-        fromPool =  zeroMols,
-        totalMolsTransfered = 0
+
+  # Get the fromPools not in the molsInBoxes data frame and add them to the molsInBoxes data frame
+  poolsWithZeroMolsInBoxes = totalMolsTransfered$fromPool[!(totalMolsTransfered$fromPool %in% row.names(molsInBoxes))]
+  if(length(poolsWithZeroMolsInBoxes) > 0 ) {
+    zeroMolsInBoxes = as.data.frame(rep(0, length(poolsWithZeroMolsInBoxes)))
+    row.names(zeroMolsInBoxes) = poolsWithZeroMolsInBoxes
+    names(zeroMolsInBoxes) = "size"
+    molsInBoxes = rbind(molsInBoxes, zeroMolsInBoxes)
+  }
+  molsInBoxes$size = round(molsInBoxes$size, digits = 10)
+
+  # Get the molsInBoxes that are not listed in the fromPools and add them to the totalMolsTransfered data frame
+  poolsWithZeroTransfers = row.names(molsInBoxes)[!(row.names(molsInBoxes) %in% totalMolsTransfered$fromPool)]
+  if(length(poolsWithZeroTransfers) > 0) {
+    zeroTransfers = data.frame(
+      fromPool = poolsWithZeroTransfers,
+      totalMolsTransfered = rep(0, length(poolsWithZeroTransfers))
       )
-    totalMolsTransfered = rbind(totalMolsTransfered, zeroMolsTransfered)
+    totalMolsTransfered = rbind(totalMolsTransfered, zeroTransfers)
   }
-  molsInBoxes =
-    molsInBoxes[with(molsInBoxes, match(totalMolsTransfered$fromPool, row.names(molsInBoxes))),]
-  names(molsInBoxes) = totalMolsTransfered$fromPool
-  molsRemaining = molsInBoxes - totalMolsTransfered$totalMolsTransfered
+  totalMolsTransfered$totalMolsTransfered = round(totalMolsTransfered$totalMolsTransfered, digits = 10)
 
-  toPool = rep(NA, length(molsRemaining))
-  fromPool = rep(NA, length(molsRemaining))
-  molsTransfered = rep(-999, length(molsRemaining))
-  for(i in 1:length(molsRemaining)){
-    toPool[i] = names(molsRemaining)[i]
-    fromPool[i] = names(molsRemaining)[i]
-    molsTransfered[i] = molsRemaining[i]
-  }
-  newRowsToAdd = data.frame(toPool = toPool, fromPool = fromPool, molsTransfered = molsTransfered)
-  newRowsToAdd = newRowsToAdd[round(newRowsToAdd$molsTransfered, digits = 12) != 0, ]
+  # order the mols in boxes data frame by pool name
+  molsInBoxesVect = molsInBoxes$size[order(row.names(molsInBoxes))]
+  names(molsInBoxesVect) = row.names(molsInBoxes)[order(row.names(molsInBoxes))]
 
+  # order the totalMolsTransfered by fromPool name
+  totalMolsTrans = totalMolsTransfered$totalMolsTransfered[order(as.character(totalMolsTransfered$fromPool))]
+  names(totalMolsTrans) = totalMolsTransfered$fromPool[order(as.character(totalMolsTransfered$fromPool))]
+
+  # print(timestep)
+
+  if(!identical(names(molsInBoxesVect),names(totalMolsTrans))) {
+    stop("The molsInBoxesVect doesn't match the totalMolsTrans!")
+    }
+
+  # Calculate the number of mols remaining in boxes at the end of the time step
+  molsRemaining = round(molsInBoxesVect - totalMolsTrans, digits = 10)
+
+  # Add molsRemaining to the summedTransfers data fram where the fromPool and
+  # toPool are identical.  Essentially, this allows flow through between
+  # identical pools.
+  newRowsToAdd =
+    data.frame(
+      toPool = names(molsRemaining),
+      fromPool = names(molsRemaining),
+      molsTransfered = molsRemaining
+      )
   summedTransfers = rbind(summedTransfers, newRowsToAdd)
 
+  # This next block of code gets rid of flow through between time steps for
+  # Infinite Compounds.
+
+  # Identify the infinite compounds
   compounds = subsetGangstas(gangstas, "class", gangstaClassName("comp"))
   InfiniteCompoundLogicalVector = getGangstaAttribute(compounds, gangstaAttributeName("InfiniteCompound"))
   compoundNames = getGangstaAttribute(compounds, gangstaAttributeName("name"))
@@ -146,6 +177,7 @@ aggregatedUniqueTransfers = function(
   compoundNamesInTransfersDF = substr(fromNames, 1, nchar(fromNames)-2)
   isSourceSink = (compoundNamesInTransfersDF %in% InfiniteCompounds)
 
+  # Get rid of flow through for infinite compounds
   InfiniteCompoundRemovalCriteria = (fromToIdentical & isSourceSink)
   keep = !(InfiniteCompoundRemovalCriteria)
   summedTransfers = summedTransfers[keep, ]

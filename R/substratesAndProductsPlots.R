@@ -109,7 +109,7 @@ substrProdPlot = function(resultsList, gangstas, withLegend = F){
 
   # this next bit of code is a major hack that I don't know how to get around.
   # We need a box for O2 in the reactants for the scenario wherein O2 is a
-  # source/sink.  In the particular scenario that we want to put in the paper,
+  # source.  In the particular scenario that we want to put in the paper,
   # it is a CN model with O2, Ox, and Hx as source/sinks.  Well, O2 isn't listed
   # in the gangstas list as an infinite compound because the model is a carbon
   # and nitrogen model only.  Run the following line of code if you don't

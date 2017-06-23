@@ -76,7 +76,7 @@ CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
     ),
     list(
       name = "AssimCO2",
-      energyTerm = -3.5E-02,
+      energyTerm = -3.5E-03,  # crap, I think this should be -3.5E-03 NOT -3.5E-02
       fromCompoundNames = list(C = "CO2", O = "CO2"),
       toCompoundNames = list(C = ".", O = c(".", "Ox")),
       molarTerms = list(C = 1, O = 2),
