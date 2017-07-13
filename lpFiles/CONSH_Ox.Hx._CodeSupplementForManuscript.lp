@@ -5,18 +5,18 @@ MAX: Total_Biomass.finalMolecules;
 Total_Biomass.finalMolecules = Het.finalMolecules + Aut.finalMolecules + Met.finalMolecules;
 /******************** INITIALIZATION ********************/
 /***** Set FiniteCompound.initialMolecules & InfiniteCompound.initialMolecules *****/
-Het.initialMolecules = 0;
-Aut.initialMolecules = 0;
+Het.initialMolecules = 0.02;
+Aut.initialMolecules = 0.04;
 Met.initialMolecules = 0;
 DOM.initialMolecules = 0;
 CH4.initialMolecules = 0;
-NH4.initialMolecules = 0;
+NH4.initialMolecules = 0.05;
 NO3.initialMolecules = 0;
-O2.initialMolecules = 0;
+O2.initialMolecules = 0.25;
 SO4.initialMolecules = 0;
-CO2.initialMolecules = 0;
+CO2.initialMolecules = 0.01;
 N2.initialMolecules = 0;
-HS.initialMolecules = 0;
+HS.initialMolecules = 0.05;
 Ox.initialMolecules = 0;
 Hx.initialMolecules = 0;
 /***** For each InfiniteCompound, remove constraints on InfiniteCompound.finalMolecules *****/

@@ -179,13 +179,13 @@ makeEquations = function(gangstaObjects) {
     InfiniteCompoundPoolEquations = c(eqnPaste("-Inf <", poolVarNames, "< +Inf"))
 
     InfiniteCompoundCompoundHeader =
-      makeLPSolveHeader("For each InfiniteCompound, remove constraints on InfiniteCompound.finalMolecules (Exprsn. 5)", F)
+      makeLPSolveHeader("For each InfiniteCompound, remove constraints on InfiniteCompound.finalMolecules", F)
     InfiniteCompoundPoolHeader =
-      makeLPSolveHeader("For each Pool associated with an InfiniteCompound, remove constraints on Pool.finalAtoms (Exprsn. 6)", F)
+      makeLPSolveHeader("For each Pool associated with an InfiniteCompound, remove constraints on Pool.finalAtoms", F)
     decayDissimAndAssimHeader =
-      makeLPSolveHeader("For each Process, the Process.netEnergy is unconstrained (Exprsn. 7)", F)
+      makeLPSolveHeader("For each Process, the Process.netEnergy is unconstrained", F)
     respHeader =
-      makeLPSolveHeader("For each Organism type, the Organism.respirationEnergy is unconstrained (Exprsn. 8)", F)
+      makeLPSolveHeader("For each Organism type, the Organism.respirationEnergy is unconstrained", F)
 
     equations = c(
       InfiniteCompoundCompoundHeader,
@@ -210,7 +210,7 @@ makeEquations = function(gangstaObjects) {
     compoundStartMassVarNames = makeCompoundStartMassVars(compoundNames)
 
     initialMoleculesHeader =
-      makeLPSolveHeader("Set FiniteCompound.initialMolecules (Exprsn. 3) & InfiniteCompound.initialMolecules (Exprsn. 4)", F)
+      makeLPSolveHeader("Set FiniteCompound.initialMolecules & InfiniteCompound.initialMolecules", F)
     equations =
       c(
         initialMoleculesHeader,
@@ -232,7 +232,7 @@ makeEquations = function(gangstaObjects) {
     poolStartMassVarNames = makePoolStartMassVars(poolNames)
     compoundStartMassVarNames = makeCompoundStartMassVars(compoundNames)
     startStoichHeader =
-      makeLPSolveHeader("For each elemental Pool, the Pool.initialAtoms must conform to Compound stoichiometry (Exprsn. 9)", F)
+      makeLPSolveHeader("For each elemental Pool, the Pool.initialAtoms must conform to Compound stoichiometry (Exprsn. 3)", F)
     equations =
       c(
         startStoichHeader,
@@ -243,7 +243,7 @@ makeEquations = function(gangstaObjects) {
     poolEndMassVarNames = makePoolEndMassVars(poolNames)
     compoundEndMassVarNames = makeCompoundEndMassVars(compoundNames)
     endStoichHeader =
-      makeLPSolveHeader("For each elemental Pool, the Pool.finalAtoms must conform to Compound stoichiometry (Exprsn. 10)", F)
+      makeLPSolveHeader("For each elemental Pool, the Pool.finalAtoms must conform to Compound stoichiometry (Exprsn. 4)", F)
     equations =
       c(
         equations,
@@ -269,7 +269,7 @@ makeEquations = function(gangstaObjects) {
     equations = paste(orgEnergyVars, "=", eqnRightHandSides)
 
     processEnergyHeader =
-      makeLPSolveHeader("For each organism type, the total energy associated with assimilatory and dissimilatory Processes must equal the sum of the Process.netEnergy for all Processes (Exprsn. 15)", F)
+      makeLPSolveHeader("For each organism type, the total energy associated with assimilatory and dissimilatory Processes must equal the sum of the Process.netEnergy for all Processes (Exprsn. 9)", F)
 
     equations = c(processEnergyHeader, equations)
 
@@ -287,7 +287,7 @@ makeEquations = function(gangstaObjects) {
     equations = paste(respEnergyVarNames, "=", respirationRates, biomassEndVarNames)
 
     respEnergyHeader =
-      makeLPSolveHeader("Maintenance respiration energy is proportional to the biomass of each organism type (Exprsn. 14)", F)
+      makeLPSolveHeader("Maintenance respiration energy is proportional to the biomass of each organism type (Exprsn. 8)", F)
     equations =
       c(
         respEnergyHeader,
@@ -306,7 +306,7 @@ makeEquations = function(gangstaObjects) {
     equations = paste("0 =", respEnergyVars, "+", orgEnergyVars)
 
     energyBalHeader =
-      makeLPSolveHeader("Organisms must meet their respiratory energy demands (Exprsn. 16)", F)
+      makeLPSolveHeader("Organisms must meet their respiratory energy demands (Exprsn. 10)", F)
 
     equations = c(energyBalHeader, equations)
 
@@ -360,7 +360,7 @@ makeEquations = function(gangstaObjects) {
     # equations = paste(metabolicProcessEnergyVars, "=", energyToMolsRatios, metabolicTransformationMassTransVars)
 
     transferHeader =
-      makeLPSolveHeader("The number of atoms transferred during each Process must be in accordance with the stoichiometry and chemical affinity of the Process (Exprsn. 11)", F)
+      makeLPSolveHeader("The number of atoms transferred during each Process must be in accordance with the stoichiometry and chemical affinity of the Process (Exprsn. 5)", F)
 
     equations =
       c(
@@ -395,7 +395,7 @@ makeEquations = function(gangstaObjects) {
     equations = paste0(poolEndMassVars, " = ", poolStartMassVars, transferInSumString, transferOutSumString)
 
     molarBalHeader =
-      makeLPSolveHeader("Elemental molar balance must be conserved (Exprsn. 12)", F)
+      makeLPSolveHeader("Elemental molar balance must be conserved (Exprsn. 6)", F)
 
     equations =
       c(
@@ -435,7 +435,7 @@ makeEquations = function(gangstaObjects) {
     equations = paste0(poolStartMassVars, " >= ", transferOutSumString)
 
     limToInitHeader =
-      makeLPSolveHeader("Generally, Transfers out of each Pool must be less than the Pool.initialAtoms (Exprsn. 13)", F)
+      makeLPSolveHeader("Generally, Transfers out of each Pool must be less than the Pool.initialAtoms (Exprsn. 7)", F)
     equations = c(limToInitHeader, equations)
 
     return(equations)

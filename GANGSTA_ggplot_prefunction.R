@@ -10,11 +10,11 @@ CNOSH_Any(c("C", "O", "N"),
 CNOSH_Any(c("C", "O", "N", "S", "H"),
           c("Ox", "Hx"))
 
-makePlots("resultsCON_Ox.Hx", "gangstasCON_Ox.Hx", elementalCyclesToPlot = "O", aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
-makePlots("resultsCONSH_Ox.Hx", "gangstasCONSH_Ox.Hx", elementalCyclesToPlot = "O", aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
+# makePlots("resultsCON_Ox.Hx", "gangstasCON_Ox.Hx", elementalCyclesToPlot = "O", aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
+makePlots(pdf = T,  "resultsCONSH_Ox.Hx", "gangstasCONSH_Ox.Hx", elementalCyclesToPlot = c("C", "H", "O", "N", "S"), aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
 
 # makeOutput()
-makePlots(pdf = F, aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
+# makePlots(pdf = F, aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
 # makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="C")
 # makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="N")
 # makePlots(pdf = F, aggregateBio = F, elementalCyclesToPlot = c("C", "N"))
@@ -26,6 +26,8 @@ combineRiverPlotsInPDF(
   axisFontSize = 0.75,
   yAxisMaxMols = 4.05
   )
+
+
 
 ########## Energy balance plots
 combineEnergyBalPlotsInPDF(withLegend = F, fileIdx = "energyBalPlots_noLegend_20170623", axisFontSize = 1.2)

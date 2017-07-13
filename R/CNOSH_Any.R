@@ -76,7 +76,7 @@ CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
     ),
     list(
       name = "AssimCO2",
-      energyTerm = -3.5E-03,  # crap, I think this should be -3.5E-03 NOT -3.5E-02
+      energyTerm = -3.5E-03,
       fromCompoundNames = list(C = "CO2", O = "CO2"),
       toCompoundNames = list(C = ".", O = c(".", "Ox")),
       molarTerms = list(C = 1, O = 2),
@@ -109,7 +109,11 @@ CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
     ),
     list(
       name = "AssimSO4",
-      energyTerm = -9.28E-05,  ## Based on PAPS pathway in Shen and Buick (2004)
+      energyTerm = -9.44E-05,  ## Based on PAPS pathway in Shen and Buick (2004),
+      # assimilation of 1 SO4 molecule takes 2 ATPs and 2 electrons.  Keeping
+      # with Rob's conventions in Table 2 of his paper, then, to assimilate 1
+      # mol of SO4, we calculate the energy to generate the ATPs and the
+      # electrons, and then add them together: 2*31.8 + 2*15.4 = 94.4 KJ/mol
       fromCompoundNames = list(S = "SO4", O = "SO4"),
       toCompoundNames = list(S = ".", O = c(".", "Ox")),
       molarTerms = list(S = 1, O = 4),
@@ -117,7 +121,7 @@ CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
     ),
     list(
       name = "AssimHS",
-      energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero
+      energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero.  Set to an arbitrarily low number (2 orders of magnitude less than NH4, NO3, and SO4 assim).
       fromCompoundNames = list(S = "HS", H = "HS"),
       toCompoundNames = list(S = ".", H = c(".", "Hx")),
       molarTerms = list(S = 1, H = 1),
