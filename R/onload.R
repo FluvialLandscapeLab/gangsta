@@ -4,8 +4,12 @@
   op.gangsta <- list(
     gangsta.path = "~/R-dev",
     gangsta.install.args = "",
-    gangsta.name = "Geoffrey Poole",  ## what about AM Reinhold?
-    gangsta.desc.author = '"Geoffrey Poole <gpoole@montana.edu> [aut, cre]"',
+    gangsta.name = c("Geoffrey Poole", "Ann Marie Reinhold"),
+    gangsta.desc.author =
+      c(
+        '"Geoffrey Poole <gpoole@montana.edu> [aut, cre]"',
+        '"Ann Marie Reinhold <annmarie.reinhold@montana.edu> [aut, cre]"'
+      ),
     gangsta.desc.license = "What license is it under?",
     gangsta.desc.suggests = NULL,
     gangsta.desc = list(),
@@ -18,7 +22,7 @@
         pool = "pool",
         proc = "process",
         metab = "metabolic", ## Metabolic is not a class in the current version of the model.
-        trans = "transformation"
+        trans = "transfer"
       ),
 
     gangsta.vars =  ## according to the new UML, all of these are attributes

@@ -4,17 +4,22 @@ readGangsta.lp = function(lpFile = file.choose()){
   return(lp.bgc)
 }
 
+
+### No references to the following two functions (getModelCol.lp and
+### showMatrixVals.lp) as of 5 December 2017.  Should we delete this???
+
+
 ### This function allows the user to access the columns of the lp object.
-getModelCol.lp = function(lpObject, colnum) {
-  sapply(1:dim(lpObject)[1], function(i) get.mat(lpObject, i, colnum))
-}
+# getModelCol.lp = function(lpObject, colnum) {
+#   sapply(1:dim(lpObject)[1], function(i) get.mat(lpObject, i, colnum))
+# }
 
 ###  This function allows the user to view the values of the lp object.
-showMatrixVals.lp = function(varName, matrix = lpMatrix, lpObject) {
-  varCol = which(colnames(matrix) == varName)
-  varRows = which(getModelCol(lpObject, varCol) != 0)
-  matrix[varRows, varCol]
-}
+# showMatrixVals.lp = function(varName, matrix = lpMatrix, lpObject) {
+#   varCol = which(colnames(matrix) == varName)
+#   varRows = which(getModelCol(lpObject, varCol) != 0)
+#   matrix[varRows, varCol]
+# }
 
 ###  This block of code builds a matrix of decision variables and constraints
 viewMatrix.lp = function(lpObject){
@@ -139,13 +144,15 @@ massTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = F
 
 ### get energy produced/consumed by processes
 
-processEnergies = function(gangstaObjects, lpObject,
-                           condense = TRUE,
-                           simple = FALSE,
-                           catabolic = TRUE,
-                           anabolic = TRUE,
-                           decayString = "Decay",
-                           stringsToStripFromEnergyVarNames = c("ofDOM", "ofBiomass")) {
+processEnergies =
+  function(
+    gangstaObjects, lpObject,
+    condense = TRUE,
+    simple = FALSE,
+    catabolic = TRUE,
+    anabolic = TRUE,
+    decayString = "Decay",
+    stringsToStripFromEnergyVarNames = c("ofDOM", "ofBiomass")) {
 
   if(!any(c(catabolic, anabolic))) {
     stop("You can request anabolic, catabolic, or all energy variables.  Request for neither has failed.")
@@ -219,6 +226,7 @@ processEnergies = function(gangstaObjects, lpObject,
   return(returnDF)
 }
 
+### Returns the energy from respiration by organism for an lp object
 respirationEnergies = function(
   gangstaObjects,
   lpObject){

@@ -10,3 +10,6 @@ License: What license is it under?
 LazyData: TRUE
 Imports: plyr,
     lpSolveAPI
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
