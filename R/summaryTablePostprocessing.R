@@ -1,12 +1,12 @@
 #### Make transfers table
 vectorizeTransferInfo = function(gangstas, info){
-  nTransfers = length(subsetGangstas(gangstas, "class", "transformation"))
+  nTransfers = length(subsetGangstas(gangstas, "class", gangstaClassName("trans")))
 
   transferInfo =
     unlist(
       lapply(
         1:nTransfers,
-        function(x) subsetGangstas(gangstas, "class", "transformation")[[x]][info]
+        function(x) subsetGangstas(gangstas, "class", gangstaClassName("trans"))[[x]][info]
       ),
       use.names = F
     )

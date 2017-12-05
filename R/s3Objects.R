@@ -260,7 +260,7 @@ transformation = function(gangstaObjects, processName, fromPoolName, toPoolName,
       processName = processName,
       limitToInitMolecules = limitToInitMolecules
     )
-  class(newTransformation) = c("transformation", "gangsta")
+  class(newTransformation) = c(gangstaClassName("trans"), "gangsta")
   return(newTransformation)
 }
 
