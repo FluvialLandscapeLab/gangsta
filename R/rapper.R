@@ -118,7 +118,7 @@ updateSlope = function(lpModel, newSlopes, rapperEnvir = parent.frame()) {
     set.mat,
     i = newSlopes$row,
     j = newSlopes$column,
-    value = do.call(newSlopes$funct, args = list(), envir = rapperEnvir),
-    moreArgs = list(lprec = lpModel)
+    value = sapply(newSlopes$funct, do.call, args = list(), envir = rapperEnvir),
+    MoreArgs = list(lprec = lpModel)
   )
 }
