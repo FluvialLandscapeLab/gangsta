@@ -1,25 +1,20 @@
 #User provides:
-#
-dummyf = function() {
-  return(1)
-}
-
-slopesToUpdate =
- list(
-   list(constraint = c("Het.finalMolecules", "Het.respirationEnergy"), funct = dummyf, initValue = NULL),
-   list(constraint = c("Aut.finalMolecules", "Aut.respirationEnergy"), funct = dummyf, initValue = NULL),
-   list(constraint = c("Met.finalMolecules", "Met.respirationEnergy"), funct = dummyf, initValue = NULL)
- )
+# slopesToUpdate =
+#  list(
+#    list(constraint = c("Var1", "Var2", "VarN"), funct = f, initValue = NULL)
+#  )
 
 # constraint is identified as the row in the lpmatrix where all "vars" have a
-# non-zero slope, but other vars have a zero slope slope associated with "var1"
+# non-zero slope, but other vars have a zero slope. The slope associated with "var1"
 # is always replaced by value from function.
-
-# variablesToUpdate =
-#   list(
-#     list(variable = "variableName", function = f, initValue = NULL),
-#     list(variable = "variableName", function = f, initValue = NULL)
-#   )
+#
+ # variablesToUpdate =
+ #   list(
+ #     list(variable = "variableName", function = f, initValue = NULL),
+ #     list(variable = "variableName", function = f, initValue = NULL)
+ #   )
+# variablesToUpdate consists of any value that is set equal to a constant with upper
+# and lower constraints equal to that value. (i.e. Het.initialMolecules = 0)
 
 # if initValue is numeric(0), rely on initialized value within the lp code
 # if initValue is NULL, run the function to initialize the value
@@ -27,11 +22,36 @@ slopesToUpdate =
 
 # drivingValues = dataframe(drivingVar1 = c(...), drivingVar2 = c(...), rownames = 0:nsteps)
 
+# EXAMPLE
+ dummyf = function() {
+   return(1)
+ }
+
+ slopesToUpdate =
+   list(
+    list(constraint = c("Het.finalMolecules", "Het.respirationEnergy"), funct = dummyf, initValue = NULL),
+    list(constraint = c("Aut.finalMolecules", "Aut.respirationEnergy"), funct = dummyf, initValue = NULL),
+    list(constraint = c("Met.finalMolecules", "Met.respirationEnergy"), funct = dummyf, initValue = NULL)
+  )
+
+
+ variablesToUpdate =
+   list(
+     list(variable = "Het.initialMolecules", funct = dummyf, initValue = NULL),
+     list(variable = "Aut.initialMolecules", funct = dummyf, initValue = NULL)
+   )
+# GangstaRap is a function that builds a rapper around GANGSTA which allows the GANGSTA environment
+# to recallibrate to changes following each timestep. The values that need to change are defined
+# in slopesToUpdate and variablesToUpdate. The values are changed according to the function defined in
+# slopesToUpdate and variablesToUpdate (funct = f). The drivingValues is a dataframe of values to be input
+# into function "f". The lpModel is the lp file created by the initiation of the GANGTSA model. Changes
+# made by the GANGSTARap function will be made directly to the lp file specified.
 GANGSTARap = function(lpModel, slopesToUpdate, variablesToUpdate, drivingValues) {
 
   # helper function that extracts named values from sublist of lists.
   getListParts = function(lst, nm) lapply(lst, "[[", nm)
-
+  # helper function that identifies if any variables passed through slopeToUpdate or constraintsToUpdate
+  # are not in the model and ends the GANGSTARap function if this is true for a variable name.
   getConstraintRow = function(constraintID) {
     badName = !constraintID %in% colnames(lpModelMatrix)
     if(any(badName)) {
@@ -58,9 +78,39 @@ GANGSTARap = function(lpModel, slopesToUpdate, variablesToUpdate, drivingValues)
   newSlopes$funct = slopeFunctions
   return(newSlopes)
 
-#  this line will now update all slopes with whatever function is specified to calculate the slope.
-#  mapply(function(r, c, f) set.mat(mylp, r, c, do.call(f, args = list())), test$row, test$column, test$funct)
+# this line will now update all slopes with whatever function is specified to calculate the slope.
+# mapply(function(r, c, f) set.mat(mylp, r, c, do.call(f, args = list())), test$row, test$column, test$funct)
+
+# gets list parts from variablesToUpdate
+  variableIDs =getListParts(variablesToUpdate, "variable")
+  variableFunctions = getListParts(variablesToUpdate, "funct")
+  variableInitVals = getListParts(variablesToUpdate, "initValue")
+
+# Gets location of variables from lpModel for variablesToUpdate
+  variableIndexes = (match(variableIDs, dimnames(lpModel)[[2]]))
+# Gets existing bounds for variablesToUpdate. If bounds do not match, returns an error.
+  existingVariableBounds = lpSolveAPI::get.bounds(lpModel, columns = variableIndexes)
+  if(!(identical(existingVariableBounds$lower, existingVariableBounds$upper))) {
+    stop("Upper and lower bounds for variable bounds in existing lp models don't match.")
+  }
+
+# set new bounds
+# updateBounds = function(lpModel, variableFunctions, rapperEnvir = parent.frame()){
+#     set.bounds(
+#     lpModel[[2]],
+#     lower = do.call(variableFunctions, args = list(), envir = rapperEnvir),
+#     upper =
+#   )
+# }
+# set bounds
+#  lpSolveAPI::set.bounds(
+#    lpModel,
+#    lower = f(),
+#    upper = f(),
+#    columns = variableIndexes
+#  )
 }
+
 
 #newSlopes data.frame with lpmatrix row, column, and function
 updateSlope = function(lpModel, newSlopes, rapperEnvir = parent.frame()) {
