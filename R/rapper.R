@@ -3,15 +3,15 @@
 #  list(
 #    list(constraint = c("Var1", "Var2", "VarN"), funct = f, initValue = NULL)
 #  )
-
 # constraint is identified as the row in the lpmatrix where all "vars" have a
 # non-zero slope, but other vars have a zero slope. The slope associated with "var1"
 # is always replaced by value from function.
-#
+
+
  # variablesToUpdate =
  #   list(
- #     list(variable = "variableName", function = f, initValue = NULL),
- #     list(variable = "variableName", function = f, initValue = NULL)
+ #     list(variable = "variableName", funct = f, initValue = NULL),
+ #     list(variable = "variableName", funct = f, initValue = NULL)
  #   )
 # variablesToUpdate consists of any value that is set equal to a constant with upper
 # and lower constraints equal to that value. (i.e. Het.initialMolecules = 0)
@@ -46,7 +46,7 @@
 # slopesToUpdate and variablesToUpdate (funct = f). The drivingValues is a dataframe of values to be input
 # into function "f". The lpModel is the lp file created by the initiation of the GANGTSA model. Changes
 # made by the GANGSTARap function will be made directly to the lp file specified.
-GANGSTARap = function(lpModel, slopesToUpdate, variablesToUpdate, drivingValues) {
+GANGSTARap = function(lpModel, slopesToUpdate, variablesToUpdate, drivingValues, boundsMustMatch = T) {
 
   # helper function that extracts named values from sublist of lists.
   getListParts = function(lst, nm) lapply(lst, "[[", nm)
@@ -84,24 +84,30 @@ GANGSTARap = function(lpModel, slopesToUpdate, variablesToUpdate, drivingValues)
 # gets list parts from variablesToUpdate
   variableIDs =getListParts(variablesToUpdate, "variable")
   variableFunctions = getListParts(variablesToUpdate, "funct")
+  if("upperFunct" %in% names(variablesToUpdate)){
+    upperVariableFunctions = getListParts(variablesToUpdate, "upperFunct")
+  } else{
+    upperVariableFunctions = variableFunctions
+  }
   variableInitVals = getListParts(variablesToUpdate, "initValue")
 
 # Gets location of variables from lpModel for variablesToUpdate
   variableIndexes = (match(variableIDs, dimnames(lpModel)[[2]]))
 # Gets existing bounds for variablesToUpdate. If bounds do not match, returns an error.
   existingVariableBounds = lpSolveAPI::get.bounds(lpModel, columns = variableIndexes)
-  if(!(identical(existingVariableBounds$lower, existingVariableBounds$upper))) {
+  if(boundsMustMatch && !(identical(existingVariableBounds$lower, existingVariableBounds$upper))) {
     stop("Upper and lower bounds for variable bounds in existing lp models don't match.")
   }
 
-# set new bounds
-# updateBounds = function(lpModel, variableFunctions, rapperEnvir = parent.frame()){
-#     set.bounds(
-#     lpModel[[2]],
-#     lower = do.call(variableFunctions, args = list(), envir = rapperEnvir),
-#     upper =
-#   )
-# }
+#set new bounds
+updateBounds = function(lpModel, variableFunctions, rapperEnvir = parent.frame()){
+    set.bounds(
+    lpModel,
+    lower = do.call(variableFunctions, args = list(), envir = rapperEnvir),
+    upper = do.call(variableFunctions, args = list(), envir = rapperEnvir),
+    columns = existingVariableBounds
+  )
+}
 # set bounds
 #  lpSolveAPI::set.bounds(
 #    lpModel,
