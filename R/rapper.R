@@ -8,21 +8,22 @@
 # is always replaced by value from function.
 
 
- # variablesToUpdate =
- #   list(
- #     list(variable = "variableName", funct = f, initValue = NULL),
- #     list(variable = "variableName", funct = f, initValue = NULL)
- #   )
-# variablesToUpdate consists of any value that is set equal to a constant with upper
+# parametersToUpdate =
+#   list(
+#     list(parameter = "parameterName", funct = f, initValue = NULL),
+#     list(parameter = "parameterName", funct = f, initValue = NULL)
+#   )
+# parametersToUpdate consists of any value that is set equal to a constant with upper
 # and lower constraints equal to that value. (i.e. Het.initialMolecules = 0)
 
 # if initValue is numeric(0), rely on initialized value within the lp code
 # if initValue is NULL, run the function to initialize the value
-# if initValue is a numeric value, set the variable to the value.
+# if initValue is a numeric value, set the parameter to the value.
 
 # drivingValues = dataframe(drivingVar1 = c(...), drivingVar2 = c(...), rownames = 0:nsteps)
 
 # EXAMPLE
+lpModel = readGangsta.lp("C:\\Users\\mathe\\Documents\\R Projects\\gangsta\\lpFiles\\CONSH_Ox.Hx.lp")
  dummyf = function() {
    return(1)
  }
@@ -35,18 +36,18 @@
   )
 
 
- variablesToUpdate =
+ parametersToUpdate =
    list(
-     list(variable = "Het.initialMolecules", funct = dummyf, initValue = NULL),
-     list(variable = "Aut.initialMolecules", funct = dummyf, initValue = NULL)
+     list(parameter = "Het.initialMolecules", funct = dummyf, initValue = NULL),
+     list(parameter = "Aut.initialMolecules", funct = dummyf, initValue = NULL)
    )
 # GangstaRap is a function that builds a rapper around GANGSTA which allows the GANGSTA environment
 # to recallibrate to changes following each timestep. The values that need to change are defined
-# in slopesToUpdate and variablesToUpdate. The values are changed according to the function defined in
-# slopesToUpdate and variablesToUpdate (funct = f). The drivingValues is a dataframe of values to be input
+# in slopesToUpdate and parametersToUpdate. The values are changed according to the function defined in
+# slopesToUpdate and parametersToUpdate (funct = f). The drivingValues is a dataframe of values to be input
 # into function "f". The lpModel is the lp file created by the initiation of the GANGTSA model. Changes
 # made by the GANGSTARap function will be made directly to the lp file specified.
-GANGSTARap = function(lpModel, slopesToUpdate, variablesToUpdate, drivingValues, boundsMustMatch = T) {
+GANGSTARap = function(lpModel, slopesToUpdate, parametersToUpdate, drivingValues, envir = parent.frame()) {
 
   # helper function that extracts named values from sublist of lists.
   getListParts = function(lst, nm) lapply(lst, "[[", nm)
@@ -76,55 +77,72 @@ GANGSTARap = function(lpModel, slopesToUpdate, variablesToUpdate, drivingValues,
   constrainColumns = match(sapply(constraintIDs, "[", 1), colnames(lpModelMatrix))
   newSlopes = data.frame(row = constraintRows, column = constrainColumns)
   newSlopes$funct = slopeFunctions
-  return(newSlopes)
+  updateSlopes(lpModel, newSlopes, envir = envir)
 
 # this line will now update all slopes with whatever function is specified to calculate the slope.
 # mapply(function(r, c, f) set.mat(mylp, r, c, do.call(f, args = list())), test$row, test$column, test$funct)
 
-# gets list parts from variablesToUpdate
-  variableIDs =getListParts(variablesToUpdate, "variable")
-  variableFunctions = getListParts(variablesToUpdate, "funct")
-  if("upperFunct" %in% names(variablesToUpdate)){
-    upperVariableFunctions = getListParts(variablesToUpdate, "upperFunct")
-  } else{
-    upperVariableFunctions = variableFunctions
-  }
-  variableInitVals = getListParts(variablesToUpdate, "initValue")
+# gets list parts from parametersToUpdate
+  parameterIDs =getListParts(parametersToUpdate, "parameter")
+  parameterFunctions = getListParts(parametersToUpdate, "funct")
+  parameterInitVals = getListParts(parametersToUpdate, "initValue")
 
-# Gets location of variables from lpModel for variablesToUpdate
-  variableIndexes = (match(variableIDs, dimnames(lpModel)[[2]]))
-# Gets existing bounds for variablesToUpdate. If bounds do not match, returns an error.
-  existingVariableBounds = lpSolveAPI::get.bounds(lpModel, columns = variableIndexes)
-  if(boundsMustMatch && !(identical(existingVariableBounds$lower, existingVariableBounds$upper))) {
-    stop("Upper and lower bounds for variable bounds in existing lp models don't match.")
+# Gets location of parameters from lpModel for parametersToUpdate
+  parameterIndexes = (match(parameterIDs, dimnames(lpModel)[[2]]))
+# Gets existing bounds for parametersToUpdate. If bounds do not match, returns an error.
+  existingParameterBounds = lpSolveAPI::get.bounds(lpModel, columns = parameterIndexes)
+  if(!(identical(existingParameterBounds$lower, existingParameterBounds$upper))) {
+    stop("Upper and lower bounds for parameter bounds in existing lp models don't match.")
   }
+  newParameters = data.frame(row = parameterIndexes)
+  newParameters$funct = parameterFunctions
+  updateParameters(lpModel, newParameters, envir = envir)
 
-#set new bounds
-updateBounds = function(lpModel, variableFunctions, rapperEnvir = parent.frame()){
-    set.bounds(
+
+}
+# end of GangstaRap
+
+# set new lp.matrix values using results from a function
+set.matWithFunction = function(lpModel, i, j, fun, args = list(), envir = parent.frame()){
+  set.mat(
     lpModel,
-    lower = do.call(variableFunctions, args = list(), envir = rapperEnvir),
-    upper = do.call(variableFunctions, args = list(), envir = rapperEnvir),
-    columns = existingVariableBounds
+    i = i,
+    j = j,
+    value = do.call(fun, args = args, envir = envir)
   )
 }
-# set bounds
-#  lpSolveAPI::set.bounds(
-#    lpModel,
-#    lower = f(),
-#    upper = f(),
-#    columns = variableIndexes
-#  )
-}
 
-
-#newSlopes data.frame with lpmatrix row, column, and function
-updateSlope = function(lpModel, newSlopes, rapperEnvir = parent.frame()) {
+#update newSlopes data.frame with lpmatrix row, column, and function
+updateSlopes = function(lpModel, newSlopes, envir = parent.frame()) {
   mapply(
-    set.mat,
+    set.matWithFunction,
     i = newSlopes$row,
     j = newSlopes$column,
-    value = sapply(newSlopes$funct, do.call, args = list(), envir = rapperEnvir),
-    MoreArgs = list(lprec = lpModel)
+    fun = newSlopes$funct,
+    MoreArgs = list(lpModel= lpModel, envir = envir)
   )
 }
+
+#set new lp.bounds using results from a function
+set.boundsWithFunction = function(lpModel, column, fun, upperFun = fun, envir = parent.frame()){
+  set.bounds(
+    lpModel,
+    lower = do.call(fun, args = list(), envir = envir),
+    upper = do.call(upperFun, args = list(), envir = envir),
+    columns = column
+  )
+}
+
+# update parameters with
+updateParameters = function(lpModel, newParameters, envir = parent.frame()){
+  mapply(
+    set.boundsWithFunction,
+    column = newParameters$row,
+    fun = newParameters$funct,
+    MoreArgs = list(lpModel = lpModel, envir = envir)
+  )
+}
+
+
+
+
