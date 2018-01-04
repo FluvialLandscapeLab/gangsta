@@ -1,4 +1,3 @@
-# source('M:/gangsta/R/GANGSTA_ggplot_input_centering_addToPackage.R')
 
 
 CNOSH_Any(c("C", "N"),
@@ -10,42 +9,94 @@ CNOSH_Any(c("C", "O", "N"),
 CNOSH_Any(c("C", "O", "N", "S", "H"),
           c("Ox", "Hx"))
 
-# makePlots("resultsCON_Ox.Hx", "gangstasCON_Ox.Hx", elementalCyclesToPlot = "O", aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
-makePlots(pdf = T,  "resultsCONSH_Ox.Hx", "gangstasCONSH_Ox.Hx", elementalCyclesToPlot = c("C", "H", "O", "N", "S"), aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
 
-# makeOutput()
-# makePlots(pdf = F, aggregateBio = F, yAxisMaxMols = 0, axisFontSize = 1.5)
-# makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="C")
-# makePlots(pdf = T, aggregateBio = F, elementalCyclesToPlot ="N")
-# makePlots(pdf = F, aggregateBio = F, elementalCyclesToPlot = c("C", "N"))
+### River plots
+makePlots(
+  pdf = T,
+  "resultsCONSH_Ox.Hx",
+  "gangstasCONSH_Ox.Hx",
+  elementalCyclesToPlot = c("C", "H", "O", "N", "S"),
+  aggregateBio = F,
+  yAxisMaxMols = 0,
+  axisFontSize = 1.5,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\")
 
 combineRiverPlotsInPDF(
-  fileIdx = "CNOS_TEST_20170623",
+  fileIdx = "CNOS_TEST_20180104",
   cyclesSeparate = T,
   elementalCyclesToPlot = c("C", "N", "O", "S"),
   axisFontSize = 0.75,
-  yAxisMaxMols = 4.05
+  yAxisMaxMols = 4.05,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
   )
 
 
 
 ########## Energy balance plots
-combineEnergyBalPlotsInPDF(withLegend = F, fileIdx = "energyBalPlots_noLegend_20170623", axisFontSize = 1.2)
+combineEnergyBalPlotsInPDF(
+  withLegend = F,
+  fileIdx = "energyBalPlots_noLegend_20180104",
+  axisFontSize = 1.2,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\EnergyBalancePlots\\")
 
 
 #### Biomass plots
-combineBiomassPlotsInPDF(withLegend = F, fileIdx = "biomassPlots_noLegend_20170623", axisFontSize = 1.2)
+combineBiomassPlotsInPDF(
+  withLegend = F,
+  fileIdx = "biomassPlots_noLegend_20180104",
+  axisFontSize = 1.2,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\BiomassPlots\\"
+)
 
 # ############### DISSIM ENERGY PLOTS
-combineDissimEnergyPlotsInPDF(withLegend = F, fileIdx = "dissimPlots_noLegend_20170623", axisFontSize = 1.2)
+combineDissimEnergyPlotsInPDF(
+  withLegend = F,
+  fileIdx = "dissimPlots_noLegend_201700104",
+  axisFontSize = 1.2,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\DissimEnergyPlots\\"
+)
+
 
 ### combine leakIn  plots
-combineLeakInPlots(fileIdx = "leakInPlots_noLegend20170620", axisFontSize = 1.2)
-combineCompleteLeakInListPlots(fileIdx = "completeLeakInPlots_noLegend20170623", axisFontSize = 1.2)
+combineLeakInPlots(
+  fileIdx = "leakInPlots_noLegend20180104",
+  axisFontSize = 1.2,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\")
+combineCompleteLeakInListPlots(
+  fileIdx = "completeLeakInPlots_noLegend20180104",
+  axisFontSize = 1.2,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\")
 
 ### combine product  plots
-combineProductsPlots(fileIdx = "ProductsPlots_noLegend20170623", axisFontSize = 1.2)
+combineProductsPlots(
+  fileIdx = "ProductsPlots_noLegend20180104",
+  axisFontSize = 1.2,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\"
+)
+
+### combine substrate and product plots (Inputs, Reactants, and Products plots)
+combineSubstrProdPlots(
+  fileIdx = "SubstratesAndProductsPlots_TEST_20180104",
+  axisFontSize = 1.2,
+  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\"
+)
 
 # I used the following to get legends of the same size for the dissim and leak in/prod plots:
-makeDissimEnergyPlot(resultsList = resultsCONSH_Ox.Hx, withLegend = T, printPDF = T, textCol = "black", backgroundCol = "white", axisFontSize = 1.2)
-productsPlot(resultsList = resultsCONSH_Ox.Hx, withLegend = T, printPDF = T, textCol = "black", backgroundCol = "white", axisFontSize = 1.2)
+makeDissimEnergyPlot(
+  resultsList = resultsCONSH_Ox.Hx,
+  withLegend = T,
+  printPDF = T,
+  textCol = "black",
+  backgroundCol = "white",
+  axisFontSize = 1.2,
+  fileName = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\DissimEnergyPlots\\dissimEnergyPlot_20180104.pdf"
+  )
+productsPlot(
+  resultsList = resultsCONSH_Ox.Hx,
+  withLegend = T,
+  printPDF = T,
+  textCol = "black",
+  backgroundCol = "white",
+  axisFontSize = 1.2,
+  fileName = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\prodPlot_20180104.pdf"
+)

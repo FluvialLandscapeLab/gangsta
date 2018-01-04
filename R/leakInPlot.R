@@ -123,12 +123,14 @@ leakInPlot = function(
 
 
 
-combineLeakInPlots = function(
-  withLegend = F,
-  fileIdx,
-  axisFontSize = 1.2) {
+combineLeakInPlots =
+  function(
+    withLegend = F,
+    fileIdx,
+    axisFontSize = 1.2,
+    filePrefix
+  ) {
 
-  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\"
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
 
   resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]
@@ -161,12 +163,14 @@ combineLeakInPlots = function(
 }
 
 # this next trick makes the complete leak in list plot 4 times
-combineCompleteLeakInListPlots = function(
-  withLegend = F,
-  fileIdx,
-  axisFontSize = 1.2) {
+combineCompleteLeakInListPlots =
+  function(
+    withLegend = F,
+    fileIdx,
+    axisFontSize = 1.2,
+    filePrefix
+  ) {
 
-  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\"
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
 
   resultNames = rep("resultsCONSH_Ox.Hx", 4)

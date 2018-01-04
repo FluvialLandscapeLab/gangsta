@@ -23,7 +23,7 @@
 # drivingValues = dataframe(drivingVar1 = c(...), drivingVar2 = c(...), rownames = 0:nsteps)
 
 # EXAMPLE
-# lpModel = readGangsta.lp(filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\")
+# lpModel = readGangsta.lp()
 #  dummyf = function() {
 #    return(1)
 #  }

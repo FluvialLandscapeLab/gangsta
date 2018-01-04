@@ -162,12 +162,15 @@ substrProdPlot = function(resultsList, gangstas, withLegend = F){
   return(substrAndProdPlot)
 }
 
-combineSubstrProdPlots = function(
-  withLegend = F,
-  fileIdx,
-  axisFontSize = 1.5) {
+combineSubstrProdPlots =
+  function(
+    withLegend = F,
+    fileIdx,
+    axisFontSize = 1.5,
+    filePrefix
+  ) {
 
-  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\"
+
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
 
   resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]

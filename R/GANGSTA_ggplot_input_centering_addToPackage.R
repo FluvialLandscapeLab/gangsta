@@ -279,7 +279,7 @@ gangstaSuperPlot = function(
 makeFileName =
   function(
     fileID,
-    filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
+    filePrefix
   ){
     paste0(filePrefix, fileID, ".pdf")
   }
@@ -362,10 +362,11 @@ combineRiverPlotsInPDF = function(
   cyclesSeparate = T,
   # rowHeights = list(),
   axisFontSize,
-  yAxisMaxMols = 0
+  yAxisMaxMols = 0,
+  filePrefix
 ){
   # create file for output
-  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\RiverPlots\\"
+
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
 
   # resultNames and gangstaNames are pulled from the global environment by default.  Sort them.

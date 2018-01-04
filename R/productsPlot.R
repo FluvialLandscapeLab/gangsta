@@ -23,7 +23,7 @@ productsPlot = function(
     N2 = "#A65628",
     CO2 = "#999999"
   ),
-  fileName = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\prodPlot.pdf",
+  fileName,
   printPDF = F
 
 
@@ -159,9 +159,11 @@ productsPlot = function(
 combineProductsPlots = function(
   withLegend = F,
   fileIdx,
-  axisFontSize = 1.2) {
+  axisFontSize = 1.2,
+  filePrefix
+  ) {
 
-  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\"
+
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
 
   resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]

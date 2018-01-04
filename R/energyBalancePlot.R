@@ -58,9 +58,10 @@ energyBalPlot = function(resultsList, withLegend = F, backgroundCol = "white", t
 combineEnergyBalPlotsInPDF = function(
   withLegend = F,
   fileIdx,
-  axisFontSize = 1.5
+  axisFontSize = 1.5,
+  filePrefix
 ){
-  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\EnergyBalancePlots\\"
+
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
   resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]
   resultNames = sort(resultNames)

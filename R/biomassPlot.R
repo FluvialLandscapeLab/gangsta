@@ -53,9 +53,10 @@ biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", tex
 combineBiomassPlotsInPDF = function(
   withLegend = F,
   fileIdx,
-  axisFontSize = 1.2
+  axisFontSize = 1.2,
+  filePrefix
 ){
-  filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\BiomassPlots\\"
+
   fileName = makeFileName(fileID = fileIdx, filePrefix = filePrefix)
   resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"]
   resultNames = sort(resultNames)
