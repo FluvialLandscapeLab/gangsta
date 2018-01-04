@@ -4,6 +4,9 @@ readGangsta.lp = function(lpFile = file.choose()){
   return(lp.bgc)
 }
 
+getVariableNames.lp = function(lpObject) {
+  return(dimnames(lpObject)[[2]])
+}
 
 ### No references to the following two functions (getModelCol.lp and
 ### showMatrixVals.lp) as of 5 December 2017.  Should we delete this???
@@ -24,7 +27,7 @@ readGangsta.lp = function(lpFile = file.choose()){
 ###  This block of code builds a matrix of decision variables and constraints
 viewMatrix.lp = function(lpObject){
   constraintVarNames = dimnames(lpObject)[[1]]
-  decisionVarNames = dimnames(lpObject)[[2]]
+  decisionVarNames = getVariableNames.lp(lpObject)
   nvars = length(decisionVarNames)
   nconstraints = length(constraintVarNames)
   lpMatrix = matrix(mapply(function(i,j) lpSolveAPI::get.mat(lpObject, i, j),
