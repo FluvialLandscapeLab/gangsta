@@ -141,8 +141,8 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
 gangstaResults = function(gangstaObjects, lpObject, leakInList = leakIn()) {}
 
 doItGangsta = function(gangstaObjects, tag, file = file.choose()){
-  equations = makeEquations(gangstaObjects)
-  writeGangstaModel(equations, file)
+  expressions = makeExpressions(gangstaObjects)
+  writeGangstaModel(expressions, file)
   gangsta.lp = readGangsta.lp(file)
   modelName = paste0("lp.", tag)
   assign(modelName, gangsta.lp, envir = .GlobalEnv)

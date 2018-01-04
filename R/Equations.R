@@ -1,4 +1,4 @@
-eqnPaste = function(...) {
+exprsnPaste = function(...) {
   if(any(unlist(lapply(list(...), function(x) length(x) == 0)))) {
     result = character(0)
   } else {
@@ -7,12 +7,12 @@ eqnPaste = function(...) {
   return(result)
 }
 
-eqnPaste0 = function(...) {
-  return(eqnPaste(..., sep = ""))
+exprsnPaste0 = function(...) {
+  return(exprsnPaste(..., sep = ""))
 }
 
 makeGenericVars = function(prefixes, varTag, separator = ".") {
-  return(eqnPaste0(prefixes, separator, gangstaVarName(varTag)))
+  return(exprsnPaste0(prefixes, separator, gangstaVarName(varTag)))
 }
 
 makeProcessEnergyVars = function(processNames) {
@@ -61,7 +61,7 @@ makeLPSolveHeader = function(headerText, majorHeader = F) {
   return(header)
 }
 
-makeEquations = function(gangstaObjects) {
+makeExpressions = function(gangstaObjects) {
 
   ## Get gangsta.option values
 
@@ -104,28 +104,28 @@ makeEquations = function(gangstaObjects) {
   elementAttrName = gangstaAttributeName("element")
   transOptionsAttrName = gangstaAttributeName("transOptions")
 
-  eqnMaxBiomass = function() {
+  exprsnMaxBiomass = function() {
     organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
     organismNames = getGangstaAttribute(organisms, nameAttrName)
 
     organismEndMassVarNames = makeCompoundEndMassVars(organismNames)
 
-    goalEqnHeader =
+    goalExprsnHeader =
       makeLPSolveHeader("Optimization function (Exprsn. 1)", F)
     totalBiomassHeader =
       makeLPSolveHeader("The Total_Biomass.finalMolecules equals the sum of the Organism.finalMolecules for each organism type (Exprsn. 2)", F)
 
-    equations =
+    expressions =
       c(
-        goalEqnHeader,
+        goalExprsnHeader,
         paste0("MAX: ", makeCompoundEndMassVars("Total_Biomass")),
         totalBiomassHeader,
         paste(makeCompoundEndMassVars("Total_Biomass"),"=", paste0(organismEndMassVarNames, collapse = " + "))
       )
-    return(equations)
+    return(expressions)
   }
 
-  eqnBiosynthesis = function() {
+  exprsnBiosynthesis = function() {
     poolObjects = subsetGangstas(gangstaObjects, "class", poolClassName)
 
     organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
@@ -147,7 +147,7 @@ makeEquations = function(gangstaObjects) {
 
   }
 
-  eqnAllowNegatives = function() {
+  exprsnAllowNegatives = function() {
     processes = subsetGangstas(gangstaObjects, "class", processClassName)
     # negativeEnergyTerms = getGangstaAttribute(processes, energyTermAttrName) < 0
     # processes = processes[negativeEnergyTerms]
@@ -158,9 +158,9 @@ makeEquations = function(gangstaObjects) {
     organismNames = getGangstaAttribute(organisms, nameAttrName)
     respEnergyVars = makeRespEnergyVars(organismNames)
 
-    # respAndAssimEquations = c(eqnPaste("-Inf <", c(respEnergyVars, energyVarNames), "<= 0"))
-    decayDissimAndAssimEquations = c(eqnPaste("-Inf <", c(energyVarNames), "< +Inf"))
-    respEquations = c(eqnPaste("-Inf <", c(respEnergyVars), "< +Inf"))
+    # respAndAssimExpressions = c(exprsnPaste("-Inf <", c(respEnergyVars, energyVarNames), "<= 0"))
+    decayDissimAndAssimExpressions = c(exprsnPaste("-Inf <", c(energyVarNames), "< +Inf"))
+    respExpressions = c(exprsnPaste("-Inf <", c(respEnergyVars), "< +Inf"))
 
 
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
@@ -168,7 +168,7 @@ makeEquations = function(gangstaObjects) {
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
     compoundVarNames = makeCompoundEndMassVars(compoundNames)
 
-    InfiniteCompoundCompoundEquations = c(eqnPaste("-Inf <", compoundVarNames, "< +Inf"))
+    InfiniteCompoundCompoundExpressions = c(exprsnPaste("-Inf <", compoundVarNames, "< +Inf"))
 
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
     pools = lapply(compoundNames, subsetGangstas, gangstaObjects = pools, attributeName = compNameAttrName)
@@ -176,7 +176,7 @@ makeEquations = function(gangstaObjects) {
     poolNames = getGangstaAttribute(pools, nameAttrName)
     poolVarNames = c(makePoolEndMassVars(poolNames), makePoolStartMassVars(poolNames))
 
-    InfiniteCompoundPoolEquations = c(eqnPaste("-Inf <", poolVarNames, "< +Inf"))
+    InfiniteCompoundPoolExpressions = c(exprsnPaste("-Inf <", poolVarNames, "< +Inf"))
 
     InfiniteCompoundCompoundHeader =
       makeLPSolveHeader("For each InfiniteCompound, remove constraints on InfiniteCompound.finalMolecules", F)
@@ -187,23 +187,23 @@ makeEquations = function(gangstaObjects) {
     respHeader =
       makeLPSolveHeader("For each Organism type, the Organism.respirationEnergy is unconstrained", F)
 
-    equations = c(
+    expressions = c(
       InfiniteCompoundCompoundHeader,
-      InfiniteCompoundCompoundEquations,
+      InfiniteCompoundCompoundExpressions,
 
       InfiniteCompoundPoolHeader,
-      InfiniteCompoundPoolEquations,
+      InfiniteCompoundPoolExpressions,
 
       decayDissimAndAssimHeader,
-      decayDissimAndAssimEquations,
+      decayDissimAndAssimExpressions,
 
       respHeader,
-      respEquations
+      respExpressions
       )
-    return(equations)
+    return(expressions)
   }
 
-  eqnInitialMasses = function() {
+  exprsnInitialMasses = function() {
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
     initialCompoundMols = getGangstaAttribute(compounds, initialMolsAttrName)
@@ -211,15 +211,15 @@ makeEquations = function(gangstaObjects) {
 
     initialMoleculesHeader =
       makeLPSolveHeader("Set FiniteCompound.initialMolecules & InfiniteCompound.initialMolecules", F)
-    equations =
+    expressions =
       c(
         initialMoleculesHeader,
         paste(compoundStartMassVarNames, "=", initialCompoundMols)
       )
-    return(equations)
+    return(expressions)
   }
 
-  eqnCompoundStoich = function() {
+  exprsnCompoundStoich = function() {
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
     poolNames = getGangstaAttribute(pools, nameAttrName)
     molarRatios = getGangstaAttribute(pools, molarRatioAttrName)
@@ -228,33 +228,33 @@ makeEquations = function(gangstaObjects) {
     compoundNames = getGangstaAttribute(pools, compNameAttrName)
     compounds = getGangstas(gangstaObjects, compoundNames)
 
-    # Starting stoicheometry equations
+    # Starting stoicheometry expressions
     poolStartMassVarNames = makePoolStartMassVars(poolNames)
     compoundStartMassVarNames = makeCompoundStartMassVars(compoundNames)
     startStoichHeader =
       makeLPSolveHeader("For each elemental Pool, the Pool.initialAtoms must conform to Compound stoichiometry (Exprsn. 3)", F)
-    equations =
+    expressions =
       c(
         startStoichHeader,
         paste(poolStartMassVarNames, "=", molarRatios, compoundStartMassVarNames)
         )
 
-    # Ending stoicheometry equations
+    # Ending stoicheometry expressions
     poolEndMassVarNames = makePoolEndMassVars(poolNames)
     compoundEndMassVarNames = makeCompoundEndMassVars(compoundNames)
     endStoichHeader =
       makeLPSolveHeader("For each elemental Pool, the Pool.finalAtoms must conform to Compound stoichiometry (Exprsn. 4)", F)
-    equations =
+    expressions =
       c(
-        equations,
+        expressions,
         endStoichHeader,
         paste(poolEndMassVarNames, "=", molarRatios, compoundEndMassVarNames)
       )
 
-    return(equations)
+    return(expressions)
   }
 
-  eqnProcessEnergy = function() {
+  exprsnProcessEnergy = function() {
 
     metabolicProcesses = subsetGangstas(gangstaObjects, "class", metabolicClassName)
     organismNames = unique(getGangstaAttribute(metabolicProcesses, orgNameAttrName))
@@ -265,18 +265,18 @@ makeEquations = function(gangstaObjects) {
     processEnergyVars = lapply(processNamesByOrganism, makeProcessEnergyVars)
     orgEnergyVars = makeOrgansimEnergyVars(organismNames)
 
-    eqnRightHandSides = sapply(processEnergyVars, paste, collapse = " + ")
-    equations = paste(orgEnergyVars, "=", eqnRightHandSides)
+    exprsnRightHandSides = sapply(processEnergyVars, paste, collapse = " + ")
+    expressions = paste(orgEnergyVars, "=", exprsnRightHandSides)
 
     processEnergyHeader =
       makeLPSolveHeader("For each organism type, the total energy associated with assimilatory and dissimilatory Processes must equal the sum of the Process.netEnergy for all Processes (Exprsn. 9)", F)
 
-    equations = c(processEnergyHeader, equations)
+    expressions = c(processEnergyHeader, expressions)
 
-    return(equations)
+    return(expressions)
   }
 
-  eqnRespEnergy = function() {
+  exprsnRespEnergy = function() {
     organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
     organismNames = getGangstaAttribute(organisms, nameAttrName)
     biomassEndVarNames = makeCompoundEndMassVars(organismNames)
@@ -284,36 +284,36 @@ makeEquations = function(gangstaObjects) {
     respEnergyVarNames = makeRespEnergyVars(organismNames)
     respirationRates = getGangstaAttribute(organisms, respAttrName)
 
-    equations = paste(respEnergyVarNames, "=", respirationRates, biomassEndVarNames)
+    expressions = paste(respEnergyVarNames, "=", respirationRates, biomassEndVarNames)
 
     respEnergyHeader =
       makeLPSolveHeader("Maintenance respiration energy is proportional to the biomass of each organism type (Exprsn. 8)", F)
-    equations =
+    expressions =
       c(
         respEnergyHeader,
-        equations
+        expressions
       )
-    return(equations)
+    return(expressions)
   }
 
-  eqnEnergyBalance = function() {
+  exprsnEnergyBalance = function() {
     organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
     organismNames = getGangstaAttribute(organisms, nameAttrName)
 
     respEnergyVars = makeRespEnergyVars(organismNames)
     orgEnergyVars = makeOrgansimEnergyVars(organismNames)
 
-    equations = paste("0 =", respEnergyVars, "+", orgEnergyVars)
+    expressions = paste("0 =", respEnergyVars, "+", orgEnergyVars)
 
     energyBalHeader =
       makeLPSolveHeader("Organisms must meet their respiratory energy demands (Exprsn. 10)", F)
 
-    equations = c(energyBalHeader, equations)
+    expressions = c(energyBalHeader, expressions)
 
-    return(equations)
+    return(expressions)
   }
 
-  eqnTransformation = function() {
+  exprsnTransformation = function() {
 
     metabolics = subsetGangstas(gangstaObjects, "class", metabolicClassName)
     metabolicNames = getGangstaAttribute(metabolics, nameAttrName)
@@ -331,7 +331,7 @@ makeEquations = function(gangstaObjects) {
 
     energyToMolsRatios = lapply(metabolicTransformations, getGangstaAttribute, attribName = energyToMolsAttrName)
 
-    nestedEqnTransformation = function(metabolicProcessEnergyVars, energyToMolsRatios, metabolicTransformationMassTransVars, transferOptions) {
+    nestedExprsnTransformation = function(metabolicProcessEnergyVars, energyToMolsRatios, metabolicTransformationMassTransVars, transferOptions) {
         return(
           sapply(
             transferOptions,
@@ -346,10 +346,10 @@ makeEquations = function(gangstaObjects) {
         )
     }
 
-    equations =
+    expressions =
       unlist(
         mapply(
-          nestedEqnTransformation,
+          nestedExprsnTransformation,
           metabolicProcessEnergyVars,
           energyToMolsRatios,
           metabolicTransformationMassTransVars,
@@ -357,20 +357,20 @@ makeEquations = function(gangstaObjects) {
         )
       )
 
-    # equations = paste(metabolicProcessEnergyVars, "=", energyToMolsRatios, metabolicTransformationMassTransVars)
+    # expressions = paste(metabolicProcessEnergyVars, "=", energyToMolsRatios, metabolicTransformationMassTransVars)
 
     transferHeader =
       makeLPSolveHeader("The number of atoms transferred during each Process must be in accordance with the stoichiometry and chemical affinity of the Process (Exprsn. 5)", F)
 
-    equations =
+    expressions =
       c(
         transferHeader,
-        equations
+        expressions
       )
-    return(equations)
+    return(expressions)
   }
 
-  eqnMassBalance = function() {
+  exprsnMassBalance = function() {
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
     poolNames = getGangstaAttribute(pools, nameAttrName)
     poolStartMassVars = makePoolStartMassVars(poolNames)
@@ -392,21 +392,21 @@ makeEquations = function(gangstaObjects) {
     transferInSumString[sapply(transfersIn, length) == 0] = ""
     transferOutSumString[sapply(transfersOut, length) == 0] = ""
 
-    equations = paste0(poolEndMassVars, " = ", poolStartMassVars, transferInSumString, transferOutSumString)
+    expressions = paste0(poolEndMassVars, " = ", poolStartMassVars, transferInSumString, transferOutSumString)
 
     molarBalHeader =
       makeLPSolveHeader("Elemental molar balance must be conserved (Exprsn. 6)", F)
 
-    equations =
+    expressions =
       c(
         molarBalHeader,
-        equations
+        expressions
       )
 
-    return(equations)
+    return(expressions)
   }
 
-  eqnLimitToStartingMass = function() {
+  exprsnLimitToStartingMass = function() {
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
     compounds = subsetGangstas(compounds, InfiniteCompoundAttrName, F)
     compoundNames = getGangstaAttribute(compounds, nameAttrName)
@@ -432,74 +432,74 @@ makeEquations = function(gangstaObjects) {
 
     transferOutSumString = lapply(transferOutVars, paste0, collapse = " + ")
 
-    equations = paste0(poolStartMassVars, " >= ", transferOutSumString)
+    expressions = paste0(poolStartMassVars, " >= ", transferOutSumString)
 
     limToInitHeader =
       makeLPSolveHeader("Generally, Transfers out of each Pool must be less than the Pool.initialAtoms (Exprsn. 7)", F)
-    equations = c(limToInitHeader, equations)
+    expressions = c(limToInitHeader, expressions)
 
-    return(equations)
+    return(expressions)
   }
 
-  # goal Equations
-  goalEqns = eqnMaxBiomass()
+  # goal Expressions
+  goalExprsns = exprsnMaxBiomass()
 
   # Allow negative values where appropriate
-  allowNegativeEqns = eqnAllowNegatives()
+  allowNegativeExprsns = exprsnAllowNegatives()
 
   # Initial Masses
-  initialMassEqns = eqnInitialMasses()
+  initialMassExprsns = exprsnInitialMasses()
 
-  # Compound Stoichiometry Equations
-  compoundStoichEqns = eqnCompoundStoich()
+  # Compound Stoichiometry Expressions
+  compoundStoichExprsns = exprsnCompoundStoich()
 
-  # Respiration Equations
-  respEnergyEqns = eqnRespEnergy()
+  # Respiration Expressions
+  respEnergyExprsns = exprsnRespEnergy()
 
-  # Process Energy Equations
-  processEnergyEqns = eqnProcessEnergy()
+  # Process Energy Expressions
+  processEnergyExprsns = exprsnProcessEnergy()
 
-  # Energy Balance Equations
-  energyBalEqns = eqnEnergyBalance()
+  # Energy Balance Expressions
+  energyBalExprsns = exprsnEnergyBalance()
 
-  # Transformation Equations
-  transformationEqns = eqnTransformation()
+  # Transformation Expressions
+  transformationExprsns = exprsnTransformation()
 
-  # MassBalance Equations
-  massBalEqns = eqnMassBalance()
+  # MassBalance Expressions
+  massBalExprsns = exprsnMassBalance()
 
-  limitToStartEqns = eqnLimitToStartingMass()
+  limitToStartExprsns = exprsnLimitToStartingMass()
 
-  allEquations = c(
+  allExpressions = c(
     makeLPSolveHeader("OPTIMIZATION", T),
-    goalEqns,
+    goalExprsns,
 
     makeLPSolveHeader("INITIALIZATION", T),
-    initialMassEqns,
-    allowNegativeEqns,
+    initialMassExprsns,
+    allowNegativeExprsns,
 
     makeLPSolveHeader("STOICHIOMETRY", T),
-    compoundStoichEqns,
+    compoundStoichExprsns,
 
     makeLPSolveHeader("MOLAR TRANSFER", T),
-    transformationEqns,
+    transformationExprsns,
 
     makeLPSolveHeader("ELEMENTAL MOLAR BALANCE", T),
-    massBalEqns,
-    limitToStartEqns,
+    massBalExprsns,
+    limitToStartExprsns,
 
     makeLPSolveHeader("ENERGETIC CONSTRAINTS", T),
-    respEnergyEqns,
-    processEnergyEqns,
-    energyBalEqns
+    respEnergyExprsns,
+    processEnergyExprsns,
+    energyBalExprsns
   )
-  return(allEquations)
+  return(allExpressions)
 }
 
-formatEquations = function(equations) {
-  equations =
+formatExpressions = function(expressions) {
+  expressions =
     sapply(
-      equations,
+      expressions,
       function(eq)
         ifelse(
           substr(eq, 1, 2) != "/*",
@@ -507,5 +507,5 @@ formatEquations = function(equations) {
           eq
         )
     )
-  return(equations)
+  return(expressions)
 }
