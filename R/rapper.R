@@ -23,24 +23,26 @@
 # drivingValues = dataframe(drivingVar1 = c(...), drivingVar2 = c(...), rownames = 0:nsteps)
 
 # EXAMPLE
-lpModel = readGangsta.lp("C:\\Users\\mathe\\Documents\\R Projects\\gangsta\\lpFiles\\CONSH_Ox.Hx.lp")
- dummyf = function() {
-   return(1)
- }
+# lpModel = readGangsta.lp(filePrefix = "C:\\Users\\AnnMarie\\Dropbox\\GangstaShare\\gangstaManuscript\\Figures\\SubAndProdPlots\\")
+#  dummyf = function() {
+#    return(1)
+#  }
+#
+#  slopesToUpdate =
+#    list(
+#     list(constraint = c("Het.finalMolecules", "Het.respirationEnergy"), funct = dummyf, initValue = NULL),
+#     list(constraint = c("Aut.finalMolecules", "Aut.respirationEnergy"), funct = dummyf, initValue = NULL),
+#     list(constraint = c("Met.finalMolecules", "Met.respirationEnergy"), funct = dummyf, initValue = NULL)
+#   )
+#
+#
+#  parametersToUpdate =
+#    list(
+#      list(parameter = "Het.initialMolecules", funct = dummyf, initValue = NULL),
+#      list(parameter = "Aut.initialMolecules", funct = dummyf, initValue = NULL)
+#    )
 
- slopesToUpdate =
-   list(
-    list(constraint = c("Het.finalMolecules", "Het.respirationEnergy"), funct = dummyf, initValue = NULL),
-    list(constraint = c("Aut.finalMolecules", "Aut.respirationEnergy"), funct = dummyf, initValue = NULL),
-    list(constraint = c("Met.finalMolecules", "Met.respirationEnergy"), funct = dummyf, initValue = NULL)
-  )
 
-
- parametersToUpdate =
-   list(
-     list(parameter = "Het.initialMolecules", funct = dummyf, initValue = NULL),
-     list(parameter = "Aut.initialMolecules", funct = dummyf, initValue = NULL)
-   )
 # GangstaRap is a function that builds a rapper around GANGSTA which allows the GANGSTA environment
 # to recallibrate to changes following each timestep. The values that need to change are defined
 # in slopesToUpdate and parametersToUpdate. The values are changed according to the function defined in
