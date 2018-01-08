@@ -1,15 +1,14 @@
 Package: gangsta
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1
-Date: 2015-09-04
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
+Title: The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis
+Version: 0.2
+Date: 2018-01-05
+Author: Geoffrey C. Poole and Ann Marie Reinhold
+Maintainer: <annmarie.reinhold@montana.edu>, <gpoole@montana.edu>
+Description: The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis (GANGSTA) formalizes structured, user-defined conceptual models via instantiation in constraint-based computer code.
 License: What license is it under?
 LazyData: TRUE
-Imports: plyr,
-    lpSolveAPI
-Suggests: knitr,
-    rmarkdown
+Imports: plyr
+Suggests: lpSolveAPI
 VignetteBuilder: knitr
+RoxygenNote: 6.0.1
