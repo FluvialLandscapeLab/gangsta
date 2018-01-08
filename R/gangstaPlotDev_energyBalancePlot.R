@@ -55,6 +55,7 @@ energyBalPlot = function(resultsList, withLegend = F, backgroundCol = "white", t
 
 }
 
+#' @export
 combineEnergyBalPlotsInPDF = function(
   withLegend = F,
   fileIdx,

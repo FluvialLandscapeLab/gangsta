@@ -1,5 +1,4 @@
 
-
 gangstaSuperPlotInput = function(results, gangstas, aggregateBio = T) {
   imperfectResultsList = simplifyDataForAlluvialPlot(results, gangstas)
   imperfectResultsList = unlist(imperfectResultsList, recursive = F)
@@ -25,7 +24,7 @@ gangstaSuperPlotInput = function(results, gangstas, aggregateBio = T) {
   perfectDF = plyr::ddply(perfectDF, c("step", "from", "to", "element"), plyr::summarise, mols = sum(mols))
 }
 
-
+#' @export
 gangstaSuperPlot = function(
   perfectDF = inputDF,
   fileName = "moneyPlot_20170518.pdf",
@@ -286,20 +285,20 @@ makeFileName =
 
 
 
-
 makeOutput =
   function(
     inputList =
       list(
-        CN.anoxic = list(activeElements = c("C", "N"), InfiniteCompounds =  c("Ox", "Hx")),
-        CN.oxic = list(activeElements = c("C", "N"), InfiniteCompounds = c("Ox", "O2", "Hx")),
-        CNO = list(activeElements = c("C", "O", "N"), InfiniteCompounds = c("Ox", "Hx")),
-        CHONS = list(activeElements = c("C", "O", "N", "S", "H"), InfiniteCompounds = c("Ox", "Hx"))
+        CN.anoxic = list(activeElements = c("C", "N"), infiniteCompounds =  c("Ox", "Hx")),
+        CN.oxic = list(activeElements = c("C", "N"), infiniteCompounds = c("Ox", "O2", "Hx")),
+        CNO = list(activeElements = c("C", "O", "N"), infiniteCompounds = c("Ox", "Hx")),
+        CHONS = list(activeElements = c("C", "O", "N", "S", "H"), infiniteCompounds = c("Ox", "Hx"))
       )
   ){
-    lapply(inputList, function(input) CNOSH_Any(input[["activeElements"]], input[["InfiniteCompounds"]]))
+    lapply(inputList, function(input) CNOSH_Any(input[["activeElements"]], input[["infiniteCompounds"]]))
   }
 
+#' @export
 makePlots =
   function(
     resultNames = ls(envir = .GlobalEnv)[substring(ls(envir =.GlobalEnv), 1,7) == "results"],
@@ -351,7 +350,7 @@ makePlots =
     if(pdf == F) return(plotList)
   }
 
-
+#' @export
 combineRiverPlotsInPDF = function(
   withLegend = F,
   fileIdx,

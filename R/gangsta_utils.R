@@ -57,11 +57,11 @@ fromToPair = function(gangstaObjects, fromName, toName) {
   #  targetPools = lapply(targetPoolNames, subsetGangstas, gangstaObjects = pools, attribName = "name")
   targetPools = getGangstas(gangstaObjects, targetPoolNames)
   if(identical(targetPools[[1]], targetPools[[2]])) {
-    stop(paste0("A requested transformation has '", fromName, "' as both the 'to' and 'from' pools.  Tranformations can't connect a pool to itself."))
+    stop(paste0("A requested transfer has '", fromName, "' as both the 'to' and 'from' pools.  Tranformations can't connect a pool to itself."))
   }
   elements = getGangstaAttribute(targetPools, "elementName")
   if(length(unique(elements))>1){
-    stop("A transformation can only link pools that contain the same element.")
+    stop("A transfer can only link pools that contain the same element.")
   }
   names(targetPools) = c("from", "to")
   return(targetPools)
@@ -91,8 +91,10 @@ gangstaAttributeTags = function() {
   return(names(getOption("gangsta.attributes")))
 }
 
-writeGangstaModel = function(expressions, file = file.choose()) {
-  file.create(file)
-  expressions = formatExpressions(expressions)
-  write(expressions, file)
+#' @export
+writeGangstaModel = function(gangstaObjects, file = file.choose()) {
+  expressions = makeExpressions(gangstaObjects) # create the expressions
+  expressions = formatExpressions(expressions) # add the semicolon to the expressions
+  file.create(file) # create the .lp file
+  write(expressions, file) # write the .lp file
 }

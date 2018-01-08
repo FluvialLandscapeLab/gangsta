@@ -43,12 +43,12 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
 
   gangstaCompounds = subsetGangstas(gangstaObjects, "class", "compound")
   gangstaCompoundNames = names(gangstaCompounds)
-  gangstaSinkCompounds = subsetGangstas(gangstaCompounds, "InfiniteCompound", T)
+  gangstaSinkCompounds = subsetGangstas(gangstaCompounds, "infiniteCompound", T)
   gangstaSinkCompoundNames = names(gangstaSinkCompounds)
 
-  initCompoundVarNames = makeCompoundStartMassVars(gangstaCompoundNames)
+  initCompoundVarNames = makeCompoundStartMolVars(gangstaCompoundNames)
   initCompoundIndexes = match(initCompoundVarNames, dimnames(lpObject)[[2]])
-  initSinkCompoundVarNames = makeCompoundStartMassVars(gangstaSinkCompoundNames)
+  initSinkCompoundVarNames = makeCompoundStartMolVars(gangstaSinkCompoundNames)
   initSinkCompoundIndexes = match(initSinkCompoundVarNames, dimnames(lpObject)[[2]])
 
   existingCompoundVals = lpSolveAPI::get.bounds(lpObject, columns = initCompoundIndexes)
@@ -117,16 +117,16 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
     }
     names(poolMolsAdded) = row.names(poolDifDF)
 
-    mt = massTransfers(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE)
-    mtp = massTransfers(gangstaObjects, lpObject, simple = TRUE, byProcess = TRUE)
+    mt = molTransfers(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE)
+    mtp = molTransfers(gangstaObjects, lpObject, simple = TRUE, byProcess = TRUE)
     pe = processEnergies(gangstaObjects, lpObject, simple = FALSE, catabolic = TRUE, anabolic = TRUE)
     re = respirationEnergies(gangstaObjects, lpObject)
 
     stepOutput = list(objective = lpSolveAPI::get.objective(lpObject),
                       status = lpStatus,
                       poolVals = poolDifDF,
-                      massTransferVals = mt,
-                      massTransferValsByProcess = mtp,
+                      molTransferVals = mt,
+                      molTransferValsByProcess = mtp,
                       leakInPoolVals = poolMolsAdded,
                       leakInCompoundVals = compoundMolsAdded,
                       compoundVals = compoundDifDF,
@@ -141,8 +141,8 @@ iterateGangsta = function(gangstaObjects, lpObject, leakInList = leakIn()){
 gangstaResults = function(gangstaObjects, lpObject, leakInList = leakIn()) {}
 
 doItGangsta = function(gangstaObjects, tag, file = file.choose()){
-  expressions = makeExpressions(gangstaObjects)
-  writeGangstaModel(expressions, file)
+ # expressions = makeExpressions(gangstaObjects)
+  writeGangstaModel(gangstaObjects, file)
   gangsta.lp = readGangsta.lp(file)
   modelName = paste0("lp.", tag)
   assign(modelName, gangsta.lp, envir = .GlobalEnv)
@@ -152,11 +152,11 @@ doItGangsta = function(gangstaObjects, tag, file = file.choose()){
 # doAll =  function(gangstaObjects = gangstas, file = "M:\\gangsta\\lpFiles\\test.lp"){
 #   modelName = doItGangsta(1, file)
 #   results = iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv))
-#   massTransfersPlot(gangstaObjects, results)
+#   molTransfersPlot(gangstaObjects, results)
 # }
 
 
-doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, InfiniteCompounds) {
+doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, infiniteCompounds) {
   gangstasName = paste0("gangstas", modelNameTag)
   resultsName = paste0("results", modelNameTag)
   modelName = paste0("lp.", modelNameTag)
@@ -175,13 +175,13 @@ doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames
   assign(resultsName,
          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
          envir = .GlobalEnv)
-  # plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, InfiniteCompounds)
+  # plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, infiniteCompounds)
 
 
-#  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, InfiniteCompounds = InfiniteCompounds)
+#  molTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, infiniteCompounds = infiniteCompounds)
 }
 
-# doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, InfiniteCompounds) {
+# doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames, infiniteCompounds) {
 #   gangstasName = paste0("gangstas", modelNameTag)
 #   resultsName = paste0("results", modelNameTag)
 #   modelName = paste0("lp.", modelNameTag)
@@ -196,6 +196,6 @@ doAll = function(tag, modelNameTag, compoundParams, processParams, compoundNames
 #   assign(resultsName,
 #          iterateGangsta(gangstaObjects, get(modelName, envir = .GlobalEnv), leakInList = leakIn(compoundNames)),
 #          envir = .GlobalEnv)
-#   plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, InfiniteCompounds)
-#   #  massTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, InfiniteCompounds = InfiniteCompounds)
+#   plotIt(get(resultsName, envir = .GlobalEnv), c(4, 500, 4), 18, tag, infiniteCompounds)
+#   #  molTransfersPlot(gangstaObjects, get(resultsName, envir = .GlobalEnv), tag = tag, infiniteCompounds = infiniteCompounds)
 # }

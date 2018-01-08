@@ -33,8 +33,8 @@ boxHeights = function(
   results,
   timestep,
   poolValDFName = "poolVals",
-  transValDFName = "massTransferVals",
-  summedColName = "massTransfered",
+  transValDFName = "molTransferVals",
+  summedColName = "molTransfered",
   minThickness
 ) {
   numOfTimestepsInSimulation = length(results)
@@ -92,8 +92,8 @@ boxHeights = function(
 aggregatedUniqueTransfers = function(
   results,
   timestep,
-  DFname = "massTransferVals",
-  summedColName = "massTransfered",
+  DFname = "molTransferVals",
+  summedColName = "molTransfered",
   gangstas,
   minThickness = 0.02
 ) {
@@ -101,7 +101,7 @@ aggregatedUniqueTransfers = function(
 
   # Get results from results list for the time step indicated
   tableObject = getResultDF(results, timestep, DFname)
-  # Rename the "massTransfered" column name
+  # Rename the "molTransfered" column name
   names(tableObject)[names(tableObject) == summedColName] = "col.2.sum"
 
   # Combine the transfers where the toPools and fromPools are the same
@@ -166,20 +166,20 @@ aggregatedUniqueTransfers = function(
 
   # Identify the infinite compounds
   compounds = subsetGangstas(gangstas, "class", gangstaClassName("comp"))
-  InfiniteCompoundLogicalVector = getGangstaAttribute(compounds, gangstaAttributeName("InfiniteCompound"))
+  infiniteCompoundLogicalVector = getGangstaAttribute(compounds, gangstaAttributeName("infiniteCompound"))
   compoundNames = getGangstaAttribute(compounds, gangstaAttributeName("name"))
-  names(InfiniteCompoundLogicalVector) = compoundNames
-  InfiniteCompounds = compoundNames[InfiniteCompoundLogicalVector]
+  names(infiniteCompoundLogicalVector) = compoundNames
+  infiniteCompounds = compoundNames[infiniteCompoundLogicalVector]
 
   fromNames = as.character(summedTransfers$fromPool)
   toNames = as.character(summedTransfers$toPool)
   fromToIdentical = (fromNames == toNames)
   compoundNamesInTransfersDF = substr(fromNames, 1, nchar(fromNames)-2)
-  isSourceSink = (compoundNamesInTransfersDF %in% InfiniteCompounds)
+  isSourceSink = (compoundNamesInTransfersDF %in% infiniteCompounds)
 
   # Get rid of flow through for infinite compounds
-  InfiniteCompoundRemovalCriteria = (fromToIdentical & isSourceSink)
-  keep = !(InfiniteCompoundRemovalCriteria)
+  infiniteCompoundRemovalCriteria = (fromToIdentical & isSourceSink)
+  keep = !(infiniteCompoundRemovalCriteria)
   summedTransfers = summedTransfers[keep, ]
 
   return(summedTransfers)

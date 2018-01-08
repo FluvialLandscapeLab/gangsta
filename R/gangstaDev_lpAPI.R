@@ -56,8 +56,8 @@ compoundDifs = function(gangstaObjects, lpObject, simple = F) {
   compounds = subsetGangstas(gangstaObjects, "class", gangstaClassName("comp"))
   compoundNames = getGangstaAttribute(compounds, gangstaAttributeName("name"))
 
-  initCompoundNames = makeCompoundStartMassVars(compoundNames)
-  finalCompoundNames = makeCompoundEndMassVars(compoundNames)
+  initCompoundNames = makeCompoundStartMolVars(compoundNames)
+  finalCompoundNames = makeCompoundEndMolVars(compoundNames)
 
   df.lp = solvedDataFrame.lp(lpObject, simple = F)
 
@@ -78,8 +78,8 @@ poolDifs = function(gangstaObjects, lpObject, simple = T) {
   elementName = getGangstaAttribute(pools, gangstaAttributeName("element"))
   elementIdx = order(elementName)
 
-  initPoolNames = makePoolStartMassVars(poolNames)
-  finalPoolNames = makePoolEndMassVars(poolNames)
+  initPoolNames = makePoolStartMolVars(poolNames)
+  finalPoolNames = makePoolEndMolVars(poolNames)
 
   df.lp = solvedDataFrame.lp(lpObject, simple = F)
 
@@ -95,54 +95,54 @@ poolDifs = function(gangstaObjects, lpObject, simple = T) {
   return(allDF)
 }
 
-### Make a vector of mass transfers between pools
-massTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE) {
+### Make a vector of mol transfers between pools
+molTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE) {
 
   ### get classes, names, attributes, and gangstaObjectss that are used later in this function
   transClassName = gangstaClassName("trans")
   nameAttrName = gangstaAttributeName("name")
 
-  transformations = subsetGangstas(gangstaObjects, "class", transClassName)
+  transfers = subsetGangstas(gangstaObjects, "class", transClassName)
 
-  ### make metabolic transformation variable names from gangstaObjects
-  transformationNames = getGangstaAttribute(transformations, nameAttrName)
-  transformationMassTransVars = makeTransformationMassTransVars(transformationNames)
+  ### make metabolic transfer variable names from gangstaObjects
+  transferNames = getGangstaAttribute(transfers, nameAttrName)
+  transferMolTransVars = makeTransferMolTransVars(transferNames)
 
   ### make two named vectors: one of the from pools and one of the to pools
-  massTransferFroms = unlist(lapply(transformations, "[[", "from") )
-  massTransferTos = unlist(lapply(transformations, "[[", "to") )
-  names(massTransferFroms) = transformationMassTransVars
-  names(massTransferTos) = transformationMassTransVars
+  molTransferFroms = unlist(lapply(transfers, "[[", "from") )
+  molTransferTos = unlist(lapply(transfers, "[[", "to") )
+  names(molTransferFroms) = transferMolTransVars
+  names(molTransferTos) = transferMolTransVars
 
-  ### make a data frame of lpsolve results that will be subsetted using the transformationMassTransVars from gangsta
-  massTransferDF = solvedDataFrame.lp(lpObject, simple = FALSE)
-  subsettingCriteria = row.names(massTransferDF) %in% transformationMassTransVars
-  massTransferNames = row.names(massTransferDF)[subsettingCriteria]
-  if(length(transformationMassTransVars) != length(massTransferNames))
-    stop("The number of mass transfer variables generated from your gangsta list doesn't match the number of mass transfer variable names in your lpSolve file.")
-  if(any(transformationMassTransVars %in% massTransferNames) == FALSE)
-    stop("Your names of mass transfers in your gangsta list doesn't match your mass transfer variable names in your lpSolve file.")
+  ### make a data frame of lpsolve results that will be subsetted using the transferMolTransVars from gangsta
+  molTransferDF = solvedDataFrame.lp(lpObject, simple = FALSE)
+  subsettingCriteria = row.names(molTransferDF) %in% transferMolTransVars
+  molTransferNames = row.names(molTransferDF)[subsettingCriteria]
+  if(length(transferMolTransVars) != length(molTransferNames))
+    stop("The number of mol transfer variables generated from your gangsta list doesn't match the number of mol transfer variable names in your lpSolve file.")
+  if(any(transferMolTransVars %in% molTransferNames) == FALSE)
+    stop("Your names of mol transfers in your gangsta list doesn't match your mol transfer variable names in your lpSolve file.")
 
   ### ensure that the order of the froms and tos matches that of the transfers in the dataframe
-  massTransferFroms = massTransferFroms[match(massTransferNames, transformationMassTransVars)]
-  massTransferTos = massTransferTos[match(massTransferNames, transformationMassTransVars)]
+  molTransferFroms = molTransferFroms[match(molTransferNames, transferMolTransVars)]
+  molTransferTos = molTransferTos[match(molTransferNames, transferMolTransVars)]
 
   ### subset the data frame
-  massTransfers = massTransferDF[subsettingCriteria,]
-  massTransfers = data.frame(massTransferFroms, massTransferTos, massTransfers)
-  names(massTransfers) = c("fromPool", "toPool", "massTransfered")
-  row.names(massTransfers) = massTransferNames
+  molTransfers = molTransferDF[subsettingCriteria,]
+  molTransfers = data.frame(molTransferFroms, molTransferTos, molTransfers)
+  names(molTransfers) = c("fromPool", "toPool", "molTransfered")
+  row.names(molTransfers) = molTransferNames
 
   if(!byProcess) {
-    massTransfers = plyr::ddply(massTransfers, c("fromPool", "toPool"), plyr::summarise,
-                                massTransfered = sum(massTransfered))
+    molTransfers = plyr::ddply(molTransfers, c("fromPool", "toPool"), plyr::summarise,
+                                molTransfered = sum(molTransfered))
   }
 
   if(simple) {
-    massTransfers = subset(massTransfers, (massTransfers$massTransfered != 0))
+    molTransfers = subset(molTransfers, (molTransfers$molTransfered != 0))
   }
 
-  return(massTransfers)
+  return(molTransfers)
 }
 
 ### get energy produced/consumed by processes

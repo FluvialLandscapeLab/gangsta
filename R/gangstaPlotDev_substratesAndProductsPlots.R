@@ -114,7 +114,7 @@ substrProdPlot = function(resultsList, gangstas, withLegend = F){
   # in the gangstas list as an infinite compound because the model is a carbon
   # and nitrogen model only.  Run the following line of code if you don't
   # believe me: getGangstaAttribute(subsetGangstas(gangstasCN_Ox.O2.Hx ,
-  # "class", "compound"), "InfiniteCompound").  Okay, so I am setting the O2 box
+  # "class", "compound"), "infiniteCompound").  Okay, so I am setting the O2 box
   # to be of arbitrary size in the Reactants of the gangstasCN_Ox.O2.Hx model.
   if(identical(resultsList, resultsCN_Ox.O2.Hx)){
     inOutDF$umols[inOutDF$type == "R" & inOutDF$compound == "O2"] = 0.75
@@ -162,6 +162,7 @@ substrProdPlot = function(resultsList, gangstas, withLegend = F){
   return(substrAndProdPlot)
 }
 
+#' @export
 combineSubstrProdPlots =
   function(
     withLegend = F,

@@ -3,8 +3,8 @@
 #' \code{compoundFactory} and \code{processFactory} are the primary functions
 #' used to create GANGSTA objects.  \code{compoundFactory} creates both compound
 #' and pool objects and \code{processFactory} creates processes and
-#' transformation objects.  The constructors \code{compound}, \code{pool},
-#' \code{process}, and \code{transformation} can be called individually, but
+#' transfer objects.  The constructors \code{compound}, \code{pool},
+#' \code{process}, and \code{transfer} can be called individually, but
 #' this is discouraged since the factory functions do substantial error checking
 #' and assure that references between the GANGSTA objects are correct.
 #'
@@ -13,11 +13,11 @@
 #' calls the constructor methods for \code{compound} and \code{pool} objects.
 #'
 #' \code{processFactory} is similarly the prefered way to create \code{process}
-#' objects and all assocaited \code{transformation} objects by calling the
-#' constructor methods for \code{process} and \code{transformation} objects
+#' objects and all assocaited \code{transfer} objects by calling the
+#' constructor methods for \code{process} and \code{transfer} objects
 #'
 #' Direct use of constructors for \code{pool}, \code{compound}, \code{process},
-#' and \code{transformation} should not be necessary and is discouraged.  Access
+#' and \code{transfer} should not be necessary and is discouraged.  Access
 #' to these constructors is provided only for extensibility.
 #'
 #' GANGSTA uses several classes of S3 objects to represent biogeochemical
@@ -26,13 +26,16 @@
 #' the lists are the attribute values.  Thus, attribute values of the GANGSTA S3
 #' objects are accessible with the notation x$name.
 #'
-#' \code{Compound} objects represent chemical species (e.g., SO4 and H2S for
-#' sulfur) that contain one or more chemical elements; the mols (or umols, etc.)
+#' \code{compound} objects represent chemical species (e.g., SO4 and HS for
+#' sulfur) that generally contain one or more chemical elements; the mols (or umols, etc.)
 #' of each element of interest within a \code{compound} are tracked using a
-#' \code{pool}.  Each \code{pool} records the mass of an element in the
+#' \code{pool}.  Each \code{pool} records the mols of an element in the
 #' \code{compound} at the beginning and end a simulation timestep.  One
 #' \code{pool} in the \code{compound} is designated as the "reference
-#' \code{pool}". The molarRatios of all other \code{pools} in the compound are
+#' \code{pool}".
+#'
+#'
+#' FIX ME FIX ME The molarRatios of all other \code{pools} in the compound are
 #' relative to the reference \code{pool}.  The element of the reference
 #' \code{pool} must appear first in the \code{molarRatios} vector, and the first
 #' value in said vector must be 1.0 (i.e., the molar ratio of the reference
@@ -85,7 +88,7 @@
 #'   reference element. When \code{respirationRate} is numeric, an
 #'   \code{organism} object is returnd.  When NA, a \code{compound} object is
 #'   returned.
-#' @param InfiniteCompound Boolean when set to TRUE tags a compound as being unlimited
+#' @param infiniteCompound Boolean when set to TRUE tags a compound as being unlimited
 #'   in supply for the purposes of the model.
 #' @param gangstaObjects A list of compounds and pools, typically created by
 #'   calling \code{compoundFactory}.  Error checking in \code{processFactory}
@@ -122,18 +125,18 @@
 #' @param organismNames A vector of organisms that utilize the process.
 #' @param elementName The name of the element contained by the created
 #'   \code{pool}.
-#' @param molarRatio The ratio of the elemental mass in a \code{bound pool} to
-#'   the mass in its reference \code{pool}.  When molarRatio is NA, a
+#' @param molarRatio The ratio of the elemental mol in a \code{bound pool} to
+#'   the mol in its reference \code{pool}.  When molarRatio is NA, a
 #'   \code{pool} object is return.  When molarRatio is numeric, a \code{bound
 #'   pool} object of returned.
 #' @param referencePoolName Name of the reference \code{pool} for the
 #'   \code{compound} object to be created.
 #' @return \code{compoundFactory} returns a list of \code{compound} and {pool}
 #'   objects. \code{processFactory} return a list of \code{process} and
-#'   \code{transformation} objects.  The remaining constructor methods return an
+#'   \code{transfer} objects.  The remaining constructor methods return an
 #'   individual GANGSTA object of the class corresponding to the function name.
-
-compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, InfiniteCompound = F) {
+#' @export
+compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, infiniteCompound = F) {
   checkNames = unique(names(molarRatios))==""
   if(any(checkNames) || (length(checkNames) != length(molarRatios))) {
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
@@ -141,12 +144,13 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
   elementNames = names(molarRatios)
   newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
-  newCompound = list(compound(compoundName, initialMolecules, respirationRate, InfiniteCompound))
+  newCompound = list(compound(compoundName, initialMolecules, respirationRate, infiniteCompound))
   names(newCompound) = compoundName
   return(c(newCompound, newPools))
 }
 
 #' @rdname compoundFactory
+#' @export
 processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, transferOptions = NULL, organismName = "", limitToInitMolecules = T) {
 
   # check to be sure the specifeid organism already exists in gangstaObjects
@@ -192,24 +196,24 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
   # expandedMolarTerms = rep.int(sapply(molarTerms, "[[", "value"), times = sapply(molarTerms, function(x) length(x$groupIdx)))
   # molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
-  newTransformations = mapply(transformation, fromPoolNames, toPoolNames, molarTerms,
+  newTransfers = mapply(transfer, fromPoolNames, toPoolNames, molarTerms,
                               MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = name, limitToInitMolecules = limitToInitMolecules),
                               SIMPLIFY = F)
-  names(newTransformations) = sapply(newTransformations, function(x) x$name)
+  names(newTransfers) = sapply(newTransfers, function(x) x$name)
 
-  duplicateNames = unique(names(newTransformations)[duplicated(names(newTransformations))])
+  duplicateNames = unique(names(newTransfers)[duplicated(names(newTransfers))])
   if(length(duplicateNames)>0) {
-    stop("The following transformation(s) were specified more than once: ", paste0(duplicateNames, collapse = "; "))
+    stop("The following transfer(s) were specified more than once: ", paste0(duplicateNames, collapse = "; "))
   }
 
-  return(c(newProcess, newTransformations))
+  return(c(newProcess, newTransfers))
 }
 
 #' @rdname compoundFactory
-compound = function(compoundName, initialMolecules, respirationRate = NA, InfiniteCompound) {
-  newCompound = list(name = compoundName, initialMolecules = initialMolecules, InfiniteCompound = InfiniteCompound)
-  #  compound = function(compoundName, referencePoolName, initialMolecules, respirationRate = NA, InfiniteCompound) {
-  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMolecules = initialMolecules, InfiniteCompound = InfiniteCompound)
+compound = function(compoundName, initialMolecules, respirationRate = NA, infiniteCompound) {
+  newCompound = list(name = compoundName, initialMolecules = initialMolecules, infiniteCompound = infiniteCompound)
+  #  compound = function(compoundName, referencePoolName, initialMolecules, respirationRate = NA, infiniteCompound) {
+  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMolecules = initialMolecules, infiniteCompound = infiniteCompound)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     if(respirationRate > 0) {
@@ -244,15 +248,15 @@ process = function(name, energyTerm, transferOptions, organismName = "") {
 }
 
 #' @rdname compoundFactory
-transformation = function(gangstaObjects, processName, fromPoolName, toPoolName, molarTerm, limitToInitMolecules = T){
+transfer = function(gangstaObjects, processName, fromPoolName, toPoolName, molarTerm, limitToInitMolecules = T){
   # Calling fromToPair does some key error checking.
   pools = fromToPair(gangstaObjects, fromPoolName, toPoolName)
-  transformationName = paste(processName, fromPoolName, toPoolName, sep="_")
+  transferName = paste(processName, fromPoolName, toPoolName, sep="_")
   process = getGangstas(gangstaObjects, processName)
   energyToMolsRatio = process[[1]]$energyTerm / molarTerm
-  newTransformation =
+  newTransfer =
     list(
-      name = transformationName,
+      name = transferName,
       from = fromPoolName,
       to = toPoolName,
       molarTerm = molarTerm,
@@ -260,8 +264,8 @@ transformation = function(gangstaObjects, processName, fromPoolName, toPoolName,
       processName = processName,
       limitToInitMolecules = limitToInitMolecules
     )
-  class(newTransformation) = c(gangstaClassName("trans"), "gangsta")
-  return(newTransformation)
+  class(newTransfer) = c(gangstaClassName("trans"), "gangsta")
+  return(newTransfer)
 }
 
 

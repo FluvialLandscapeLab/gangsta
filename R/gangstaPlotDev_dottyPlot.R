@@ -6,7 +6,7 @@ plotIt = function(results, dotFactor, lineFactor, tag, excludeCompounds = charac
   # get the pool vals
   poolDataList = lapply(results, "[[", "poolVals")
   # get transfer vals
-  transferList = lapply(results, "[[", "massTransferVals")
+  transferList = lapply(results, "[[", "molTransferVals")
   # get energy vals
   energyValList = lapply(results, "[[", "processEnergyVals")
   energyValList = lapply(energyValList, function(x) subset(x, x$procType == "catabolic"))
@@ -65,7 +65,7 @@ subplotIt = function(dotList, transferList, variables, dotColors, xOffset, graph
     # add iteration number to each transferVal dataframe
     transferList =  mapply(function(itr, tv) cbind(itr, tv), 1:length(dotList), transferList, SIMPLIFY = F)
     # extract transfers that are non-zero
-    transferList = lapply(transferList, function(x) subset(x, subset = (x$massTransfered > 0.0)))
+    transferList = lapply(transferList, function(x) subset(x, subset = (x$molTransfered > 0.0)))
     # rbind into a single data frame
     transferValData = do.call(rbind, transferList)
     lineXvalList = lapply(transferValData$itr, function(x) c(x-1, x))
@@ -87,7 +87,7 @@ subplotIt = function(dotList, transferList, variables, dotColors, xOffset, graph
   par(yaxp = c(1, maxYVal, max(1,maxYVal-1)))
   grid(nx = 0, ny = NULL)
   if(length(transferList)>0) {
-    mapply(lines, x = lineXvalList, y = lineYvalList, lwd = transferValData$massTransfered * lineFactor, col = "darkgrey")
+    mapply(lines, x = lineXvalList, y = lineYvalList, lwd = transferValData$molTransfered * lineFactor, col = "darkgrey")
   }
 
   for(i in 1:length(variables) ) {

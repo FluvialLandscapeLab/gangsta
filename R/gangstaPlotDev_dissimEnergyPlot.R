@@ -1,3 +1,4 @@
+#' @export
 makeDissimEnergyPlot = function(
   resultsList,
   printPDF = F,
@@ -102,6 +103,7 @@ makeDissimEnergyPlot = function(
   }
 }
 
+#' @export
 combineDissimEnergyPlotsInPDF = function(
   withLegend = F,
   fileIdx,

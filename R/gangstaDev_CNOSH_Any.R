@@ -1,9 +1,10 @@
-CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
+#' @export
+CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
 
   activeElementTag = paste(activeElements, collapse = "")
-  InfiniteCompoundTag = paste(InfiniteCompounds, collapse = ".")
+  infiniteCompoundTag = paste(infiniteCompounds, collapse = ".")
 
-  modelNameTag = paste0(activeElementTag, "_", InfiniteCompoundTag, collapse = "")
+  modelNameTag = paste0(activeElementTag, "_", infiniteCompoundTag, collapse = "")
 
   tag = paste(activeElements, collapse = "")
 
@@ -349,8 +350,8 @@ CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
     function(x) {
       # keep the molar ratios for active elements ONLY
       x[["molarRatios"]] = x[["molarRatios"]][names(x[["molarRatios"]]) %in% activeElements]
-      # for any compound in the InfiniteCompounds list, add the InfiniteCompound = T attribute to the compoundParams list
-      if (x[["compoundName"]] %in% InfiniteCompounds) x = c(x, list(InfiniteCompound = T))
+      # for any compound in the infiniteCompounds list, add the infiniteCompound = T attribute to the compoundParams list
+      if (x[["compoundName"]] %in% infiniteCompounds) x = c(x, list(infiniteCompound = T))
       return(x)
     }
   )
@@ -376,7 +377,7 @@ CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
     function(x) {
       froms = x[["fromCompoundNames"]]
       froms[froms == "."] = x[["organismName"]]
-      noGood = any(!(froms %in% compoundNames) & !(froms %in% InfiniteCompounds))
+      noGood = any(!(froms %in% compoundNames) & !(froms %in% infiniteCompounds))
       return(noGood)
     }
   )
@@ -422,6 +423,6 @@ CNOSH_Any = function(activeElements, InfiniteCompounds = c("Ox", "Hx")) {
       }
     )
 
-  doAll(tag, modelNameTag, compoundParams, processParams, compoundNames, InfiniteCompounds)
+  doAll(tag, modelNameTag, compoundParams, processParams, compoundNames, infiniteCompounds)
 }
 

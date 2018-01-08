@@ -49,7 +49,7 @@ biomassPlot = function(resultsList, withLegend = F, backgroundCol = "white", tex
     )
 }
 
-
+#' @export
 combineBiomassPlotsInPDF = function(
   withLegend = F,
   fileIdx,
