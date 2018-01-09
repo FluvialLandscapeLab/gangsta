@@ -46,7 +46,7 @@
       name = "name",
       respRate = "respirationRate",
 
-      orgName = "organismName",  ## should these next 3 just be "name" or "Organism.name", "Process.name", and "Compound.name"
+      orgName = "organismName",
       procName = "processName",
       compName = "compoundName",
 
