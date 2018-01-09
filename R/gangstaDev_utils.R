@@ -1,4 +1,5 @@
 processSpec = function(listOfProcessFactoryArgs) {
+
   checkProcessSpecNames(names(listOfProcessFactoryArgs))
   class(listOfProcessFactoryArgs) = c("processSpec", "gangsta")
   return(listOfProcessFactoryArgs)
@@ -8,7 +9,9 @@ enList = function(x) {
   if(!is.list(x)) x = list(x)
   return(x)
 }
+
 expandMultiprocessSpec = function(multiprocessSpec) {
+
   checkProcessSpecNames(names(multiprocessSpec), "processSuffix")
 
   # if a "processSuffix" is passed in multiprocessSpec, we we don't want to
@@ -34,7 +37,7 @@ expandMultiprocessSpec = function(multiprocessSpec) {
   # ------expand the elements of spec
   # 1) replicate organism names for each proccessSuffix
   organismName = rep(organismName, each = length(processSuffix))
-  name = paste0(organismName, name, processSuffix)
+  processName = paste0(organismName, processName, processSuffix)
   # 2) if limitToMols is specified, replicate that as well
   if(!is.null(spec[["limitToInitMolecules"]])) limitToInitMolecules = rep(limitToInitMolecules, each = length(processSuffix))
   # 3) create a list of from vectors where the length of the list is equal to
@@ -65,7 +68,7 @@ expandMultiprocessSpec = function(multiprocessSpec) {
   )
   expandedSpecs = lapply(expandedSpecs, expandTransferGroups)
   expandedSpecs = lapply(expandedSpecs, processSpec)
-  names(expandedSpecs) = name
+  names(expandedSpecs) = processName
 
   for (i in 1:length(expandedSpecs)) {
     expandedSpecs[[i]]$fromCompoundNames = replaceDotWithOrganism(expandedSpecs[[i]]$fromCompoundNames, expandedSpecs[[i]]$organismName)

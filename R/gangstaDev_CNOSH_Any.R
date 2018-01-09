@@ -36,7 +36,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
 
   processParams = list(
     list(
-      name = "AssimO",
+      processName = "AssimO",
       energyTerm = 0,
       fromCompoundNames = list(O = "Ox"),
       toCompoundNames = list(O = "."),
@@ -44,7 +44,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = c("Het", "Aut", "Met")
     ),
     list(
-      name = "AssimH",
+      processName = "AssimH",
       energyTerm = 0,
       fromCompoundNames = list(H = "Hx"),
       toCompoundNames = list(H = "."),
@@ -52,7 +52,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = c("Het", "Aut", "Met")
     ),
     list(
-      name = "AssimDOM",
+      processName = "AssimDOM",
       energyTerm = -4.32E-04, # units are kJ *(umols of compound)-1
       fromCompoundNames = list(
         C = "DOM",
@@ -75,7 +75,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = "Het"
     ),
     list(
-      name = "AssimCO2",
+      processName = "AssimCO2",
       energyTerm = -3.5E-03,
       fromCompoundNames = list(C = "CO2", O = "CO2"),
       toCompoundNames = list(C = ".", O = c(".", "Ox")),
@@ -83,7 +83,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = "Aut"
     ),
     list(
-      name = "AssimCH4",
+      processName = "AssimCH4",
       energyTerm = -1.09E-03,
       fromCompoundNames = list(C = "CH4", H = "CH4"),
       toCompoundNames = list(C = ".", H = c(".", "Hx")),
@@ -91,7 +91,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = "Met"
     ),
     list(
-      name = "AssimNO3",
+      processName = "AssimNO3",
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3"),
       toCompoundNames = list(N = ".", O = c(".", "Ox")),
@@ -99,7 +99,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = c("Het", "Aut", "Met")
     ),
     list(
-      name = "AssimNH4",
+      processName = "AssimNH4",
       energyTerm = -3.18E-05,
       fromCompoundNames = list(N = "NH4", H = "NH4"),
       toCompoundNames = list(N = ".", H = c(".", "Hx")),
@@ -108,7 +108,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       limitToInitMolecules = c(F, T, T)
     ),
     list(
-      name = "AssimSO4",
+      processName = "AssimSO4",
       energyTerm = -9.44E-05,  ## Based on PAPS pathway in Shen and Buick (2004),
       # assimilation of 1 SO4 molecule takes 2 ATPs and 2 electrons.  Keeping
       # with Rob's conventions in Table 2 of his paper, then, to assimilate 1
@@ -120,7 +120,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = c("Het", "Aut", "Met")
     ),
     list(
-      name = "AssimHS",
+      processName = "AssimHS",
       energyTerm = -1E-7,  ## Based on Shen and Buick (2004) Fig 1, this could be zero.  Set to an arbitrarily low number (2 orders of magnitude less than NH4, NO3, and SO4 assim).
       fromCompoundNames = list(S = "HS", H = "HS"),
       toCompoundNames = list(S = ".", H = c(".", "Hx")),
@@ -129,7 +129,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       limitToInitMolecules = c(F, T, T)
     ),
     list(
-      name = "Aerobic",
+      processName = "Aerobic",
       energyTerm = 4.37E-04,
       fromCompoundNames = list(
         C = list(".", "DOM"),
@@ -166,7 +166,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
-      name = "Denit",
+      processName = "Denit",
       energyTerm = 4.102E-4, # ((2 * 2.88E-04) + (2 * 4.15E-04) + 6.45E-04)/5,
       fromCompoundNames = list(
         C = list(".", "DOM"),
@@ -209,7 +209,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
-      name = "SulfateRed",
+      processName = "SulfateRed",
       energyTerm = 3.8E-05,
       fromCompoundNames = list(
         C = list(".", "DOM"),
@@ -251,7 +251,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
-      name = "SulfideOxidation",
+      processName = "SulfideOxidation",
       energyTerm = 3.983E-04,
       fromCompoundNames = list(
         H = "HS",
@@ -271,7 +271,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = "Aut"
     ),
     list(
-      name = "Methanogenesis",
+      processName = "Methanogenesis",
       energyTerm = 2.8E-05,
       fromCompoundNames = list(
         C = list(".", "DOM"),
@@ -313,7 +313,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       processSuffix = c("ofBiomass", "ofDOM")
     ),
     list(
-      name = "Nitrif",
+      processName = "Nitrif",
       energyTerm = 3.485E-4, #((1.83E-04 *3) + 1.48E-04)/2,
       fromCompoundNames = list(N = "NH4", H = "NH4", O = "O2", O = "O2"),
       toCompoundNames = list(N = "NO3", H = "Hx", O = "NO3", O = "Ox"),
@@ -321,7 +321,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = "Aut"
     ),
     list(
-      name = "MethaneOxid",
+      processName = "MethaneOxid",
       energyTerm = 8.18E-4, #4.09E-04 * 2,
       fromCompoundNames = list(C = "CH4", H = "CH4", O = "O2", O = "O2"),
       toCompoundNames = list(C = "CO2", H = "Hx", O = "CO2", O = "Ox"),
@@ -329,7 +329,7 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
       organismName = "Met"
     ),
     list(
-      name = "Decay",
+      processName = "Decay",
       energyTerm = 0,
       fromCompoundNames = list(C = ".", N = ".", O = ".", S = ".", H = "."),
       toCompoundNames = list(C = "DOM", N = "DOM", O = "DOM", S = "DOM", H = "DOM"),

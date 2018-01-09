@@ -3,73 +3,59 @@
 #' \code{compoundFactory} and \code{processFactory} are the primary functions
 #' used to create GANGSTA objects.  \code{compoundFactory} creates both compound
 #' and pool objects and \code{processFactory} creates processes and
-#' transfer objects.  The constructors \code{compound}, \code{pool},
-#' \code{process}, and \code{transfer} can be called individually, but
-#' this is discouraged since the factory functions do substantial error checking
-#' and assure that references between the GANGSTA objects are correct.
-#'
-#' \code{compoundFactory} is a function that creates a \code{compound} object
-#' and all associated \code{pool} objects for use by the GANGSTA system.  It
-#' calls the constructor methods for \code{compound} and \code{pool} objects.
-#'
-#' \code{processFactory} is similarly the prefered way to create \code{process}
-#' objects and all assocaited \code{transfer} objects by calling the
-#' constructor methods for \code{process} and \code{transfer} objects
-#'
-#' Direct use of constructors for \code{pool}, \code{compound}, \code{process},
-#' and \code{transfer} should not be necessary and is discouraged.  Access
-#' to these constructors is provided only for extensibility.
-#'
+#' transfer objects.
+#
+# The constructors \code{compound}, \code{pool},
+# \code{process}, and \code{transfer} can be called individually, but
+# this is discouraged since the factory functions do substantial error checking
+# and assure that references between the GANGSTA objects are correct.
+#
+# \code{compoundFactory} is a function that creates a \code{compound} object
+# and all associated \code{pool} objects for use by the GANGSTA system.  It
+# calls the constructor methods for \code{compound} and \code{pool} objects.
+#
+# \code{processFactory} is similarly the prefered way to create \code{process}
+# objects and all assocaited \code{transfer} objects by calling the
+# constructor methods for \code{process} and \code{transfer} objects
+#
+# Direct use of constructors for \code{pool}, \code{compound}, \code{process},
+# and \code{transfer} should not be necessary and is discouraged.  Access
+# to these constructors is provided only for extensibility.
+#
 #' GANGSTA uses several classes of S3 objects to represent biogeochemical
 #' systems.  All S3 objects in GANGSTA built atop named lists with the class
 #' arribute set.  The list's names are used as attribute names and the values in
 #' the lists are the attribute values.  Thus, attribute values of the GANGSTA S3
 #' objects are accessible with the notation x$name.
 #'
-#' \code{compound} objects represent chemical species (e.g., SO4 and HS for
-#' sulfur) that generally contain one or more chemical elements; the mols (or umols, etc.)
-#' of each element of interest within a \code{compound} are tracked using a
-#' \code{pool}.  Each \code{pool} records the mols of an element in the
-#' \code{compound} at the beginning and end a simulation timestep.  One
-#' \code{pool} in the \code{compound} is designated as the "reference
-#' \code{pool}".
-#'
-#'
-#' FIX ME FIX ME The molarRatios of all other \code{pools} in the compound are
-#' relative to the reference \code{pool}.  The element of the reference
-#' \code{pool} must appear first in the \code{molarRatios} vector, and the first
-#' value in said vector must be 1.0 (i.e., the molar ratio of the reference
-#' element to itself).
+#' \code{compound} objects represent chemical species (e.g., SO4 and HS)
+#' that generally contain one or more chemical elements; the mols (or umols, etc.)
+#' of each element of interest (i.e., tracked element) within a \code{compound} are tracked using a
+#' \code{pool}.  Each \code{pool} records the mols of a tracked element in the
+#' \code{compound} at the beginning and end a simulation timestep.  The \code{molarRatio}s
+#' describe the chemical composition of the tracked elements contained in compounds.
 #'
 #' Not all elements in a \code{compound} must be tracked.  The model developer
 #' only creates \code{pool}s for the elements of interest.  For instance, when
 #' creating a \code{compound} for SO4, passing \code{c(S=1)} to
 #' \code{compoundFactory} as the \code{molarRatios} vector would create only a
 #' \code{pool} for sulfur, not for oxygen.  Two \code{pool}s, one for sulfur and
-#' one for oxygen, would be created by passing \code{c(S=1, O=4)}.  In both
-#' cases, sulfur would be the reference \code{pool}.  To make oxygen the
-#' reference \code{pool}, \code{molarRatios} would be \code{c(O = 1.0, S =
-#' 0.25)}.
+#' one for oxygen, would be created by passing \code{c(S=1, O=4)}.
 #'
-#' \code{Compound}s have attributes named \code{name} and
-#' \code{referencePoolName}. \code{Compound} objects are also used to represent
-#' organisms (which assimilate elements as they grow) in GANGSTA models.
+#' \code{Compound}s have attributes named \code{name}. \code{Compound} objects are
+#' also used to represent organisms (which assimilate elements as they grow) in GANGSTA models.
 #' \code{Organism} objects inherit from \code{compound} and contain an extra
 #' attribute called \code{respirationRate} For \code{organisms}, the
-#' \code{respirationRate} is per mol (or umol, etc.) of element in the reference
-#' \code{pool} per unit time in the simulation.
+#' \code{respirationRate} is energy (J, KJ, etc.) per mol (or umol, etc.) of
+#' \code{compound} per timestep length.
 #'
 #' \code{Pool}s have attributes called \code{name}, \code{elementName}, and
-#' \code{compoundName}.  \code{Pool}s that are not designated as "reference
-#' \code{pool}s" (i.e., those \code{pool}s that track elements appearing second
-#' or later in the \code{molarRatios} vector) are consider to be \code{bound
-#' pool}s.  \code{Bound pool} objects inhert from \code{pool} objects, and have
-#' an additional attribute called \code{molarRatio}.
+#' \code{compoundName}, and \code{molarRatio}.
 #'
 #' GANGSTA models can operate using any unit of atomic count unit (mols, umols,
 #' etc.), unit of energy (Joules, KJ, etc.) over any time unit defined by the
 #' user.  However, it is critical that all units for values passed to the model
-#' be consistent.  Here, the units of \code{respirationRate} and the units of
+#' be consistent.  For example, the units of \code{respirationRate} and the units of
 #' atomic count used by \code{pool} objects must be consistent with the units of
 #' all other values passed to functions in the GANGSTA package.
 #'
@@ -79,41 +65,29 @@
 #' @param molarRatios A named vector.  Names are the names of the chemical
 #'   elements (think 'periodic table in chemistry') that are in the
 #'   \code{compound} and that are to be tracked in the GANGSTA model.  Values in
-#'   the vector are the ratios of each element in the \code{compound} relative
-#'   to the first value in the vector (the "reference element"); thus the first
-#'   value in the vector must always be 1.0 (the molar ratio of the first
-#'   element to itself).
+#'   the vector are the ratios of each element in the \code{compound}.
+#' @param initialMolecules The number of mols (or umols, etc.) of the compound
+#' available to the microorganisms at the simulation.
 #' @param respirationRate The respiration rate (in units of energy per atomic
-#'   count per time-1).  Atomic count refers to the mols (or umols, etc.) of the
-#'   reference element. When \code{respirationRate} is numeric, an
+#'   count per timestep duration).  Atomic count refers to the mols (or umols, etc.) of the
+#'   compound. When \code{respirationRate} is numeric, an
 #'   \code{organism} object is returnd.  When NA, a \code{compound} object is
 #'   returned.
 #' @param infiniteCompound Boolean when set to TRUE tags a compound as being unlimited
-#'   in supply for the purposes of the model.
-#' @param gangstaObjects A list of compounds and pools, typically created by
-#'   calling \code{compoundFactory}.  Error checking in \code{processFactory}
-#'   checks to be sure that referenced compounds and pools exist in the
-#'   gangstaObjects list.
-#' @param processName. The name of the process to be created.
-#' @param energyTerm. The net energy associated with the processs.  A positive
+#'   in supply for the purposes of the model.  These \code{compound}s are source/sinks.
+#' @param gangstaObjects All objects of class \code{gangsta}.  These objects are
+#' created using \code{compoundFactory} and \code{processFactory}.
+#' @param name The name of the process to be created.
+#' @param energyTerm The net energy associated with the processs.  A positive
 #'   number represents a process that yeilds energy, a negative number
 #'   represents a process that consumes energy.  Units are kJ (or J, etc.) of
-#'   energy per mol (or umol, etc.) listed in \code{molarTerms} parameter.
-#' @param transferOptions. A list of integer or numeric vectors containing the
-#'   indexes of transfers in a process.  Indexes are grouped when transfers
-#'   represent optional pathways.  For instance, if a process has four transfers
-#'   (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the second and
-#'   third transfers can represent an option.  fromB can go to either toB1 or
-#'   toB2, so long as the sum of the two options is in stoicheometric balance
-#'   with the A and C tranfers.  To represent such an option, the transferOption
-#'   list would be list(1, 2:3, 4).  When transferOptions is NULL, no option
-#'   groups will be created.
+#'   energy per mol (or umol, etc.) of the reaction.
 #' @param fromCompoundNames Named \code{list} of compound names where the name
 #'   of each \code{list} member is the a chemical element derived from the
 #'   compound.  For instance, to track carbon flux from the oxidation of
 #'   glucose, the \code{fromCompoundNames} list might be list(C = "C6H12O6", O =
 #'   "O2")
-#' @param toCompoundNames.  See \code{toCompoundNames}.  To track carbon flux
+#' @param toCompoundNames  See \code{toCompoundNames}.  To track carbon flux
 #'   from the oxidation of glucose, the \code{toCompoundNames} list might be
 #'   list(C = "CO2", O = "Ox") (where Ox is a undifferentiated sink for oxygen
 #'   comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
@@ -122,6 +96,18 @@
 #'   element that are transformed by the process.  The names of
 #'   \code{molarTerms} must be the same and in the same order as those of
 #'   \code{fromCompoundNames} and \code{toCompoundNames}.
+#'
+#'   !!!!!!!!!!!!!!!!!!!  NO TRANSFER OPTIONS  !!!!!!!!!!!!!!!
+#'
+#'  @param transferOptions. A list of integer or numeric vectors containing the
+#'   indexes of transfers in a process.  Indexes are grouped when transfers
+#'   represent optional pathways.  For instance, if a process has four transfers
+#'   (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the second and
+#'   third transfers can represent an option.  fromB can go to either toB1 or
+#'   toB2, so long as the sum of the two options is in stoicheometric balance
+#'   with the A and C tranfers.  To represent such an option, the transferOption
+#'   list would be list(1, 2:3, 4).  When transferOptions is NULL, no option
+#'   groups will be created.
 #' @param organismNames A vector of organisms that utilize the process.
 #' @param elementName The name of the element contained by the created
 #'   \code{pool}.
@@ -129,8 +115,6 @@
 #'   the mol in its reference \code{pool}.  When molarRatio is NA, a
 #'   \code{pool} object is return.  When molarRatio is numeric, a \code{bound
 #'   pool} object of returned.
-#' @param referencePoolName Name of the reference \code{pool} for the
-#'   \code{compound} object to be created.
 #' @return \code{compoundFactory} returns a list of \code{compound} and {pool}
 #'   objects. \code{processFactory} return a list of \code{process} and
 #'   \code{transfer} objects.  The remaining constructor methods return an
@@ -151,7 +135,7 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
 
 #' @rdname compoundFactory
 #' @export
-processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, transferOptions = NULL, organismName = "", limitToInitMolecules = T) {
+processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundNames, toCompoundNames, molarTerms, transferOptions = NULL, organismName = "", limitToInitMolecules = T) {
 
   # check to be sure the specifeid organism already exists in gangstaObjects
   if(!identical(organismName, "")) {
@@ -159,34 +143,34 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
   }
 
   # check to be sure some parameters are vectors of length 1
-  inputList = list(name, energyTerm, organismName, limitToInitMolecules)
+  inputList = list(processName, energyTerm, organismName, limitToInitMolecules)
   if(any(plyr::laply(inputList, length) != 1)) {
-    stop(paste0("Process: ", name, "\n The arguments name, energyTerm, orgaismName, and limitToInitMolecules must be vectors of length() = 1."))
+    stop(paste0("Process: ", processName, "\n The arguments processName, energyTerm, orgaismName, and limitToInitMolecules must be vectors of length() = 1."))
   }
 
   # check to be sure some vectors are equal in length
   inputList = list(fromCompoundNames, toCompoundNames, molarTerms)
   if(length(unique(plyr::laply(inputList, length)))!=1) {
-    stop(paste0("Process: ", name, "\n The length of fromCompoundNames, toCompoundNames, and molarTerms vectors must be equal."))
+    stop(paste0("Process: ", processName, "\n The length of fromCompoundNames, toCompoundNames, and molarTerms vectors must be equal."))
   }
 
   # check to be sure some required names are present
   nullNames = plyr::laply(inputList, function(x) is.null(names(x)), .drop = F)
   if(any(nullNames)) {
-    stop(stop(paste0("Process: ", name, "\n The members of lists fromCompoundNames, toCompoundNames, and molarTerms must be named.")))
+    stop(stop(paste0("Process: ", processName, "\n The members of lists fromCompoundNames, toCompoundNames, and molarTerms must be named.")))
   }
 
   # check to be sure from, to and molarTerms have same names
   elementMatrix = plyr::laply(inputList, names, .drop = F)
   differentNamesAcrossLists = apply(elementMatrix, 2, function(x) length(unique(x)) != 1)
   if(any(differentNamesAcrossLists)) {
-    stop(paste0("Process: ", name,": \n The members of 'fromCompoundNames,' 'toCompoundNames,' and 'molarTerms' lists must have the same names in the same order across lists."))
+    stop(paste0("Process: ", processName,": \n The members of 'fromCompoundNames,' 'toCompoundNames,' and 'molarTerms' lists must have the same names in the same order across lists."))
   }
 
   # create the process object
   if(is.null(transferOptions)) transferOptions = structure(as.list(1:length(fromCompoundNames)), names = names(fromCompoundNames))
-  newProcess = list(process(name, energyTerm, transferOptions, organismName))
-  names(newProcess) = name
+  newProcess = list(process(processName, energyTerm, transferOptions, organismName))
+  names(newProcess) = processName
 
   fromCompoundNames = replaceDotWithOrganism(fromCompoundNames, organismName)
   toCompoundNames = replaceDotWithOrganism(toCompoundNames, organismName)
@@ -197,10 +181,9 @@ processFactory = function(gangstaObjects, name, energyTerm, fromCompoundNames, t
   # molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
   newTransfers = mapply(transfer, fromPoolNames, toPoolNames, molarTerms,
-                              MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = name, limitToInitMolecules = limitToInitMolecules),
+                              MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = processName, limitToInitMolecules = limitToInitMolecules),
                               SIMPLIFY = F)
   names(newTransfers) = sapply(newTransfers, function(x) x$name)
-
   duplicateNames = unique(names(newTransfers)[duplicated(names(newTransfers))])
   if(length(duplicateNames)>0) {
     stop("The following transfer(s) were specified more than once: ", paste0(duplicateNames, collapse = "; "))
@@ -236,9 +219,9 @@ pool = function(compoundName, elementName, molarRatio) {
 }
 
 #' @rdname compoundFactory
-process = function(name, energyTerm, transferOptions, organismName = "") {
+process = function(processName, energyTerm, transferOptions, organismName = "") {
   processClassNames = c(gangstaClassName("proc"), gangstaClassName("base"))
-  newProcess = list(name = name, energyTerm = energyTerm, organismName = organismName, transferOptions = transferOptions)
+  newProcess = list(name = processName, energyTerm = energyTerm, organismName = organismName, transferOptions = transferOptions)
   class(newProcess) = processClassNames
   if(energyTerm != 0) {
     class(newProcess) = c(gangstaClassName("metab"), class(newProcess))
