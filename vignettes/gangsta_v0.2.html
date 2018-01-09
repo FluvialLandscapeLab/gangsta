@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Ann Marie Reinhold" />
+
+<meta name="date" content="2018-01-09" />
+
+<title>Using gangsta v0.2</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Using gangsta v0.2</h1>
+<h4 class="author"><em>Ann Marie Reinhold</em></h4>
+<h4 class="date"><em>2018-01-09</em></h4>
+
+
+
+<div id="gangsta-basics" class="section level2">
+<h2>gangsta basics</h2>
+<p>The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis (<code>gangsta</code>) formalizes structured, user-defined conceptual models via instantiation in constraint-based computer code. This vignette describes how to generate a <code>gangsta</code>-derived model for one time step using the <code>gangsta</code> R package.</p>
+<div id="citing-this-package" class="section level3">
+<h3>Citing this package</h3>
+<p>Poole, G.C., and Reinhold, A.M. 2017. gangsta v0.2: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. <a href="https://github.com/FluvialLandscapeLab/gangsta" class="uri">https://github.com/FluvialLandscapeLab/gangsta</a></p>
+</div>
+<div id="detailed-description-of-the-gangsta-and-some-applications" class="section level3">
+<h3>Detailed description of the gangsta and some applications</h3>
+<p>Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt. From conceptual models to computer code: automatic generation of constraint-based models of biogeochemical systems. <strong><em>Prepared for submission to Environmental Software &amp; Modelling.</em></strong></p>
+</div>
+</div>
+<div id="formalizing-and-instantiating-a-conceptual-model" class="section level2">
+<h2>Formalizing and instantiating a conceptual model</h2>
+<div id="formalize-the-conceptual-model" class="section level3">
+<h3>Formalize the conceptual model</h3>
+<p>In the example in this vignette, we will instantiate the following structured conceptual model:</p>
+<ul>
+<li><strong>Optimization function</strong>: maximize biomass of all organisms during the time step</li>
+<li><strong>Tracked elements</strong>: carbon (C), nitrogen (N), and oxygen (O)</li>
+<li><strong>Organism set</strong>: the two types of organisms (chemoautotrophs [Aut] and methanotrophs [Met]); the processes that they are capable of carrying out (nitrification, methane oxidation, decay, and assimilation of CO<span class="math inline">\(_2\)</span>, CH<span class="math inline">\(_4\)</span>, NH<span class="math inline">\(_4\)</span><sup>+</sup>, and NO<span class="math inline">\(_3\)</span><sup>-</sup>; and the compounds involved in those processes (CO<span class="math inline">\(_2\)</span>, CH<span class="math inline">\(_4\)</span>, NH<span class="math inline">\(_4\)</span><sup>+</sup>, NO<span class="math inline">\(_3\)</span><sup>-</sup>, O<span class="math inline">\(_2\)</span>, dissolved organic matter [DOM], and Ox [a source/sink for O atoms])</li>
+<li><strong>Biogeochemical constraints</strong>: mathematical expressions describing stoichiometry, thermodynamics, molar and energy balances and the interrelationships among each of these</li>
+</ul>
+<p>The conceptual model in this vignette is not intended to represent any “real” system. It is simply a demonstration of the R package.</p>
+<p>gangsta v0.2 can accept user-defined tracked elements and organism sets. The optimization function and biogeochemical constraints are fixed in this version.</p>
+</div>
+<div id="first-steps-in-r" class="section level3">
+<h3>First steps in R</h3>
+<p>Load the package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(gangsta)</code></pre></div>
+<p>For the sake of convenience, we will generate objects to store the values for the model parameters describing:</p>
+<ul>
+<li>the ecological stoichiometry of biomass and dissolved organic matter (DOM)</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">EcoStoichC =<span class="st"> </span><span class="dv">106</span><span class="op">/</span><span class="dv">106</span>
+EcoStoichN =<span class="st"> </span><span class="dv">16</span><span class="op">/</span><span class="dv">106</span>
+EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op">/</span><span class="dv">106</span></code></pre></div>
+<ul>
+<li>the respiration rate of the organisms. Here, the units of respiration rate are kJ per <span class="math inline">\(\mu\)</span>mol of biomass per hour.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resp =<span class="st"> </span><span class="op">-</span><span class="fl">2.83E-6</span></code></pre></div>
+<ul>
+<li>the length of the time step. Here, the units are hours.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tsLen =<span class="st"> </span><span class="dv">24</span></code></pre></div>
+<p>Next, we will begin to create our <code>gangsta</code> objects and store them in an object called <code>myGangstas</code>.</p>
+</div>
+<div id="create-gangsta-objects-describing-the-tracked-elements-and-organism-set" class="section level3">
+<h3>Create gangsta objects describing the tracked elements and organism set</h3>
+<p>Using the <code>compoundFactory()</code> function, we will first create <code>gangsta</code> objects for the compounds that are neither organisms nor source/sinks. Each compound must have a name (<code>compoundName</code>), a description of the elemental pools contained in the compound (<code>molarRatios</code>), and the initial amount available at the start of the model run (<code>initialMolecules</code>).</p>
+<p>The <code>molarRatios</code> describe the chemical composition of the tracked elements contained in compounds. For example, the <code>molarRatios</code> for the elemental pools contained in the CO<span class="math inline">\(_2\)</span> compound are 1 for C and 2 for O because each CO<span class="math inline">\(_2\)</span> molecule contains one atom of C and 2 atoms of O; both C and O are tracked elements. In the cases of NH<span class="math inline">\(_4\)</span><sup>+</sup> or CH<span class="math inline">\(_4\)</span> compounds, no molar ratio is specified for the hydrogen contained in the NH<span class="math inline">\(_4\)</span><sup>+</sup> or CH<span class="math inline">\(_4\)</span> compounds because H is not a tracked element in the conceptual model.</p>
+<p>The <code>molarRatios</code> serve two important purposes:</p>
+<ul>
+<li>The <code>gangsta</code> reads the tracked elements from the specification of the <code>molarRatios</code> for the elements contained in the complete set of compounds specified by the end user.</li>
+<li>The elemental pools associated with the compounds are created from the <code>molarRatios</code>. The names of the pools are created from the names of the objects in the vector, and the ratios are stored in the vector.</li>
+</ul>
+<p>The <code>initialMolecules</code> provide the starting values for the compounds at the beginning of the model. The units of <code>initialMolecules</code> are <span class="math inline">\(\mu\)</span>mols.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myGangstas =
+<span class="st">  </span><span class="kw">c</span>(
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;CO2&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">C=</span><span class="dv">1</span>, <span class="dt">O=</span><span class="dv">2</span>),
+      <span class="dt">initialMolecules =</span> <span class="fl">0.2</span>
+    ),
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;CH4&quot;</span> ,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">C=</span><span class="dv">1</span>),
+      <span class="dt">initialMolecules =</span> <span class="fl">0.1</span>
+      ),
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;NH4&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">N=</span><span class="dv">1</span>),
+      <span class="dt">initialMolecules =</span> <span class="fl">0.3</span>
+    ),
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;NO3&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">N=</span><span class="dv">1</span>, <span class="dt">O=</span><span class="dv">3</span>),
+      <span class="dt">initialMolecules =</span> <span class="fl">0.1</span>
+      ),
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;O2&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">O=</span><span class="dv">2</span>),
+      <span class="dt">initialMolecules =</span> <span class="fl">0.9</span>
+      ),
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;DOM&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">C=</span>EcoStoichC, <span class="dt">N=</span>EcoStoichN, <span class="dt">O=</span>EcoStoichO),
+      <span class="dt">initialMolecules =</span> <span class="fl">0.3</span>
+    )
+  )</code></pre></div>
+<p>Compounds that are to be modeled as source/sinks should be specified as <code>infiniteCompounds</code>. The <code>initialMolecules</code> for these compounds must always be set to <code>0</code>.</p>
+<p>Next, we will add an infinite compound to <code>myGangstas</code> called “Ox.” Ox will serve as a source/sink for O atoms.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myGangstas =
+<span class="st">  </span><span class="kw">c</span>(myGangstas,
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;Ox&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">O=</span><span class="dv">1</span>),
+      <span class="dt">initialMolecules =</span> <span class="dv">0</span>,
+      <span class="dt">infiniteCompound =</span> T
+      )
+  )</code></pre></div>
+<p>The next <code>gangsta</code> objects that we will create are the organisms in our organism set. We will use the <code>compoundFactory()</code> function to do so, because organisms are special types of finite compounds. Organisms have all the properties of finite compounds, and in addition, respire and perform metabolic processes.</p>
+<p>Importantly, specifying a <code>respirationRate</code> for a compound results in the <code>gangsta</code> assigning the compound to be of class organism.</p>
+<p>The following code creates <code>gangsta</code> objects for the two types of organisms, chemoautotrophs (<code>Aut</code>) and methanotrophs (<code>Met</code>), in our conceptual model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myGangstas =
+<span class="st">  </span><span class="kw">c</span>(myGangstas,
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;Aut&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">C=</span>EcoStoichC, <span class="dt">N=</span>EcoStoichN, <span class="dt">O=</span>EcoStoichO),
+      <span class="dt">initialMolecules =</span> <span class="dv">1</span>,
+      <span class="dt">respirationRate =</span> resp <span class="op">*</span><span class="st"> </span>tsLen
+    ),
+    <span class="kw">compoundFactory</span>(
+      <span class="dt">compoundName =</span> <span class="st">&quot;Met&quot;</span>,
+      <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">C=</span>EcoStoichC, <span class="dt">N=</span>EcoStoichN, <span class="dt">O=</span>EcoStoichO),
+      <span class="dt">initialMolecules =</span> <span class="dv">1</span>,
+      <span class="dt">respirationRate =</span> resp <span class="op">*</span><span class="st"> </span>tsLen
+    )
+  )</code></pre></div>
+<p>Next, we will use <code>processFactory()</code> to create <code>gangsta</code> objects for the processes carried out by organisms. Doing so requires specifying the following:</p>
+<ul>
+<li>the name of the process (i.e., <code>processName</code>);</li>
+<li>the organism carrying out the process (i.e, <code>organismName</code>);</li>
+<li>the chemical affinity associated with the process (i.e., <code>energyTerm</code>; herein, units are KJ per reaction);</li>
+<li>the names of the reactant compounds (i.e., <code>fromCompoundNames</code>) and product compounds (<code>toCompoundNames</code>), and the pools of tracked elements associated with those compounds;<br />
+</li>
+<li>the <span class="math inline">\(\mu\)</span>mols of atoms transferred from the reactant compounds to the product compounds.</li>
+</ul>
+<p>This subsequent block of code creates <code>gangsta</code> objects for the two dissimilatory processes in our conceptual model and stores these objects in <code>myGangstas</code>.</p>
+<p>The <code>energyTerm</code> in our conceptual model is the chemical affinity of the process, which is equal in magnitude but opposite in sign of the Gibbs free energy yield. From the perspective of an organism, a positive <code>energyTerm</code> provides the organism with energy and a negative <code>energyTerm</code> expends energy. Thus, each dissimilatory process has a positive <code>energyTerm</code>.</p>
+<p>When calling <code>processFactory()</code>, the names of the objects within the lists inputted to <code>fromCompoundNames</code>, <code>toCompoundNames</code>, and <code>molarTerms</code> are identical and their order must be identical within each of these lists. These lists describe the stoichiometry of the process. For example, in the process of nitrification (<code>AutNitrif</code>) below,</p>
+<ul>
+<li>1 <span class="math inline">\(\mu\)</span>mol of N atoms are transferred from NH<span class="math inline">\(_4\)</span><sup>+</sup>-N to NO<span class="math inline">\(_3\)</span><sup>-</sup>-N,</li>
+<li>3 <span class="math inline">\(\mu\)</span>mol of O atoms are transferred from O<span class="math inline">\(_2\)</span>-O to NO<span class="math inline">\(_3\)</span><sup>-</sup>-O, and</li>
+<li>1 <span class="math inline">\(\mu\)</span>mol of O atoms are transferred from O<span class="math inline">\(_2\)</span>-O to Ox-O.</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myGangstas =
+<span class="st">  </span><span class="kw">c</span>(
+    myGangstas,
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;AutNitrif&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="fl">3.485E-4</span>, 
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NH4&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;O2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;O2&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Ox&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">1</span>),
+      <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
+    ),
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;MetMethaneOxid&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="fl">8.18E-4</span>, 
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;CH4&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;O2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;O2&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Ox&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span>, <span class="dt">O =</span> <span class="dv">2</span>),
+      <span class="dt">organismName =</span> <span class="st">&quot;Met&quot;</span>
+    )
+  )</code></pre></div>
+<p>This next block of code creates objects describing the assimilatory processes in our conceptual model. Note that the <code>energyTerms</code> are negative for these processes because, from the perspective of an organism, the energy used for assimilation is subtracted from the energy available to an organism to meet its respiratory demands.</p>
+<p>The <code>gangsta</code> assumes that all elemental pools containing tracked elements are available for assimilation. However, excess <span class="math inline">\(\mu\)</span>mols of atoms are not assimilated. For example, the specification below for autotrophic assimilation of CO<span class="math inline">\(_2\)</span> (<code>AutAssimCO2</code>) indicates that all of the C from the CO<span class="math inline">\(_2\)</span> will be assimilated and as much O from CO<span class="math inline">\(_2\)</span> will be assimilated as needed, but that any excess O will be transferred to Ox.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myGangstas =
+<span class="st">  </span><span class="kw">c</span>(
+    myGangstas,
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;AutAssimCO2&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">3.5E-03</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;CO2&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Ox&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">O =</span> EcoStoichO, <span class="dt">O =</span> <span class="dv">2</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
+      <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
+    ),
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;MetAssimCH4&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">1.09E-03</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;CH4&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;Met&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>),
+      <span class="dt">organismName =</span> <span class="st">&quot;Met&quot;</span>
+    ),
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;AutAssimNO3&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">1.55E-04</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O=</span> <span class="st">&quot;Ox&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> EcoStoichO, <span class="dt">O =</span> <span class="dv">3</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
+      <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
+    ),
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;MetAssimNO3&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">1.55E-04</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">O=</span> <span class="st">&quot;Ox&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> EcoStoichO, <span class="dt">O =</span> <span class="dv">3</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
+      <span class="dt">organismName =</span> <span class="st">&quot;Met&quot;</span>
+    ),
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;AutAssimNH4&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">3.18E-05</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NH4&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Aut&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>),
+      <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
+    ),
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;MetAssimNH4&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">3.18E-05</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NH4&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Met&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>),
+      <span class="dt">organismName =</span> <span class="st">&quot;Met&quot;</span>
+    )
+  )</code></pre></div>
+<p>Below, we specify the processes of decay for our two types of organisms. In both cases, we assume that decayed organisms become DOM.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myGangstas =
+<span class="st">  </span><span class="kw">c</span>(myGangstas,
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;AutDecay&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="dv">0</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">N =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;DOM&quot;</span>, <span class="dt">N =</span> <span class="st">&quot;DOM&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;DOM&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">N =</span> EcoStoichN, <span class="dt">O =</span> EcoStoichO),
+      <span class="dt">organismName =</span> <span class="kw">c</span>(<span class="st">&quot;Aut&quot;</span>)
+    ),
+    <span class="kw">processFactory</span>(
+      myGangstas,
+      <span class="dt">processName =</span> <span class="st">&quot;MetDecay&quot;</span>,
+      <span class="dt">energyTerm =</span> <span class="dv">0</span>,
+      <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">N =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Met&quot;</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;DOM&quot;</span>, <span class="dt">N =</span> <span class="st">&quot;DOM&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;DOM&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">N =</span> EcoStoichN, <span class="dt">O =</span> EcoStoichO),
+      <span class="dt">organismName =</span> <span class="kw">c</span>(<span class="st">&quot;Met&quot;</span>)
+    )
+  )</code></pre></div>
+<p>At this point, our conceptual model is completely specified.</p>
+</div>
+<div id="incorporate-the-goal-function-and-biogeochemical-constraints-and-generate-simulation-code" class="section level3">
+<h3>Incorporate the goal function and biogeochemical constraints, and generate simulation code</h3>
+<p>The next line of code generates the <code>gangsta</code> simulation model code. The following are incorporated into the code: the mathematical expressions describing the goal function, tracked, elements, organism set, and biogeochemical constraints associated with the structured conceptual model.</p>
+<p>The <code>gangsta</code> simulation model code is written to a file that can be run in lpSolve (<a href="http://lpsolve.sourceforge.net/5.5/" class="uri">http://lpsolve.sourceforge.net/5.5/</a>). Files should be saved with a “.lp” file extension. An R interface to lpSolve is contained within the <code>lpSolveAPI</code> package.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">writeGangstaModel</span>(<span class="dt">gangstaObjects =</span> myGangstas, <span class="dt">file =</span> <span class="kw">file.choose</span>())</code></pre></div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

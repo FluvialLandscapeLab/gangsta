@@ -1,0 +1,286 @@
+---
+title: "Using gangsta v0.2"
+author: "Ann Marie Reinhold"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using gangsta v0.2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## gangsta basics
+The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis (`gangsta`) formalizes structured, user-defined conceptual models via instantiation in constraint-based computer code. This vignette describes how to generate a `gangsta`-derived model for one time step using the `gangsta` R package.  
+
+### Citing this package
+Poole, G.C., and Reinhold, A.M.  2017.  gangsta v0.2: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. https://github.com/FluvialLandscapeLab/gangsta 
+
+### Detailed description of the gangsta and some applications
+Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt.  From conceptual models to computer code: automatic generation of constraint-based models of biogeochemical systems.  ***Prepared for submission to Environmental Software & Modelling.***
+
+## Formalizing and instantiating a conceptual model
+### Formalize the conceptual model
+
+In the example in this vignette, we will instantiate the following structured conceptual model:
+
+* __Optimization function__: maximize biomass of all organisms during the time step
+* __Tracked elements__: carbon (C), nitrogen (N), and oxygen (O) 
+* __Organism set__: the two types of organisms (chemoautotrophs [Aut] and methanotrophs [Met]); the processes that they are capable of carrying out (nitrification, methane oxidation, decay, and assimilation of CO$_2$, CH$_4$, NH$_4$^+^, and NO$_3$^-^; and the compounds involved in those processes (CO$_2$, CH$_4$, NH$_4$^+^, NO$_3$^-^, O$_2$, dissolved organic matter [DOM], and Ox [a source/sink for O atoms])
+* __Biogeochemical constraints__: mathematical expressions describing stoichiometry, thermodynamics, molar and energy balances and the interrelationships among each of these
+
+The conceptual model in this vignette is not intended to represent any "real" system.  It is simply a demonstration of the R package.
+
+gangsta v0.2 can accept user-defined tracked elements and organism sets.  The optimization function and biogeochemical constraints are fixed in this version.
+
+### First steps in R
+Load the package.
+```{r eval = T}
+library(gangsta)
+```
+
+For the sake of convenience, we will generate objects to store the values for the model parameters describing:
+
+* the ecological stoichiometry of biomass and dissolved organic matter (DOM)
+```{r eval = T}
+EcoStoichC = 106/106
+EcoStoichN = 16/106
+EcoStoichO = 110/106
+```
+* the respiration rate of the organisms.  Here, the units of respiration rate are kJ per $\mu$mol of biomass per hour.
+```{r eval = T}
+resp = -2.83E-6
+```
+* the length of the time step.  Here, the units are hours.
+```{r eval = T}
+tsLen = 24
+```
+
+Next, we will begin to create our `gangsta` objects and store them in an object called `myGangstas`.  
+
+### Create gangsta objects describing the tracked elements and organism set
+Using the `compoundFactory()` function, we will first create `gangsta` objects for the compounds that are neither organisms nor source/sinks.  Each compound must have a name (`compoundName`), a description of the elemental pools contained in the compound (`molarRatios`), and the initial amount available at the start of the model run (`initialMolecules`).   
+
+The `molarRatios` describe the chemical composition of the tracked elements contained in compounds.  For example, the `molarRatios` for the elemental pools contained in the CO$_2$ compound are 1 for C and 2 for O because each CO$_2$ molecule contains one atom of C and 2 atoms of O; both C and O are tracked elements.  In the cases of NH$_4$^+^ or CH$_4$ compounds, no molar ratio is specified for the hydrogen contained in the NH$_4$^+^ or CH$_4$ compounds because H is not a tracked element in the conceptual model. 
+
+The `molarRatios` serve two important purposes:
+
+* The `gangsta` reads the tracked elements from the specification of the `molarRatios` for the elements contained in the complete set of compounds specified by the end user.
+* The elemental pools associated with the compounds are created from the `molarRatios`.  The names of the pools are created from the names of the objects in the vector, and the ratios are stored in the vector.
+
+The `initialMolecules` provide the starting values for the compounds at the beginning of the model.  The units of `initialMolecules` are $\mu$mols.  
+
+```{r eval = T}
+myGangstas =
+  c(
+    compoundFactory(
+      compoundName = "CO2",
+      molarRatios = c(C=1, O=2),
+      initialMolecules = 0.2
+    ),
+    compoundFactory(
+      compoundName = "CH4" ,
+      molarRatios = c(C=1),
+      initialMolecules = 0.1
+      ),
+    compoundFactory(
+      compoundName = "NH4",
+      molarRatios = c(N=1),
+      initialMolecules = 0.3
+    ),
+    compoundFactory(
+      compoundName = "NO3",
+      molarRatios = c(N=1, O=3),
+      initialMolecules = 0.1
+      ),
+    compoundFactory(
+      compoundName = "O2",
+      molarRatios = c(O=2),
+      initialMolecules = 0.9
+      ),
+    compoundFactory(
+      compoundName = "DOM",
+      molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
+      initialMolecules = 0.3
+    )
+  )
+```
+Compounds that are to be modeled as source/sinks should be specified as `infiniteCompounds`.  The `initialMolecules` for these compounds must always be set to `0`.  
+
+Next, we will add an infinite compound to `myGangstas` called "Ox."  Ox will serve as a source/sink for O atoms.  
+```{r eval = T}
+myGangstas =
+  c(myGangstas,
+    compoundFactory(
+      compoundName = "Ox",
+      molarRatios = c(O=1),
+      initialMolecules = 0,
+      infiniteCompound = T
+      )
+  )
+```
+
+The next `gangsta` objects that we will create are the organisms in our organism set.  We will use the `compoundFactory()` function to do so, because organisms are special types of finite compounds.  Organisms have all the properties of finite compounds, and in addition, respire and perform metabolic processes.  
+
+Importantly, specifying a `respirationRate` for a compound results in the `gangsta` assigning the compound to be of class organism.  
+
+The following code creates `gangsta` objects for the two types of organisms, chemoautotrophs (`Aut`) and methanotrophs (`Met`), in our conceptual model. 
+```{r eval = T}
+myGangstas =
+  c(myGangstas,
+    compoundFactory(
+      compoundName = "Aut",
+      molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
+      initialMolecules = 1,
+      respirationRate = resp * tsLen
+    ),
+    compoundFactory(
+      compoundName = "Met",
+      molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
+      initialMolecules = 1,
+      respirationRate = resp * tsLen
+    )
+  )
+```
+
+Next, we will use `processFactory()` to create `gangsta` objects for the processes carried out by organisms.  Doing so requires specifying the following:
+
+* the name of the process (i.e., `processName`);
+* the organism carrying out the process (i.e, `organismName`); 
+* the chemical affinity associated with the process (i.e., `energyTerm`; herein, units are KJ per reaction);
+* the names of the reactant compounds (i.e., `fromCompoundNames`) and product compounds (`toCompoundNames`), and the pools of tracked elements associated with those compounds;  
+* the $\mu$mols of atoms transferred from the reactant compounds to the product compounds.
+
+This subsequent block of code creates `gangsta` objects for the two dissimilatory processes in our conceptual model and stores these objects in `myGangstas`.  
+
+The `energyTerm` in our conceptual model is the chemical affinity of the process, which is equal in magnitude but opposite in sign of the Gibbs free energy yield.  From the perspective of an organism, a positive `energyTerm` provides the organism with energy and a negative `energyTerm` expends energy.  Thus, each dissimilatory process has a positive `energyTerm`.  
+
+When calling `processFactory()`, the names of the objects within the lists inputted to `fromCompoundNames`, `toCompoundNames`, and `molarTerms` are identical and their order must be identical within each of these lists.  These lists describe the stoichiometry of the process.  For example, in the process of nitrification (`AutNitrif`) below, 
+
+* 1 $\mu$mol of N atoms are transferred from NH$_4$^+^-N to NO$_3$^-^-N,
+* 3 $\mu$mol of O atoms are transferred from O$_2$-O to NO$_3$^-^-O, and
+* 1 $\mu$mol of O atoms are transferred from O$_2$-O to Ox-O.
+
+```{r eval = T}
+myGangstas =
+  c(
+    myGangstas,
+    processFactory(
+      myGangstas,
+      processName = "AutNitrif",
+      energyTerm = 3.485E-4, 
+      fromCompoundNames = list(N = "NH4", O = "O2", O = "O2"),
+      toCompoundNames = list(N = "NO3", O = "NO3", O = "Ox"),
+      molarTerms = list(N = 1, O = 3, O = 1),
+      organismName = "Aut"
+    ),
+    processFactory(
+      myGangstas,
+      processName = "MetMethaneOxid",
+      energyTerm = 8.18E-4, 
+      fromCompoundNames = list(C = "CH4", O = "O2", O = "O2"),
+      toCompoundNames = list(C = "CO2", O = "CO2", O = "Ox"),
+      molarTerms = list(C = 1, O = 2, O = 2),
+      organismName = "Met"
+    )
+  )
+```
+
+This next block of code creates objects describing the assimilatory processes in our conceptual model.  Note that the `energyTerms` are negative for these processes because, from the perspective of an organism, the energy used for assimilation is subtracted from the energy available to an organism to meet its respiratory demands.
+
+The `gangsta` assumes that all elemental pools containing tracked elements are available for assimilation.  However, excess $\mu$mols of atoms are not assimilated.  For example, the specification below for autotrophic assimilation of CO$_2$ (`AutAssimCO2`) indicates that all of the C from the CO$_2$ will be assimilated and as much O from CO$_2$ will be assimilated as needed, but that any excess O will be transferred to Ox.
+```{r eval = T}
+myGangstas =
+  c(
+    myGangstas,
+    processFactory(
+      myGangstas,
+      processName = "AutAssimCO2",
+      energyTerm = -3.5E-03,
+      fromCompoundNames = list(C = "CO2", O = "CO2", O = "CO2"),
+      toCompoundNames = list(C = "Aut", O = "Aut", O = "Ox"),
+      molarTerms = list(C = 1, O = EcoStoichO, O = 2 - EcoStoichO),
+      organismName = "Aut"
+    ),
+    processFactory(
+      myGangstas,
+      processName = "MetAssimCH4",
+      energyTerm = -1.09E-03,
+      fromCompoundNames = list(C = "CH4"),
+      toCompoundNames = list(C = "Met"),
+      molarTerms = list(C = 1),
+      organismName = "Met"
+    ),
+    processFactory(
+      myGangstas,
+      processName = "AutAssimNO3",
+      energyTerm = -1.55E-04,
+      fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
+      toCompoundNames = list(N = "Aut", O = "Aut", O= "Ox"),
+      molarTerms = list(N = 1, O = EcoStoichO, O = 3 - EcoStoichO),
+      organismName = "Aut"
+    ),
+    processFactory(
+      myGangstas,
+      processName = "MetAssimNO3",
+      energyTerm = -1.55E-04,
+      fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
+      toCompoundNames = list(N = "Met", O = "Met", O= "Ox"),
+      molarTerms = list(N = 1, O = EcoStoichO, O = 3 - EcoStoichO),
+      organismName = "Met"
+    ),
+    processFactory(
+      myGangstas,
+      processName = "AutAssimNH4",
+      energyTerm = -3.18E-05,
+      fromCompoundNames = list(N = "NH4"),
+      toCompoundNames = list(N = "Aut"),
+      molarTerms = list(N = 1),
+      organismName = "Aut"
+    ),
+    processFactory(
+      myGangstas,
+      processName = "MetAssimNH4",
+      energyTerm = -3.18E-05,
+      fromCompoundNames = list(N = "NH4"),
+      toCompoundNames = list(N = "Met"),
+      molarTerms = list(N = 1),
+      organismName = "Met"
+    )
+  )
+```
+
+Below, we specify the processes of decay for our two types of organisms.  In both cases, we assume that decayed organisms become DOM.
+```{r eval = T}
+myGangstas =
+  c(myGangstas,
+    processFactory(
+      myGangstas,
+      processName = "AutDecay",
+      energyTerm = 0,
+      fromCompoundNames = list(C = "Aut", N = "Aut", O = "Aut"),
+      toCompoundNames = list(C = "DOM", N = "DOM", O = "DOM"),
+      molarTerms = list(C = 1, N = EcoStoichN, O = EcoStoichO),
+      organismName = c("Aut")
+    ),
+    processFactory(
+      myGangstas,
+      processName = "MetDecay",
+      energyTerm = 0,
+      fromCompoundNames = list(C = "Met", N = "Met", O = "Met"),
+      toCompoundNames = list(C = "DOM", N = "DOM", O = "DOM"),
+      molarTerms = list(C = 1, N = EcoStoichN, O = EcoStoichO),
+      organismName = c("Met")
+    )
+  )
+```
+
+At this point, our conceptual model is completely specified.  
+
+### Incorporate the goal function and biogeochemical constraints, and generate simulation code
+The next line of code generates the `gangsta` simulation model code.  The following are incorporated into the code: the mathematical expressions describing the goal function, tracked, elements, organism set, and biogeochemical constraints associated with the structured conceptual model.
+
+The `gangsta` simulation model code is written to a file that can be run in lpSolve (http://lpsolve.sourceforge.net/5.5/).  Files should be saved with a ".lp" file extension.  An R interface to lpSolve is contained within the `lpSolveAPI` package.
+```{r eval = FALSE}
+writeGangstaModel(gangstaObjects = myGangstas, file = file.choose())
+```
+
