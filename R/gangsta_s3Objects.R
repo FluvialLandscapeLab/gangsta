@@ -10,6 +10,7 @@
 #' systems.  All S3 objects in gangsta are built atop named lists with the class
 #' arribute set.  The list's names are used as attribute names and the values in
 #' the lists are the attribute values.
+#'
 # Thus, attribute values of the gangsta S3 objects are accessible with the
 # notation x$name.
 # The constructors \code{compound}, \code{pool}, \code{process}, and
@@ -35,15 +36,39 @@
 #' \code{pool} for sulfur, not for oxygen.  Two \code{pool}s, one for sulfur and
 #' one for oxygen, would be created by passing \code{c(S=1, O=4)}.
 #'
-#' \code{compound} objects have attributes named \code{name}. \code{compound} objects
-#' are also used to represent organisms (which assimilate elements as they grow)
-#' in gangsta models. \code{organism} objects inherit from \code{compound} and
-#' contain an extra attribute called \code{respirationRate} For
-#' \code{organism}s, the \code{respirationRate} is energy (J, KJ, etc.) per mol
-#' (or umol, etc.) of \code{compound} per timestep length.
+#' \code{compound} objects have attributes named \code{name},
+#' \code{initialMolecules} which are the starting values for the model run, and
+#' \code{infiniteCompound} which is a Boolean indicating whether the compound is
+#' a source/sink.
 #'
-#' \code{pool}s have attributes called \code{name}, \code{elementName}, and
-#' \code{compoundName}, and \code{molarRatio}.
+#' \code{compound} objects are also used to represent organisms (which
+#' assimilate elements as they grow) in \code{gangsta}-derived models.
+#' \code{organism} objects inherit from \code{compound} and contain an extra
+#' attribute called \code{respirationRate} For \code{organism}s, the
+#' \code{respirationRate} is energy (J, KJ, etc.) per mol (or umol, etc.) of
+#' \code{compound} per timestep length.
+#'
+#' \code{pool}s have attributes called \code{name}, \code{elementName} which is
+#' the chemical element stored in the \code{pool}, \code{compoundName} which
+#' indicates the compound with which the pool is associated, and
+#' \code{molarRatio} which describes the ratio of atoms in the \code{pool} per
+#' unit molecule, i.e., \code{compound}.
+#'
+#' \code{process}es have attributes called \code{name}, \code{energyTerm} which
+#' is equal to the energy generated or consumed by the \code{process},
+#' \code{organismName} which is the name of the \code{organism} carrying out the
+#' \code{process}, and \code{transferOptions} which are indices for the
+#' \code{transfer}s associated with each \code{process}.  Each \code{process} with
+#' nonzero \code{energyTerm} is of class "metabolic."
+#'
+#' \code{transfer}s have attributes called \code{name}, \code{from} which is the
+#' \code{pool} from which atoms are being transfered, \code{to} which is the
+#' \code{pool} to which atoms are being transfered, \code{molarTerm} which
+#' enforces the stoichiometry of the \code{process}, \code{molarAffinity} which
+#' is equal to the \code{energyTerm} of the \code{process} divided by the
+#' \code{molarTerm} of the \code{transfer}, \code{processName} which is the name
+#' of the \code{process} that the \code{transfer} is associated with, and
+#' \code{limitToInitMolecules} which is a Boolean that inherits from \code{process}.
 #'
 #' gangsta models can operate using any unit of atomic count unit (mols, umols,
 #' etc.), unit of energy (Joules, KJ, etc.) over any time unit defined by the
@@ -52,7 +77,7 @@
 #' units of atomic count used by \code{pool} objects must be consistent with the
 #' units of all other values passed to functions in the gangsta package.
 #'
-#' @param compoundName Name of the \code{compound} to be created
+#' @param compoundName Name of the \code{compound} to be created.
 # (or for\code{pool}, the name of the \code{compound} to which the \code{pool}
 #   belongs).
 #' @param molarRatios A named vector.  Names are the names of the chemical
@@ -60,15 +85,18 @@
 #'   \code{compound} and that are to be tracked in the gangsta model.  Values in
 #'   the vector are the ratios of each element in the \code{compound}.
 #' @param initialMolecules The number of mols (or umols, etc.) of the compound
-#'   available at the beginning of the simulation.
+#'   available at the beginning of the simulation.  If the \code{compound} is of
+#'   type \code{infiniteCompound}, then \code{initialMolecules} must be set to 0.
 #' @param respirationRate The respiration rate (in units of energy per atomic
 #'   count per timestep duration).  Atomic count refers to the mols (or umols,
 #'   etc.) of the compound. When \code{respirationRate} is numeric, an
-#'   \code{organism} object is returnd.  When NA, a \code{compound} object is
-#'   returned.
-#' @param infiniteCompound Boolean when set to TRUE tags a compound as being
-#'   unlimited in supply for the purposes of the model.  These \code{compound}s
-#'   are source/sinks.
+#'   \code{organism} object is returned.  When NA, a \code{compound} object is
+#'   returned.  \code{respirationRate} values must be negative (i.e., cost
+#'   the organisms energy).
+#' @param infiniteCompound Boolean when set to \code{TRUE} tags a compound as
+#'   being unlimited in supply for the purposes of the model.  These
+#'   \code{compound}s are source/sinks.  \code{initialMolecules} for each
+#'   \code{infiniteCompound} must be set to 0.
 #' @param gangstaObjects All objects of class \code{gangsta}.  These objects are
 #'   created using \code{compoundFactory} and \code{processFactory}.
 #'   \code{compoundFactory} should generally be executed before
@@ -83,27 +111,27 @@
 #' @param fromCompoundNames Named \code{list} of compound names where the name
 #'   of each \code{list} member is the a chemical element derived from the
 #'   compound.  For instance, to track carbon flux from the oxidation of
-#'   glucose, the \code{fromCompoundNames} list might be list(C = "C6H12O6", O =
-#'   "O2")
-#' @param toCompoundNames  See \code{toCompoundNames}.  To track carbon flux
+#'   glucose, the \code{fromCompoundNames} list might be \code{list(C =
+#'   "C6H12O6", O = "O2")}.
+#' @param toCompoundNames  See \code{fromCompoundNames}.  To track carbon flux
 #'   from the oxidation of glucose, the \code{toCompoundNames} list might be
-#'   list(C = "CO2", O = "Ox") (where Ox is a undifferentiated sink for oxygen
-#'   comprised of H2O and CO2).  The names of \code{toCompoundNames} must be the
-#'   same and in the same order as those of \code{fromCompoundNames}.
+#'   \code{list(C = "CO2", O = "Ox")} (where Ox is a undifferentiated sink for
+#'   oxygen comprised of H2O and CO2).  The names of \code{toCompoundNames} must
+#'   be the same and in the same order as those of \code{fromCompoundNames}.
 #' @param molarTerms Named list containing the mols (or umols, etc.) of each
-#'   element that are transformed by the process.  The names of
+#'   element that are transfered by the \code{process}.  The names of
 #'   \code{molarTerms} must be the same and in the same order as those of
 #'   \code{fromCompoundNames} and \code{toCompoundNames}.
-#' @param transferOptions !!!!!!!!!!!!!!!!!!!  FIX TRANSFER OPTIONS
-#'   !!!!!!!!!!!!!!!  A list of integer or numeric vectors containing the indexes
-#'   of transfers in a process.  Indexes are grouped when transfers represent
-#'   optional pathways.  For instance, if a process has four transfers (fromA ->
-#'   toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the second and third
-#'   transfers can represent an option.  fromB can go to either toB1 or toB2, so
-#'   long as the sum of the two options is in stoichiometric balance with the A
-#'   and C tranfers.  To represent such an option, the transferOption list would
-#'   be list(1, 2:3, 4).  When transferOptions is NULL, no option groups will be
-#'   created.
+#' @param transferOptions When transferOptions is \code{NULL},
+#'   \code{processFactory} will create these automatically.
+#'   \code{transferOptions} consist of a list of integer or numeric vectors
+#'   containing the indicies of transfers in a process.  Indicies are grouped when
+#'   transfers represent optional pathways. For instance, if a process has four
+#'   transfers (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the
+#'   second and third transfers can represent an option.  fromB can go to either
+#'   toB1 or toB2, so long as the sum of the two options is in stoichiometric
+#'   balance with the A and C tranfers.  To represent such an option, the
+#'   transferOption list would be \code{list(1, 2:3, 4)}.
 #' @param organismName Name of the organism carrying out the \code{process}.
 
 # @param elementName The name of the element contained by the created
