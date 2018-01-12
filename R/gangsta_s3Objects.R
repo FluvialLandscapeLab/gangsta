@@ -125,13 +125,16 @@
 #' @param transferOptions When transferOptions is \code{NULL},
 #'   \code{processFactory} will create these automatically.
 #'   \code{transferOptions} consist of a list of integer or numeric vectors
-#'   containing the indicies of transfers in a process.  Indicies are grouped when
-#'   transfers represent optional pathways. For instance, if a process has four
-#'   transfers (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the
-#'   second and third transfers can represent an option.  fromB can go to either
-#'   toB1 or toB2, so long as the sum of the two options is in stoichiometric
-#'   balance with the A and C tranfers.  To represent such an option, the
-#'   transferOption list would be \code{list(1, 2:3, 4)}.
+#'   containing the indicies of transfers in a process.  This specification is
+#'   appropriate when each \code{from pool} has exactly one code \code {to
+#'   pool}.  However, these must be specified when more than one \code {to pool}
+#'   exists for any transfer involved in a process, i.e., indicies are grouped
+#'   when transfers represent optional pathways. For instance, if a process has
+#'   four transfers (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC),
+#'   the second and third transfers can represent an option.  fromB can go to
+#'   either toB1 or toB2, so long as the sum of the two options is in
+#'   stoichiometric balance with the A and C tranfers.  To represent such an
+#'   option, the transferOption list would be \code{list(1, 2:3, 4)}.
 #' @param organismName Name of the organism carrying out the \code{process}.
 
 # @param elementName The name of the element contained by the created
