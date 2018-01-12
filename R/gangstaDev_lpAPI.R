@@ -1,9 +1,11 @@
 ###  Imports gangsta lp file into R
+#' @export
 readGangsta.lp = function(lpFile = file.choose()){
   lp.bgc = lpSolveAPI::read.lp(lpFile, type = "lp", verbose = "full")
   return(lp.bgc)
 }
 
+#' @export
 getVariableNames.lp = function(lpObject) {
   return(dimnames(lpObject)[[2]])
 }
@@ -25,6 +27,7 @@ getVariableNames.lp = function(lpObject) {
 # }
 
 ###  This block of code builds a matrix of decision variables and constraints
+#' @export
 viewMatrix.lp = function(lpObject){
   constraintVarNames = dimnames(lpObject)[[1]]
   decisionVarNames = getVariableNames.lp(lpObject)
@@ -39,6 +42,7 @@ viewMatrix.lp = function(lpObject){
 }
 
 ### View output in data frame
+#' @export
 solvedDataFrame.lp = function(lpObject, simple = TRUE) {
   variableOutput = lpSolveAPI::get.variables(lpObject)[order(dimnames(lpObject)[[2]])]
   names(variableOutput) = dimnames(lpObject)[[2]][order(dimnames(lpObject)[[2]])]
@@ -52,6 +56,7 @@ solvedDataFrame.lp = function(lpObject, simple = TRUE) {
   }
 }
 
+#' @export
 compoundDifs = function(gangstaObjects, lpObject, simple = F) {
   compounds = subsetGangstas(gangstaObjects, "class", gangstaClassName("comp"))
   compoundNames = getGangstaAttribute(compounds, gangstaAttributeName("name"))
@@ -72,6 +77,7 @@ compoundDifs = function(gangstaObjects, lpObject, simple = F) {
 
 
 ### Make a data frame with three columns: start values, end values, and changes in values
+#' @export
 poolDifs = function(gangstaObjects, lpObject, simple = T) {
   pools = subsetGangstas(gangstaObjects, "class", gangstaClassName("pool"))
   poolNames = getGangstaAttribute(pools, gangstaAttributeName("name"))
@@ -96,6 +102,7 @@ poolDifs = function(gangstaObjects, lpObject, simple = T) {
 }
 
 ### Make a vector of mol transfers between pools
+#' @export
 molTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = FALSE) {
 
   ### get classes, names, attributes, and gangstaObjectss that are used later in this function
@@ -146,7 +153,7 @@ molTransfers = function(gangstaObjects, lpObject, simple = FALSE, byProcess = FA
 }
 
 ### get energy produced/consumed by processes
-
+#' @export
 processEnergies =
   function(
     gangstaObjects, lpObject,
@@ -230,6 +237,7 @@ processEnergies =
 }
 
 ### Returns the energy from respiration by organism for an lp object
+#' @export
 respirationEnergies = function(
   gangstaObjects,
   lpObject){
