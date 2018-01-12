@@ -198,7 +198,7 @@ myGangstas =
       energyTerm = -3.5E-03,
       fromCompoundNames = list(C = "CO2", O = "CO2", O = "CO2"),
       toCompoundNames = list(C = "Aut", O = "Aut", O = "Ox"),
-      molarTerms = list(C = 1, O = EcoStoichO, O = 2 - EcoStoichO),
+      molarTerms = list(C = 1, O = 2, O = 2 - EcoStoichO),
       organismName = "Aut"
     ),
     processFactory(
@@ -215,8 +215,8 @@ myGangstas =
       processName = "AutAssimNO3",
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
-      toCompoundNames = list(N = "Aut", O = "Aut", O= "Ox"),
-      molarTerms = list(N = 1, O = EcoStoichO, O = 3 - EcoStoichO),
+      toCompoundNames = list(N = "Aut", O = "Aut", O = "Ox"),
+      molarTerms = list(N = 1, O = 3, O = 3 - EcoStoichO),
       organismName = "Aut"
     ),
     processFactory(
@@ -225,7 +225,7 @@ myGangstas =
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
       toCompoundNames = list(N = "Met", O = "Met", O= "Ox"),
-      molarTerms = list(N = 1, O = EcoStoichO, O = 3 - EcoStoichO),
+      molarTerms = list(N = 1, O = 3, O = 3 - EcoStoichO),
       organismName = "Met"
     ),
     processFactory(
@@ -279,7 +279,7 @@ At this point, our conceptual model is completely specified.
 ### Incorporate the goal function and biogeochemical constraints, and generate simulation code
 The next line of code generates the `gangsta` simulation model code.  The following are incorporated into the code: the mathematical expressions describing the goal function, tracked, elements, organism set, and biogeochemical constraints associated with the structured conceptual model.
 
-The `gangsta` simulation model code is written to a file that can be run in lpSolve (http://lpsolve.sourceforge.net/5.5/).  Files should be saved with a ".lp" file extension.  An R interface to lpSolve is contained within the `lpSolveAPI` package.
+The `gangsta` simulation model code is written to a file that can be run in lpSolve (http://lpsolve.sourceforge.net/5.5/).  Files should be saved with a ".lp" file extension.  Executing the next line of code allows the user to either select a .lp file to overwrite or to create a new .lp file.  An R interface to lpSolve is contained within the `lpSolveAPI` package.
 ```{r eval = FALSE}
 writeGangstaModel(gangstaObjects = myGangstas, file = file.choose())
 ```
