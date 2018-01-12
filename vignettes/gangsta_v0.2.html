@@ -243,7 +243,7 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
       <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">3.5E-03</span>,
       <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;CO2&quot;</span>),
       <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Ox&quot;</span>),
-      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span>, <span class="dt">O =</span> <span class="dv">2</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span>, <span class="dt">O =</span> <span class="dv">2</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
       <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
     ),
     <span class="kw">processFactory</span>(
@@ -260,8 +260,8 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
       <span class="dt">processName =</span> <span class="st">&quot;AutAssimNO3&quot;</span>,
       <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">1.55E-04</span>,
       <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>),
-      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O=</span> <span class="st">&quot;Ox&quot;</span>),
-      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span>),
+      <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Ox&quot;</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
       <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
     ),
     <span class="kw">processFactory</span>(
@@ -270,7 +270,7 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
       <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">1.55E-04</span>,
       <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>),
       <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">O=</span> <span class="st">&quot;Ox&quot;</span>),
-      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span>),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
       <span class="dt">organismName =</span> <span class="st">&quot;Met&quot;</span>
     ),
     <span class="kw">processFactory</span>(
@@ -319,7 +319,7 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
 <div id="incorporate-the-goal-function-and-biogeochemical-constraints-and-generate-simulation-code" class="section level3">
 <h3>Incorporate the goal function and biogeochemical constraints, and generate simulation code</h3>
 <p>The next line of code generates the <code>gangsta</code> simulation model code. The following are incorporated into the code: the mathematical expressions describing the goal function, tracked, elements, organism set, and biogeochemical constraints associated with the structured conceptual model.</p>
-<p>The <code>gangsta</code> simulation model code is written to a file that can be run in lpSolve (<a href="http://lpsolve.sourceforge.net/5.5/" class="uri">http://lpsolve.sourceforge.net/5.5/</a>). Files should be saved with a “.lp” file extension. An R interface to lpSolve is contained within the <code>lpSolveAPI</code> package.</p>
+<p>The <code>gangsta</code> simulation model code is written to a file that can be run in lpSolve (<a href="http://lpsolve.sourceforge.net/5.5/" class="uri">http://lpsolve.sourceforge.net/5.5/</a>). Files should be saved with a “.lp” file extension. Executing the next line of code allows the user to either select a .lp file to overwrite or to create a new .lp file. An R interface to lpSolve is contained within the <code>lpSolveAPI</code> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">writeGangstaModel</span>(<span class="dt">gangstaObjects =</span> myGangstas, <span class="dt">file =</span> <span class="kw">file.choose</span>())</code></pre></div>
 </div>
 </div>
