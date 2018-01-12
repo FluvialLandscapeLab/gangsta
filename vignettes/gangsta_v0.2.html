@@ -233,7 +233,7 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
     )
   )</code></pre></div>
 <p>This next block of code creates objects describing the assimilatory processes in our conceptual model. Note that the <code>energyTerms</code> are negative for these processes because, from the perspective of an organism, the energy used for assimilation is subtracted from the energy available to an organism to meet its respiratory demands.</p>
-<p>The <code>gangsta</code> assumes that all elemental pools containing tracked elements are available for assimilation. However, excess <span class="math inline">\(\mu\)</span>mols of atoms are not assimilated. For example, the specification below for autotrophic assimilation of CO<span class="math inline">\(_2\)</span> (<code>AutAssimCO2</code>) indicates that all of the C from the CO<span class="math inline">\(_2\)</span> will be assimilated and as much O from CO<span class="math inline">\(_2\)</span> will be assimilated as needed, but that any excess O will be transferred to Ox.</p>
+<p>The <code>gangsta</code> assumes that all elemental pools containing tracked elements are available for assimilation. However, excess <span class="math inline">\(\mu\)</span>mols of atoms are not assimilated. For example, the specification below for autotrophic assimilation of CO<span class="math inline">\(_2\)</span> (<code>AutAssimCO2</code>) indicates that all of the C from the CO<span class="math inline">\(_2\)</span> will be assimilated and as much O from CO<span class="math inline">\(_2\)</span> will be assimilated as needed, but that any excess O will be transferred to Ox. This is handled via <code>molarTerms</code> and <code>transferOptions</code> where the <code>molarTerms = list(C = 1, O = 2, O = 2)</code> and the <code>transferOptions = list(C = 1, O = 2:3)</code>. For C, it is straightforward; the carbon goes directly from the CO2-C <code>from pool</code> to the Aut-C <code>to pool</code>. However, the O transfer is a bit more complex. The <code>molarTerms</code> for the <code>from pool</code> CO2-O are repeated twice <code>O = 2, O = 2</code>. Where the <code>O = 2:3</code>, this tells the <code>gangsta</code> that the two <code>molarTerms</code> for O represent one <code>from pool</code> (CO2-O) and need need to be split between two <code>to pool</code>s (Aut-O and Ox-O).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">myGangstas =
 <span class="st">  </span><span class="kw">c</span>(
     myGangstas,
@@ -243,7 +243,8 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
       <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">3.5E-03</span>,
       <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;CO2&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;CO2&quot;</span>),
       <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Ox&quot;</span>),
-      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span>, <span class="dt">O =</span> <span class="dv">2</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span>, <span class="dt">O =</span> <span class="dv">2</span>),
+      <span class="dt">transferOptions =</span> <span class="kw">list</span>(<span class="dt">C =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">3</span>),
       <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
     ),
     <span class="kw">processFactory</span>(
@@ -261,7 +262,8 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
       <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">1.55E-04</span>,
       <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>),
       <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Aut&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Ox&quot;</span>),
-      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span>),
+      <span class="dt">transferOptions =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">3</span>),
       <span class="dt">organismName =</span> <span class="st">&quot;Aut&quot;</span>
     ),
     <span class="kw">processFactory</span>(
@@ -270,7 +272,8 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
       <span class="dt">energyTerm =</span> <span class="op">-</span><span class="fl">1.55E-04</span>,
       <span class="dt">fromCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;NO3&quot;</span>),
       <span class="dt">toCompoundNames =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">O =</span> <span class="st">&quot;Met&quot;</span>, <span class="dt">O=</span> <span class="st">&quot;Ox&quot;</span>),
-      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span> <span class="op">-</span><span class="st"> </span>EcoStoichO),
+      <span class="dt">molarTerms =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">3</span>, <span class="dt">O =</span> <span class="dv">3</span>),
+      <span class="dt">transferOptions =</span> <span class="kw">list</span>(<span class="dt">N =</span> <span class="dv">1</span>, <span class="dt">O =</span> <span class="dv">2</span><span class="op">:</span><span class="dv">3</span>),
       <span class="dt">organismName =</span> <span class="st">&quot;Met&quot;</span>
     ),
     <span class="kw">processFactory</span>(
