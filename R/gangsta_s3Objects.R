@@ -48,20 +48,20 @@
 #' \code{respirationRate} is energy (J, KJ, etc.) per mol (or umol, etc.) of
 #' \code{compound} per timestep length.
 #'
-#' \code{pool}s have attributes called \code{name}, \code{elementName} which is
+#' \code{pool} objects have attributes called \code{name}, \code{elementName} which is
 #' the chemical element stored in the \code{pool}, \code{compoundName} which
 #' indicates the compound with which the pool is associated, and
 #' \code{molarRatio} which describes the ratio of atoms in the \code{pool} per
 #' unit molecule, i.e., \code{compound}.
 #'
-#' \code{process}es have attributes called \code{name}, \code{energyTerm} which
+#' \code{process} objects have attributes called \code{name}, \code{energyTerm} which
 #' is equal to the energy generated or consumed by the \code{process},
 #' \code{organismName} which is the name of the \code{organism} carrying out the
 #' \code{process}, and \code{transferOptions} which are indices for the
 #' \code{transfer}s associated with each \code{process}.  Each \code{process} with
 #' nonzero \code{energyTerm} is of class "metabolic."
 #'
-#' \code{transfer}s have attributes called \code{name}, \code{from} which is the
+#' \code{transfer} objects have attributes called \code{name}, \code{from} which is the
 #' \code{pool} from which atoms are being transfered, \code{to} which is the
 #' \code{pool} to which atoms are being transfered, \code{molarTerm} which
 #' enforces the stoichiometry of the \code{process}, \code{molarAffinity} which
@@ -125,13 +125,16 @@
 #' @param transferOptions When transferOptions is \code{NULL},
 #'   \code{processFactory} will create these automatically.
 #'   \code{transferOptions} consist of a list of integer or numeric vectors
-#'   containing the indicies of transfers in a process.  Indicies are grouped when
-#'   transfers represent optional pathways. For instance, if a process has four
-#'   transfers (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the
-#'   second and third transfers can represent an option.  fromB can go to either
-#'   toB1 or toB2, so long as the sum of the two options is in stoichiometric
-#'   balance with the A and C tranfers.  To represent such an option, the
-#'   transferOption list would be \code{list(1, 2:3, 4)}.
+#'   containing the indicies of transfers in a process.  This specification is
+#'   appropriate when each \code{from pool} has exactly one \code{to
+#'   pool}.  However, these must be specified when more than one \code{to pool}
+#'   exists for any transfer involved in a process, i.e., indicies are grouped
+#'   when transfers represent optional pathways. For instance, if a process has
+#'   four transfers (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC),
+#'   the second and third transfers can represent an option.  fromB can go to
+#'   either toB1 or toB2, so long as the sum of the two options is in
+#'   stoichiometric balance with the A and C tranfers.  To represent such an
+#'   option, the transferOption list would be \code{list(1, 2:3, 4)}.
 #' @param organismName Name of the organism carrying out the \code{process}.
 
 # @param elementName The name of the element contained by the created
@@ -207,8 +210,8 @@ processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundN
   # molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
   newTransfers = mapply(transfer, fromPoolNames, toPoolNames, molarTerms,
-                              MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = processName, limitToInitMolecules = limitToInitMolecules),
-                              SIMPLIFY = F)
+                        MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = processName, limitToInitMolecules = limitToInitMolecules),
+                        SIMPLIFY = F)
   names(newTransfers) = sapply(newTransfers, function(x) x$name)
   duplicateNames = unique(names(newTransfers)[duplicated(names(newTransfers))])
   if(length(duplicateNames)>0) {
@@ -238,9 +241,9 @@ pool = function(compoundName, elementName, molarRatio) {
   poolName = makePoolNames(compoundName, elementName)
   newPool = list(name = poolName, elementName = elementName, compoundName = compoundName, molarRatio = molarRatio)
   class(newPool) = c("pool", "gangsta")
-#  if(!is.na(molarRatio)) {
-#    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
-#    }
+  #  if(!is.na(molarRatio)) {
+  #    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
+  #    }
   return(newPool)
 }
 
@@ -251,7 +254,7 @@ process = function(processName, energyTerm, transferOptions, organismName = "") 
   class(newProcess) = processClassNames
   if(energyTerm != 0) {
     class(newProcess) = c(gangstaClassName("metab"), class(newProcess))
-#    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
+    #    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
   }
   return(newProcess)
 }
