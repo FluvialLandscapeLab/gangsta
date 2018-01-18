@@ -6,9 +6,11 @@ Date: 2018-01-05
 Author: Geoffrey C. Poole and Ann Marie Reinhold
 Maintainer: <annmarie.reinhold@montana.edu>, <gpoole@montana.edu>
 Description: The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis (GANGSTA) formalizes structured, user-defined conceptual models via instantiation in constraint-based computer code.
-License: What license is it under?
+License: MIT + file LICENSE
 LazyData: TRUE
 Imports: plyr
-Suggests: lpSolveAPI
+Suggests: lpSolveAPI,
+    knitr,
+    rmarkdown
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
