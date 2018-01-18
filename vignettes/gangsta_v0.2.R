@@ -110,6 +110,7 @@ myGangstas =
       fromCompoundNames = list(C = "CO2", O = "CO2", O = "CO2"),
       toCompoundNames = list(C = "Aut", O = "Aut", O = "Ox"),
       molarTerms = list(C = 1, O = 2, O = 2),
+      transferOptions = list(C = 1, O = 2:3),
       organismName = "Aut"
     ),
     processFactory(
@@ -126,8 +127,9 @@ myGangstas =
       processName = "AutAssimNO3",
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
-      toCompoundNames = list(N = "Aut", O = "Aut", O= "Ox"),
+      toCompoundNames = list(N = "Aut", O = "Aut", O = "Ox"),
       molarTerms = list(N = 1, O = 3, O = 3),
+      transferOptions = list(N = 1, O = 2:3),
       organismName = "Aut"
     ),
     processFactory(
@@ -137,6 +139,7 @@ myGangstas =
       fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
       toCompoundNames = list(N = "Met", O = "Met", O= "Ox"),
       molarTerms = list(N = 1, O = 3, O = 3),
+      transferOptions = list(N = 1, O = 2:3),
       organismName = "Met"
     ),
     processFactory(
