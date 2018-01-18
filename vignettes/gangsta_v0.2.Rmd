@@ -148,7 +148,9 @@ Next, we will use `processFactory()` to create `gangsta` objects for the process
 * the organism carrying out the process (i.e, `organismName`); 
 * the chemical affinity associated with the process (i.e., `energyTerm`; herein, units are KJ per reaction);
 * the names of the reactant compounds (i.e., `fromCompoundNames`) and product compounds (`toCompoundNames`), and the pools of tracked elements associated with those compounds;  
-* the $\mu$mols of atoms transferred from the reactant compounds to the product compounds.
+* the $\mu$mols of atoms transferred from the reactant compounds to the product compounds (`molarTerms`); 
+* the indicies describing the `to pool`s involved in each `transfer` involved in the `process`; and
+* whether or not to constrain the availability of molecules of `compound` to those present at the start of the time step.
 
 This subsequent block of code creates `gangsta` objects for the two dissimilatory processes in our conceptual model and stores these objects in `myGangstas`.  
 
@@ -187,7 +189,7 @@ myGangstas =
 
 This next block of code creates objects describing the assimilatory processes in our conceptual model.  Note that the `energyTerms` are negative for these processes because, from the perspective of an organism, the energy used for assimilation is subtracted from the energy available to an organism to meet its respiratory demands.
 
-The `gangsta` assumes that all elemental pools containing tracked elements are available for assimilation.  However, excess $\mu$mols of atoms are not assimilated.  For example, the specification below for autotrophic assimilation of CO$_2$ (`AutAssimCO2`) indicates that all of the C from the CO$_2$ will be assimilated and as much O from CO$_2$ will be assimilated as needed, but that any excess O will be transferred to Ox.
+The `gangsta` assumes that all elemental pools containing tracked elements are available for assimilation.  However, excess $\mu$mols of atoms are not assimilated.  For example, the specification below for autotrophic assimilation of CO$_2$ (`AutAssimCO2`) indicates that all of the C from the CO$_2$ will be assimilated and as much O from CO$_2$ will be assimilated as needed, but that any excess O will be transferred to Ox.  This is handled via `molarTerms` and `transferOptions` where the `molarTerms = list(C = 1, O = 2, O = 2)` and the `transferOptions = list(C = 1, O = 2:3)`.  For C, understanding this specification is straightforward; the carbon transfer is from the CO$_2$-C `from pool` to the Aut-C `to pool`.  However, the O transfer is a bit more complex.  The `molarTerms` for the `from pool` CO$_2$-O are repeated twice `O = 2, O = 2`, but there is only one element in the `transferOptions` list for O where `O = 2:3`; this tells the `gangsta` that the two `molarTerms` for O represent one `from pool` (CO$_2$-O) and need need to be split between two `to pool`s (Aut-O and Ox-O).
 ```{r eval = T}
 myGangstas =
   c(
@@ -198,7 +200,8 @@ myGangstas =
       energyTerm = -3.5E-03,
       fromCompoundNames = list(C = "CO2", O = "CO2", O = "CO2"),
       toCompoundNames = list(C = "Aut", O = "Aut", O = "Ox"),
-      molarTerms = list(C = 1, O = 2, O = 2 - EcoStoichO),
+      molarTerms = list(C = 1, O = 2, O = 2),
+      transferOptions = list(C = 1, O = 2:3),
       organismName = "Aut"
     ),
     processFactory(
@@ -216,7 +219,8 @@ myGangstas =
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
       toCompoundNames = list(N = "Aut", O = "Aut", O = "Ox"),
-      molarTerms = list(N = 1, O = 3, O = 3 - EcoStoichO),
+      molarTerms = list(N = 1, O = 3, O = 3),
+      transferOptions = list(N = 1, O = 2:3),
       organismName = "Aut"
     ),
     processFactory(
@@ -225,7 +229,8 @@ myGangstas =
       energyTerm = -1.55E-04,
       fromCompoundNames = list(N = "NO3", O = "NO3", O = "NO3"),
       toCompoundNames = list(N = "Met", O = "Met", O= "Ox"),
-      molarTerms = list(N = 1, O = 3, O = 3 - EcoStoichO),
+      molarTerms = list(N = 1, O = 3, O = 3),
+      transferOptions = list(N = 1, O = 2:3),
       organismName = "Met"
     ),
     processFactory(
