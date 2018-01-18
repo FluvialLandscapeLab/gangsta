@@ -9,8 +9,6 @@ Description: The Generalized Algorithm for Nutrient, Growth, Stoichiometric and 
 License: MIT + file LICENSE
 LazyData: TRUE
 Imports: plyr
-Suggests: lpSolveAPI,
-    knitr,
-    rmarkdown
+Suggests: lpSolveAPI
 VignetteBuilder: knitr
 RoxygenNote: 6.0.1
