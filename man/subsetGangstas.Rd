@@ -43,7 +43,7 @@ the objects referenced in \code{gangstaNames} are of the class
 }
 \description{
 Lists of GANGSTA objects created using \code{compoundFactory} and
-\code{processFactory} can be queried conveniently using these methods
+\code{processFactory} can be queried conveniently using these
 methods.
 }
 \details{
