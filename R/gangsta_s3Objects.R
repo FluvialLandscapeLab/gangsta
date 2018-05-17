@@ -230,8 +230,6 @@ processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundN
 # @rdname compoundFactory
 compound = function(compoundName, initialMolecules, respirationRate = NA, infiniteCompound) {
   newCompound = list(name = compoundName, initialMolecules = initialMolecules, infiniteCompound = infiniteCompound)
-  #  compound = function(compoundName, referencePoolName, initialMolecules, respirationRate = NA, infiniteCompound) {
-  #  newCompound = list(name = compoundName, referencePoolName = referencePoolName, initialMolecules = initialMolecules, infiniteCompound = infiniteCompound)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     if(respirationRate > 0) {
@@ -247,9 +245,6 @@ pool = function(compoundName, elementName, molarRatio) {
   poolName = makePoolNames(compoundName, elementName)
   newPool = list(name = poolName, elementName = elementName, compoundName = compoundName, molarRatio = molarRatio)
   class(newPool) = c("pool", "gangsta")
-  #  if(!is.na(molarRatio)) {
-  #    newPool = structure(c(newPool, list(molarRatio = molarRatio)), class = c("bound", class(newPool)))
-  #    }
   return(newPool)
 }
 
@@ -260,7 +255,6 @@ process = function(processName, energyTerm, transferOptions, organismName = "") 
   class(newProcess) = processClassNames
   if(energyTerm != 0) {
     class(newProcess) = c(gangstaClassName("metab"), class(newProcess))
-    #    newProcess = structure(c(newProcess, list(organismName = organismName)), class = c(gangstaClassName("metab"), class(newProcess)))
   }
   return(newProcess)
 }

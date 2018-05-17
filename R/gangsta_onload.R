@@ -21,11 +21,11 @@
         org = "organism",
         pool = "pool",
         proc = "process",
-        metab = "metabolic", ## Metabolic is not a class in the current version of the model.
+        metab = "metabolic",
         trans = "transfer"
       ),
 
-    gangsta.vars =  ## according to the new UML, all of these are attributes
+    gangsta.vars =
       c(
         respEnergy = "respirationEnergy",
         respRate = "respirationRate",
@@ -53,21 +53,17 @@
       molarAffinity = "molarAffinity",
       fromPool = "from",
       toPool = "to",
-      limitToStartMols = "limitToInitMolecules",  ## I think we need to add this to our UML diagram
+      limitToStartMols = "limitToInitMolecules",
       molRatio = "molarRatio",
       initialMolecules = "initialMolecules",
       finalMolecules = "finalMolecules",
-      infiniteCompound = "infiniteCompound",  ## This is actually a class
+      infiniteCompound = "infiniteCompound",
       energy = "energyTerm",
       element = "elementName",
-      transOptions = "transferOptions"  ## I think that we should change this to "multiToPools"
+      transOptions = "transferOptions"
     )
-
-
   )
-#  toset <- !(names(op.gangsta) %in% names(op))
-#  if(any(toset)) options(op.gangsta[toset])
-   options(op.gangsta)
+  options(op.gangsta)
   invisible()
 }
 

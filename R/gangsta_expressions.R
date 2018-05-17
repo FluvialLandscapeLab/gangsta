@@ -97,7 +97,6 @@ makeExpressions = function(gangstaObjects) {
   limitToStartAttrName = gangstaAttributeName("limitToStartMols")
   molarRatioAttrName = gangstaAttributeName("molRatio")
   initialMolsAttrName = gangstaAttributeName("initialMolecules")
-  # finalMoleculesAttrName = gangstaAttributeName("finalMolecules")
   compNameAttrName =  gangstaAttributeName("compName")
   InfiniteCompoundAttrName = gangstaAttributeName("infiniteCompound")
   energyTermAttrName = gangstaAttributeName("energy")
@@ -149,8 +148,6 @@ makeExpressions = function(gangstaObjects) {
 
   exprsnAllowNegatives = function() {
     processes = subsetGangstas(gangstaObjects, "class", processClassName)
-    # negativeEnergyTerms = getGangstaAttribute(processes, energyTermAttrName) < 0
-    # processes = processes[negativeEnergyTerms]
     processNames = getGangstaAttribute(processes, nameAttrName)
     energyVarNames = makeProcessEnergyVars(processNames)
 
@@ -158,10 +155,8 @@ makeExpressions = function(gangstaObjects) {
     organismNames = getGangstaAttribute(organisms, nameAttrName)
     respEnergyVars = makeRespEnergyVars(organismNames)
 
-    # respAndAssimExpressions = c(exprsnPaste("-Inf <", c(respEnergyVars, energyVarNames), "<= 0"))
     decayDissimAndAssimExpressions = c(exprsnPaste("-Inf <", c(energyVarNames), "< +Inf"))
     respExpressions = c(exprsnPaste("-Inf <", c(respEnergyVars), "< +Inf"))
-
 
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
     compounds = subsetGangstas(compounds, InfiniteCompoundAttrName, T)
@@ -321,12 +316,10 @@ makeExpressions = function(gangstaObjects) {
 
     transfers = subsetGangstas(gangstaObjects, "class", transClassName)
     metabolicTransfers = lapply(metabolicNames, subsetGangstas, gangstaObjects = transfers, attributeName = procNameAttrName)
-  #  metabolicTransfers = unlist(metabolicTransfers, recursive = F)
 
     metabolicTransferNames = lapply(metabolicTransfers, getGangstaAttribute, attribName = nameAttrName)
     metabolicTransferMolTransVars = lapply(metabolicTransferNames, makeTransferMolTransVars)
 
-  #  metabolicProcessNames = lapply(metabolicTransfers, getGangstaAttribute, attribName = procNameAttrName)
     metabolicProcessEnergyVars = makeProcessEnergyVars(metabolicNames)
 
     energyToMolsRatios = lapply(metabolicTransfers, getGangstaAttribute, attribName = energyToMolsAttrName)
@@ -356,8 +349,6 @@ makeExpressions = function(gangstaObjects) {
           transferOptions
         )
       )
-
-    # expressions = paste(metabolicProcessEnergyVars, "=", energyToMolsRatios, metabolicTransferMolTransVars)
 
     transferHeader =
       makeLPSolveHeader("The number of atoms transferred during each Process must be in accordance with the stoichiometry and chemical affinity of the Process (Exprsn. 5)", F)
