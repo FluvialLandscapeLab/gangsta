@@ -40,7 +40,7 @@ library(gangsta)
 
 For the sake of convenience, we will generate objects to store the values for the model parameters describing:
 
-* the ecological stoichiometry of biomass and dissolved organic matter (DOM)
+* the ecological stoichiometry of biomass and dissolved organic matter (DOM).  We assume the chemical composition of both biomass and DOM is CN$_{16/106}$O$_{110/106}$.
 ```{r eval = T}
 EcoStoichC = 106/106
 EcoStoichN = 16/106
@@ -52,8 +52,10 @@ resp = -2.83E-6
 ```
 * the length of the time step.  Here, the units are hours.
 ```{r eval = T}
-tsLen = 24
+timeStep = 24
 ```
+
+Importantly, `gangsta` models use variables where the units are derived using only three base units: number of atoms and molecules (e.g., mol, $\mu$mol), energy (e.g., J or KJ), and time (e.g., s, hr, d, fortnight).  The units can be selected by the end-user, so long as all arguments passed to functions in the `gangsta` package are consistent.
 
 Next, we will begin to create our `gangsta` objects and store them in an object called `myGangstas`.  
 
@@ -64,7 +66,7 @@ The `molarRatios` describe the chemical composition of the tracked elements cont
 
 The `molarRatios` serve two important purposes:
 
-* The `gangsta` reads the tracked elements from the specification of the `molarRatios` for the elements contained in the complete set of compounds specified by the end user.
+* The `gangsta` reads the tracked elements from the specification of the `molarRatios` for the elements contained in the complete set of compounds specified by the end user.  That is, whichever elements have specified `molarRatios` are those tracked in the `gangsta` model.
 * The elemental pools associated with the compounds are created from the `molarRatios`.  The names of the pools are created from the names of the objects in the vector, and the ratios are stored in the vector.
 
 The `initialMolecules` provide the starting values for the compounds at the beginning of the model.  The units of `initialMolecules` are $\mu$mols.  
@@ -131,13 +133,13 @@ myGangstas =
       compoundName = "Aut",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * tsLen
+      respirationRate = resp * timeStep
     ),
     compoundFactory(
       compoundName = "Met",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * tsLen
+      respirationRate = resp * timeStep
     )
   )
 ```

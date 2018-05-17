@@ -3,14 +3,14 @@
 #' \code{writeGangstaModel} instantiates a \code{gangsta}-derived model into
 #' computer code.
 #'
-#' @param gangstaObjects \code{gangstaObjects} are the list of objects of class
-#'   \code{gangsta} created with functions such as \code{compoundFactory} and
-#'   \code{processFactory}.
+#' @param gangstaObjects A list of objects of class \code{gangsta} created with
+#'   functions \code{compoundFactory} and \code{processFactory}.
 #' @param file The default argument for \code{file} is \code{file.choose()};
 #'   using the default will enable the end user to overwrite an existing file or
 #'   create a new file if one does not already exist.  However, the end user can
 #'   also specify a file on their local drive. In either case, files generated
-#'   using \code{writeGangstaModel} should be saved with an ".lp" extension.
+#'   using \code{writeGangstaModel} should be saved with an ".lp" extension for
+#'   compatability with lpSolve.
 #'
 #' @return \code{writeGangstaModel} returns a file with the simulation model
 #'   code, formatted for use in lpSolve (http://lpsolve.sourceforge.net/5.5/).
