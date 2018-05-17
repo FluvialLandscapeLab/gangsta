@@ -147,7 +147,7 @@
 #   mol in its reference \code{pool}.  When molarRatio is NA, a \code{pool}
 #   object is return.  When molarRatio is numeric, a \code{bound pool} object of
 #   returned.
-#' @return \code{compoundFactory} returns a list of \code{compound} and {pool}
+#' @return \code{compoundFactory} returns a list of \code{compound} and \code{pool}
 #'   objects. \code{processFactory} return a list of \code{process} and
 #'   \code{transfer} objects.
 # The remaining constructor methods return an individual gangsta object of the
