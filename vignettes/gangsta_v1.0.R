@@ -10,7 +10,7 @@ EcoStoichO = 110/106
 resp = -2.83E-6
 
 ## ----eval = T------------------------------------------------------------
-tsLen = 24
+timeStep = 24
 
 ## ----eval = T------------------------------------------------------------
 myGangstas =
@@ -65,13 +65,13 @@ myGangstas =
       compoundName = "Aut",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * tsLen
+      respirationRate = resp * timeStep
     ),
     compoundFactory(
       compoundName = "Met",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * tsLen
+      respirationRate = resp * timeStep
     )
   )
 

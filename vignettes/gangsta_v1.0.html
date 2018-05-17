@@ -12,9 +12,9 @@
 
 <meta name="author" content="Ann Marie Reinhold" />
 
-<meta name="date" content="2018-01-18" />
+<meta name="date" content="2018-05-17" />
 
-<title>Using gangsta v0.2</title>
+<title>Using gangsta v1.0</title>
 
 
 
@@ -68,9 +68,9 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<h1 class="title toc-ignore">Using gangsta v0.2</h1>
+<h1 class="title toc-ignore">Using gangsta v1.0</h1>
 <h4 class="author"><em>Ann Marie Reinhold</em></h4>
-<h4 class="date"><em>2018-01-18</em></h4>
+<h4 class="date"><em>2018-05-17</em></h4>
 
 
 
@@ -79,7 +79,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis (<code>gangsta</code>) formalizes structured, user-defined conceptual models via instantiation in constraint-based computer code. This vignette describes how to generate a <code>gangsta</code>-derived model for one time step using the <code>gangsta</code> R package.</p>
 <div id="citing-this-package" class="section level3">
 <h3>Citing this package</h3>
-<p>Poole, G.C., and Reinhold, A.M. 2017. gangsta v0.2: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. <a href="https://github.com/FluvialLandscapeLab/gangsta" class="uri">https://github.com/FluvialLandscapeLab/gangsta</a></p>
+<p>Poole, G.C., and Reinhold, A.M. 2018. gangsta v1.0: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. <a href="https://github.com/FluvialLandscapeLab/gangsta" class="uri">https://github.com/FluvialLandscapeLab/gangsta</a></p>
 </div>
 <div id="detailed-description-of-the-gangsta-and-some-applications" class="section level3">
 <h3>Detailed description of the gangsta and some applications</h3>
@@ -98,7 +98,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><strong>Biogeochemical constraints</strong>: mathematical expressions describing stoichiometry, thermodynamics, molar and energy balances and the interrelationships among each of these</li>
 </ul>
 <p>The conceptual model in this vignette is not intended to represent any “real” system. It is simply a demonstration of the R package.</p>
-<p>gangsta v0.2 can accept user-defined tracked elements and organism sets. The optimization function and biogeochemical constraints are fixed in this version.</p>
+<p>gangsta v1.0 can accept user-defined tracked elements and organism sets. The optimization function and biogeochemical constraints are fixed in this version.</p>
 </div>
 <div id="first-steps-in-r" class="section level3">
 <h3>First steps in R</h3>
@@ -106,7 +106,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(gangsta)</code></pre></div>
 <p>For the sake of convenience, we will generate objects to store the values for the model parameters describing:</p>
 <ul>
-<li>the ecological stoichiometry of biomass and dissolved organic matter (DOM)</li>
+<li>the ecological stoichiometry of biomass and dissolved organic matter (DOM). We assume the chemical composition of both biomass and DOM is CN<span class="math inline">\(_{16/106}\)</span>O<span class="math inline">\(_{110/106}\)</span>.</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">EcoStoichC =<span class="st"> </span><span class="dv">106</span><span class="op">/</span><span class="dv">106</span>
 EcoStoichN =<span class="st"> </span><span class="dv">16</span><span class="op">/</span><span class="dv">106</span>
@@ -118,7 +118,8 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
 <ul>
 <li>the length of the time step. Here, the units are hours.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tsLen =<span class="st"> </span><span class="dv">24</span></code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">timeStep =<span class="st"> </span><span class="dv">24</span></code></pre></div>
+<p>Importantly, <code>gangsta</code> models use variables where the units are derived using only three base units: number of atoms and molecules (e.g., mol, <span class="math inline">\(\mu\)</span>mol), energy (e.g., J or KJ), and time (e.g., s, hr, d, fortnight). The units can be selected by the end-user, so long as all arguments passed to functions in the <code>gangsta</code> package are consistent.</p>
 <p>Next, we will begin to create our <code>gangsta</code> objects and store them in an object called <code>myGangstas</code>.</p>
 </div>
 <div id="create-gangsta-objects-describing-the-tracked-elements-and-organism-set" class="section level3">
@@ -127,7 +128,7 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
 <p>The <code>molarRatios</code> describe the chemical composition of the tracked elements contained in compounds. For example, the <code>molarRatios</code> for the elemental pools contained in the CO<span class="math inline">\(_2\)</span> compound are 1 for C and 2 for O because each CO<span class="math inline">\(_2\)</span> molecule contains one atom of C and 2 atoms of O; both C and O are tracked elements. In the cases of NH<span class="math inline">\(_4\)</span><sup>+</sup> or CH<span class="math inline">\(_4\)</span> compounds, no molar ratio is specified for the hydrogen contained in the NH<span class="math inline">\(_4\)</span><sup>+</sup> or CH<span class="math inline">\(_4\)</span> compounds because H is not a tracked element in the conceptual model.</p>
 <p>The <code>molarRatios</code> serve two important purposes:</p>
 <ul>
-<li>The <code>gangsta</code> reads the tracked elements from the specification of the <code>molarRatios</code> for the elements contained in the complete set of compounds specified by the end user.</li>
+<li>The <code>gangsta</code> reads the tracked elements from the specification of the <code>molarRatios</code> for the elements contained in the complete set of compounds specified by the end user. That is, whichever elements have specified <code>molarRatios</code> are those tracked in the <code>gangsta</code> model.</li>
 <li>The elemental pools associated with the compounds are created from the <code>molarRatios</code>. The names of the pools are created from the names of the objects in the vector, and the ratios are stored in the vector.</li>
 </ul>
 <p>The <code>initialMolecules</code> provide the starting values for the compounds at the beginning of the model. The units of <code>initialMolecules</code> are <span class="math inline">\(\mu\)</span>mols.</p>
@@ -184,13 +185,13 @@ EcoStoichO =<span class="st"> </span><span class="dv">110</span><span class="op"
       <span class="dt">compoundName =</span> <span class="st">&quot;Aut&quot;</span>,
       <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">C=</span>EcoStoichC, <span class="dt">N=</span>EcoStoichN, <span class="dt">O=</span>EcoStoichO),
       <span class="dt">initialMolecules =</span> <span class="dv">1</span>,
-      <span class="dt">respirationRate =</span> resp <span class="op">*</span><span class="st"> </span>tsLen
+      <span class="dt">respirationRate =</span> resp <span class="op">*</span><span class="st"> </span>timeStep
     ),
     <span class="kw">compoundFactory</span>(
       <span class="dt">compoundName =</span> <span class="st">&quot;Met&quot;</span>,
       <span class="dt">molarRatios =</span> <span class="kw">c</span>(<span class="dt">C=</span>EcoStoichC, <span class="dt">N=</span>EcoStoichN, <span class="dt">O=</span>EcoStoichO),
       <span class="dt">initialMolecules =</span> <span class="dv">1</span>,
-      <span class="dt">respirationRate =</span> resp <span class="op">*</span><span class="st"> </span>tsLen
+      <span class="dt">respirationRate =</span> resp <span class="op">*</span><span class="st"> </span>timeStep
     )
   )</code></pre></div>
 <p>Next, we will use <code>processFactory()</code> to create <code>gangsta</code> objects for the processes carried out by organisms. Doing so requires specifying the following:</p>

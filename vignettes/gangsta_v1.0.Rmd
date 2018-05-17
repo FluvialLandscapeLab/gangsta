@@ -1,10 +1,10 @@
 ---
-title: "Using gangsta v0.2"
+title: "Using gangsta v1.0"
 author: "Ann Marie Reinhold"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using gangsta v0.2}
+  %\VignetteIndexEntry{Using gangsta v1.0}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,7 +13,7 @@ vignette: >
 The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis (`gangsta`) formalizes structured, user-defined conceptual models via instantiation in constraint-based computer code. This vignette describes how to generate a `gangsta`-derived model for one time step using the `gangsta` R package.  
 
 ### Citing this package
-Poole, G.C., and Reinhold, A.M.  2017.  gangsta v0.2: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. https://github.com/FluvialLandscapeLab/gangsta 
+Poole, G.C., and Reinhold, A.M.  2018.  gangsta v1.0: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. https://github.com/FluvialLandscapeLab/gangsta 
 
 ### Detailed description of the gangsta and some applications
 Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt.  From conceptual models to computer code: automatic generation of constraint-based models of biogeochemical systems.  ***Prepared for submission to Environmental Software & Modelling.***
@@ -30,7 +30,7 @@ In the example in this vignette, we will instantiate the following structured co
 
 The conceptual model in this vignette is not intended to represent any "real" system.  It is simply a demonstration of the R package.
 
-gangsta v0.2 can accept user-defined tracked elements and organism sets.  The optimization function and biogeochemical constraints are fixed in this version.
+gangsta v1.0 can accept user-defined tracked elements and organism sets.  The optimization function and biogeochemical constraints are fixed in this version.
 
 ### First steps in R
 Load the package.
