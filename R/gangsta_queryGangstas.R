@@ -1,7 +1,7 @@
 #' Query a list of GANGSTA Objects
 #'
 #' Lists of GANGSTA objects created using \code{compoundFactory} and
-#' \code{processFactory} can be queried conveniently using these methods
+#' \code{processFactory} can be queried conveniently using these
 #' methods.
 #'
 #' \code{subsetGangstas} Queries gangstaObjects by attribute.  Returns a subset

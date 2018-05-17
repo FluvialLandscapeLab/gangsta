@@ -13,48 +13,52 @@ processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
   limitToInitMolecules = T)
 }
 \arguments{
-\item{compoundName}{Name of the \code{compound} to be created.}
+\item{compoundName}{A character vector of \code{length = 1} containing the
+  name of the
+\code{compound} to be created.}
 
-\item{molarRatios}{A named vector.  Names are the names of the chemical
-elements (think 'periodic table in chemistry') that are in the
+\item{molarRatios}{A named numeric vector.  Vector names are the names of the
+chemical elements (think 'periodic table in chemistry') that are in the
 \code{compound} and that are to be tracked in the gangsta model.  Values in
-the vector are the ratios of each element in the \code{compound}.}
+the vector are the ratios for the number of atoms of each element in the
+\code{compound}.}
 
 \item{initialMolecules}{The number of mols (or umols, etc.) of the compound
 available at the beginning of the simulation.  If the \code{compound} is of
 type \code{infiniteCompound}, then \code{initialMolecules} must be set to 0.}
 
-\item{respirationRate}{The respiration rate (in units of energy per atomic
-count per timestep duration).  Atomic count refers to the mols (or umols,
-etc.) of the compound. When \code{respirationRate} is numeric, an
-\code{organism} object is returned.  When NA, a \code{compound} object is
-returned.  \code{respirationRate} values must be negative (i.e., cost
-the organisms energy).}
+\item{respirationRate}{The respiration rate (in units of energy per unit of
+  biomass per model timestep); applies to \code{organism} objects.  When
+  \code{respirationRate} is numeric, an \code{organism} object is returned.
+  When NA, a \code{compound} object is returned.  \code{respirationRate}
+values must be negative (i.e., energy cost to the organisms).}
 
-\item{infiniteCompound}{Boolean when set to \code{TRUE} tags a compound as
-being unlimited in supply for the purposes of the model.  These
-\code{compound}s are source/sinks.  \code{initialMolecules} for each
-\code{infiniteCompound} must be set to 0.}
+\item{infiniteCompound}{Boolean when set to \code{TRUE} tags a
+  \code{compound} as being unlimited in supply. \code{infiniteCompound}s
+represent sources/sinks.  When \code{infiniteCompound} is set to \code{TRUE},
+\code{initialMolecules} must be set to 0.}
 
-\item{gangstaObjects}{All objects of class \code{gangsta}.  These objects are
-created using \code{compoundFactory} and \code{processFactory}.
-\code{compoundFactory} should generally be executed before
-\code{processFactory} because \code{gangstaObjects} for all
-\code{compounds} involved in a \code{process} must be created before
-\code{processFactory} can create the \code{process}.}
+\item{gangstaObjects}{A list of objects of class \code{gangsta} representing
+the \code{organisms}, \code{compounds}, \code{pools}, \code{processes}, and
+\code{transfers} to be included in the model.  These objects are created
+using \code{compoundFactory} and \code{processFactory}.
+\code{compoundFactory} must be executed before \code{processFactory}
+because \code{gangstaObjects} for all \code{compounds} involved in a
+\code{process} must be created before \code{processFactory} can create the
+\code{process}.}
 
-\item{processName}{The name of the \code{process} to be created.}
+\item{processName}{A character vector of the name of the \code{process} to be
+created.}
 
 \item{energyTerm}{The chemical affinity of the processs.  A positive number
 represents a process that yeilds energy, a negative number represents a
 process that consumes energy.  Units are kJ (or J, etc.) of energy per mol
 (or umol, etc.) of the reaction.}
 
-\item{fromCompoundNames}{Named \code{list} of compound names where the name
-of each \code{list} member is the a chemical element derived from the
-compound.  For instance, to track carbon flux from the oxidation of
-glucose, the \code{fromCompoundNames} list might be \code{list(C =
-"C6H12O6", O = "O2")}.}
+\item{fromCompoundNames}{Named \code{list} where the name of each \code{list}
+member is the a chemical element derived from the compound.  For instance,
+to track carbon flux from the oxidation of glucose, the
+\code{fromCompoundNames} list might be \code{list(C = "C6H12O6", O = "O2")}}
 
 \item{toCompoundNames}{See \code{fromCompoundNames}.  To track carbon flux
 from the oxidation of glucose, the \code{toCompoundNames} list might be

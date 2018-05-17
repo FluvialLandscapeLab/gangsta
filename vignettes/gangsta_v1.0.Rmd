@@ -1,10 +1,10 @@
 ---
-title: "Using gangsta v0.2"
+title: "Using gangsta v1.0"
 author: "Ann Marie Reinhold"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Using gangsta v0.2}
+  %\VignetteIndexEntry{Using gangsta v1.0}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,7 +13,7 @@ vignette: >
 The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis (`gangsta`) formalizes structured, user-defined conceptual models via instantiation in constraint-based computer code. This vignette describes how to generate a `gangsta`-derived model for one time step using the `gangsta` R package.  
 
 ### Citing this package
-Poole, G.C., and Reinhold, A.M.  2017.  gangsta v0.2: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. https://github.com/FluvialLandscapeLab/gangsta 
+Poole, G.C., and Reinhold, A.M.  2018.  gangsta v1.0: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. https://github.com/FluvialLandscapeLab/gangsta 
 
 ### Detailed description of the gangsta and some applications
 Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt.  From conceptual models to computer code: automatic generation of constraint-based models of biogeochemical systems.  ***Prepared for submission to Environmental Software & Modelling.***
@@ -30,7 +30,7 @@ In the example in this vignette, we will instantiate the following structured co
 
 The conceptual model in this vignette is not intended to represent any "real" system.  It is simply a demonstration of the R package.
 
-gangsta v0.2 can accept user-defined tracked elements and organism sets.  The optimization function and biogeochemical constraints are fixed in this version.
+gangsta v1.0 can accept user-defined tracked elements and organism sets.  The optimization function and biogeochemical constraints are fixed in this version.
 
 ### First steps in R
 Load the package.
@@ -40,7 +40,7 @@ library(gangsta)
 
 For the sake of convenience, we will generate objects to store the values for the model parameters describing:
 
-* the ecological stoichiometry of biomass and dissolved organic matter (DOM)
+* the ecological stoichiometry of biomass and dissolved organic matter (DOM).  We assume the chemical composition of both biomass and DOM is CN$_{16/106}$O$_{110/106}$.
 ```{r eval = T}
 EcoStoichC = 106/106
 EcoStoichN = 16/106
@@ -52,8 +52,10 @@ resp = -2.83E-6
 ```
 * the length of the time step.  Here, the units are hours.
 ```{r eval = T}
-tsLen = 24
+timeStep = 24
 ```
+
+Importantly, `gangsta` models use variables where the units are derived using only three base units: number of atoms and molecules (e.g., mol, $\mu$mol), energy (e.g., J or KJ), and time (e.g., s, hr, d, fortnight).  The units can be selected by the end-user, so long as all arguments passed to functions in the `gangsta` package are consistent.
 
 Next, we will begin to create our `gangsta` objects and store them in an object called `myGangstas`.  
 
@@ -64,7 +66,7 @@ The `molarRatios` describe the chemical composition of the tracked elements cont
 
 The `molarRatios` serve two important purposes:
 
-* The `gangsta` reads the tracked elements from the specification of the `molarRatios` for the elements contained in the complete set of compounds specified by the end user.
+* The `gangsta` reads the tracked elements from the specification of the `molarRatios` for the elements contained in the complete set of compounds specified by the end user.  That is, whichever elements have specified `molarRatios` are those tracked in the `gangsta` model.
 * The elemental pools associated with the compounds are created from the `molarRatios`.  The names of the pools are created from the names of the objects in the vector, and the ratios are stored in the vector.
 
 The `initialMolecules` provide the starting values for the compounds at the beginning of the model.  The units of `initialMolecules` are $\mu$mols.  
@@ -131,13 +133,13 @@ myGangstas =
       compoundName = "Aut",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * tsLen
+      respirationRate = resp * timeStep
     ),
     compoundFactory(
       compoundName = "Met",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * tsLen
+      respirationRate = resp * timeStep
     )
   )
 ```
