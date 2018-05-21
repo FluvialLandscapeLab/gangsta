@@ -3,19 +3,19 @@
 #' \code{compoundFactory} and \code{processFactory} are the primary functions
 #' used to create gangsta objects.  \code{compoundFactory} is a function that
 #' creates a \code{compound} object and all associated \code{pool} objects for
-#' use by the gangsta package. \code{processFactory} creates a \code{process}
-#' object and all associated \code{transfer} objects.
+#' use by the \code{gangsta} package. \code{processFactory} creates a
+#' \code{process} object and all associated \code{transfer} objects.
 #'
-#' The gangsta uses several classes of S3 objects to represent biogeochemical
-#' systems.  All S3 objects in gangsta are built atop named lists with the class
-#' arribute set.  The list's names are used as attribute names and the values in
-#' the lists are the attribute values.
+#' The \code{gangsta} uses several classes of S3 objects to represent
+#' biogeochemical systems.  All S3 objects in \code{gangsta} are built atop
+#' named lists with the class arribute set.  The list's names are used as
+#' attribute names and the values in the lists are the attribute values.
 #'
-# Thus, attribute values of the gangsta S3 objects are accessible with the
-# notation x$name. The constructors \code{compound}, \code{pool},
+# Thus, attribute values of the \code{gangsta} S3 objects are accessible with
+# the notation x$name. The constructors \code{compound}, \code{pool},
 # \code{process}, and \code{transfer} can be called individually, but this is
 # discouraged since the factory functions do substantial error checking and
-# assure that references between the gangsta objects are correct.
+# assure that references between the \code{gangsta} objects are correct.
 #
 #' \code{compound} objects represent chemical species (e.g., SO4 and HS) that
 #' generally contain one or more chemical elements; the mols (or umols, etc.) of
@@ -45,7 +45,7 @@
 #' \code{organism} objects inherit from \code{compound} and contain an extra
 #' attribute called \code{respirationRate} For \code{organism}s, the
 #' \code{respirationRate} is energy (J, KJ, etc.) per mol (or umol, etc.) of
-#' \code{compound} per timestep length.
+#' \code{compound} per timestep.
 #'
 #' \code{pool} objects have attributes called \code{name}, \code{elementName} which is
 #' the chemical element stored in the \code{pool}, \code{compoundName} which
@@ -69,12 +69,13 @@
 #' of the \code{process} that the \code{transfer} is associated with, and
 #' \code{limitToInitMolecules} which is a Boolean that inherits from \code{process}.
 #'
-#' gangsta models can operate using any unit of atomic count unit (mols, umols,
-#' etc.), unit of energy (Joules, KJ, etc.) over any time unit defined by the
-#' user.  However, it is critical that all units for values passed to the model
-#' be consistent.  For example, the units of \code{respirationRate} and the
-#' units of atomic count used by \code{pool} objects must be consistent with the
-#' units of all other values passed to functions in the gangsta package.
+#' \code{gangsta}-derived models can operate using any unit of atomic count unit
+#' (mols, umols, etc.), unit of energy (Joules, KJ, etc.) over any time unit
+#' defined by the user.  However, it is critical that all units for values
+#' passed to the model be consistent.  For example, the units of
+#' \code{respirationRate} and the units of atomic count used by \code{pool}
+#' objects must be consistent with the units of all other values passed to
+#' functions in the \code{gangsta} package.
 #'
 #' @param compoundName A character vector of \code{length = 1} containing the
 #'   name of the
@@ -83,7 +84,7 @@
 #   belongs).
 #' @param molarRatios A named numeric vector.  Vector names are the names of the
 #'   chemical elements (think 'periodic table in chemistry') that are in the
-#'   \code{compound} and that are to be tracked in the gangsta model.  Values in
+#'   \code{compound} and that are to be tracked by \code{gangsta}.  Values in
 #'   the vector are the ratios for the number of atoms of each element in the
 #'   \code{compound}.
 #' @param initialMolecules The number of mols (or umols, etc.) of the compound
@@ -149,7 +150,7 @@
 #' @return \code{compoundFactory} returns a list of \code{compound} and \code{pool}
 #'   objects. \code{processFactory} return a list of \code{process} and
 #'   \code{transfer} objects.
-# The remaining constructor methods return an individual gangsta object of the
+# The remaining constructor methods return an individual \code{gangsta} object of the
 # class corresponding to the function name.
 #' @export
 compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, infiniteCompound = F) {
