@@ -45,7 +45,7 @@
 #' \code{organism} objects inherit from \code{compound} and contain an extra
 #' attribute called \code{respirationRate} For \code{organism}s, the
 #' \code{respirationRate} is energy (J, KJ, etc.) per mol (or umol, etc.) of
-#' \code{compound} per timestep length.
+#' \code{compound} per timestep.
 #'
 #' \code{pool} objects have attributes called \code{name}, \code{elementName} which is
 #' the chemical element stored in the \code{pool}, \code{compoundName} which

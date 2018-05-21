@@ -2,7 +2,7 @@
 % Please edit documentation in R/gangsta_utils.R
 \name{writeGangstaModel}
 \alias{writeGangstaModel}
-\title{gangsta utils}
+\title{\code{gangsta} Utils}
 \usage{
 writeGangstaModel(gangstaObjects, file = file.choose())
 }
