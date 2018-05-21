@@ -207,13 +207,8 @@ processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundN
   newProcess = list(process(processName, energyTerm, transferOptions, organismName))
   names(newProcess) = processName
 
-  fromCompoundNames = replaceDotWithOrganism(fromCompoundNames, organismName)
-  toCompoundNames = replaceDotWithOrganism(toCompoundNames, organismName)
   fromPoolNames = makePoolNames(fromCompoundNames, gangstaObjects = gangstaObjects)
   toPoolNames = makePoolNames(toCompoundNames, gangstaObjects = gangstaObjects)
-
-  # expandedMolarTerms = rep.int(sapply(molarTerms, "[[", "value"), times = sapply(molarTerms, function(x) length(x$groupIdx)))
-  # molarTerms = replaceNAWithMolarRatio(molarTerms, fromPoolNames, fromCompoundNames, gangstaObjects)
 
   newTransfers = mapply(transfer, fromPoolNames, toPoolNames, molarTerms,
                         MoreArgs = list(gangstaObjects = c(gangstaObjects, newProcess), processName = processName, limitToInitMolecules = limitToInitMolecules),
