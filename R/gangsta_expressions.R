@@ -316,7 +316,8 @@ makeExpressions = function(gangstaObjects) {
 
     energyToMolsRatios = lapply(metabolicTransfers, getGangstaAttribute, attribName = energyToMolsAttrName)
 
-    nestedExprsnTransfer = function(metabolicProcessEnergyVars, energyToMolsRatios, metabolicTransferMolTransVars, transferOptions) {
+    nestedExprsnTransfer =
+      function(metabolicProcessEnergyVars, energyToMolsRatios, metabolicTransferMolTransVars, transferOptions) {
         return(
           sapply(
             transferOptions,
@@ -329,7 +330,7 @@ makeExpressions = function(gangstaObjects) {
             }
           )
         )
-    }
+      }
 
     expressions =
       unlist(
