@@ -25,22 +25,18 @@ makeOrgansimEnergyVars = function(organismNames) {
 
 makeCompoundStartMolVars = function(compoundNames) {
   return(makeGenericVars(compoundNames, "startSuffixCompound"))
-  # return(makeGenericVars(compoundNames, "startSuffix"))
 }
 
 makeCompoundEndMolVars = function(compoundNames) {
   return(makeGenericVars(compoundNames, "endSuffixCompound"))
-  # return(makeGenericVars(compoundNames, "endSuffix"))
 }
 
 makePoolStartMolVars = function(poolNames) {
   return(makeGenericVars(poolNames, "startSuffixPool"))
-  # return(makeGenericVars(poolNames, "startSuffix"))
 }
 
 makePoolEndMolVars = function(poolNames) {
   return(makeGenericVars(poolNames, "endSuffixPool"))
-  # return(makeGenericVars(poolNames, "endSuffix"))
 }
 
 makeRespEnergyVars = function(organismNames) {
@@ -64,8 +60,6 @@ makeLPSolveHeader = function(headerText, majorHeader = F) {
 makeExpressions = function(gangstaObjects) {
 
   ## Get gangsta.option values
-
-
   endSuffixPool = gangstaVarName("endSuffixPool")
   endSuffixCompound = gangstaVarName("endSuffixCompound")
 
@@ -143,7 +137,6 @@ makeExpressions = function(gangstaObjects) {
       lapply(organismPoolNames, subsetGangstas, gangstaObjects = transferObjects, attributeName = toPoolAttrName)
     transferInNames = lapply(transferInObjects, getGangstaAttribute, nameAttrName)
     transferInVars = lapply(transferInNames, makeTransferMolTransVars)
-
   }
 
   exprsnAllowNegatives = function() {
@@ -223,7 +216,7 @@ makeExpressions = function(gangstaObjects) {
     compoundNames = getGangstaAttribute(pools, compNameAttrName)
     compounds = getGangstas(gangstaObjects, compoundNames)
 
-    # Starting stoicheometry expressions
+    # Starting stoichiometry expressions
     poolStartMolVarNames = makePoolStartMolVars(poolNames)
     compoundStartMolVarNames = makeCompoundStartMolVars(compoundNames)
     startStoichHeader =
@@ -234,7 +227,7 @@ makeExpressions = function(gangstaObjects) {
         paste(poolStartMolVarNames, "=", molarRatios, compoundStartMolVarNames)
         )
 
-    # Ending stoicheometry expressions
+    # Ending stoichiometry expressions
     poolEndMolVarNames = makePoolEndMolVars(poolNames)
     compoundEndMolVarNames = makeCompoundEndMolVars(compoundNames)
     endStoichHeader =
@@ -245,7 +238,6 @@ makeExpressions = function(gangstaObjects) {
         endStoichHeader,
         paste(poolEndMolVarNames, "=", molarRatios, compoundEndMolVarNames)
       )
-
     return(expressions)
   }
 
@@ -324,7 +316,8 @@ makeExpressions = function(gangstaObjects) {
 
     energyToMolsRatios = lapply(metabolicTransfers, getGangstaAttribute, attribName = energyToMolsAttrName)
 
-    nestedExprsnTransfer = function(metabolicProcessEnergyVars, energyToMolsRatios, metabolicTransferMolTransVars, transferOptions) {
+    nestedExprsnTransfer =
+      function(metabolicProcessEnergyVars, energyToMolsRatios, metabolicTransferMolTransVars, transferOptions) {
         return(
           sapply(
             transferOptions,
@@ -337,7 +330,7 @@ makeExpressions = function(gangstaObjects) {
             }
           )
         )
-    }
+      }
 
     expressions =
       unlist(
@@ -432,7 +425,7 @@ makeExpressions = function(gangstaObjects) {
     return(expressions)
   }
 
-  # goal Expressions
+  # Goal Expressions
   goalExprsns = exprsnMaxBiomass()
 
   # Allow negative values where appropriate

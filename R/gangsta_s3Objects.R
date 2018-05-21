@@ -1,4 +1,4 @@
-#' Create gangsta Objects
+#' Create \code{gangsta} objects
 #'
 #' \code{compoundFactory} and \code{processFactory} are the primary functions
 #' used to create gangsta objects.  \code{compoundFactory} is a function that
@@ -12,11 +12,10 @@
 #' the lists are the attribute values.
 #'
 # Thus, attribute values of the gangsta S3 objects are accessible with the
-# notation x$name.
-# The constructors \code{compound}, \code{pool}, \code{process}, and
-# \code{transfer} can be called individually, but this is discouraged since the
-# factory functions do substantial error checking and assure that references
-# between the gangsta objects are correct.
+# notation x$name. The constructors \code{compound}, \code{pool},
+# \code{process}, and \code{transfer} can be called individually, but this is
+# discouraged since the factory functions do substantial error checking and
+# assure that references between the gangsta objects are correct.
 #
 #' \code{compound} objects represent chemical species (e.g., SO4 and HS) that
 #' generally contain one or more chemical elements; the mols (or umols, etc.) of

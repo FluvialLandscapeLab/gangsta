@@ -1,4 +1,4 @@
-#' gangsta utils
+#' \code{gangsta} Utils
 #'
 #' \code{writeGangstaModel} instantiates a \code{gangsta}-derived model into
 #' computer code.
