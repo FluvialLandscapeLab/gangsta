@@ -188,3 +188,18 @@ myGangstas =
 ## ----eval = FALSE--------------------------------------------------------
 #  writeGangstaModel(gangstaObjects = myGangstas, file = file.choose())
 
+## ----eval = FALSE--------------------------------------------------------
+#  install.packages("lpSolveAPI")
+#  library(lpSolveAPI)
+
+## ----eval = FALSE--------------------------------------------------------
+#  lpModel = read.lp(file.choose(), verbose = "normal")
+
+## ----eval = FALSE--------------------------------------------------------
+#  solve(lpModel)
+
+## ----eval = FALSE--------------------------------------------------------
+#  results = get.variables(lpModel)
+#  names(results) = dimnames(lpModel)[[2]]
+#  results
+
