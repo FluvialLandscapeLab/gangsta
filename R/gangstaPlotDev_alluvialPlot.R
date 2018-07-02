@@ -307,7 +307,8 @@ makePlots =
     aggregateBio = T,
     elementalCyclesToPlot = NULL,
     yAxisMaxMols,
-    axisFontSize
+    axisFontSize,
+    filePrefix
   ){
     resultNames = sort(resultNames)
     gangstaNames = sort(gangstaNames)
@@ -340,7 +341,7 @@ makePlots =
             gangstaSuperPlot(
               perfectDF = gangstaPerfectDFList[[i]],
               makePDF = pdf,
-              fileName = makeFileName(fileID = fileIDXs[i]),
+              fileName = makeFileName(fileID = fileIDXs[i], filePrefix = filePrefix),
               backgroundCol = "white", textCol = "black",
               axisFontSize = axisFontSize,
               yAxisMaxMols = yAxisMaxMols
