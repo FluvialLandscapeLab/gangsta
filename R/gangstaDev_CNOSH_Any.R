@@ -17,10 +17,12 @@ CNOSH_Any = function(activeElements, infiniteCompounds = c("Ox", "Hx")) {
   DOMStoichS = 1.7/106
   DOMStoichH = 263/106
 
+  timeStepInHrs = 24
+
   compoundParams = list(
-    list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * 24), #respirationRate units kJ umol-1 Day-1
-    list(compoundName = "Aut" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * 24),
-    list(compoundName = "Met" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * 24),
+    list(compoundName = "Het" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * timeStepInHrs),
+    list(compoundName = "Aut" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * timeStepInHrs),
+    list(compoundName = "Met" , molarRatios = c(C=1, N=BioStoichN, O=BioStoichO, S=BioStoichS, H = BioStoichH), initialMolecules = 0, respirationRate = -2.83E-6 * timeStepInHrs),
     list(compoundName = "DOM" , molarRatios = c(C=1, N=DOMStoichN, O=DOMStoichO, S=DOMStoichS, H = DOMStoichH), initialMolecules = 0),
     list(compoundName = "CH4" , molarRatios = c(C=1, H=4),      initialMolecules = 0),
     list(compoundName = "NH4" , molarRatios = c(N=1, H=4),      initialMolecules = 0),
