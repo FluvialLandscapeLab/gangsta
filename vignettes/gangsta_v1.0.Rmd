@@ -148,7 +148,7 @@ Next, we will use `processFactory()` to create `gangsta` objects for the process
 
 * the name of the process (i.e., `processName`);
 * the organism carrying out the process (i.e, `organismName`); 
-* the chemical affinity associated with the process (i.e., `energyTerm`; herein, units are KJ per reaction);
+* the chemical affinity associated with the process (i.e., `energyTerm`; herein, units are KJ);
 * the names of the reactant compounds (i.e., `fromCompoundNames`) and product compounds (`toCompoundNames`), and the pools of tracked elements associated with those compounds;  
 * the $\mu$mols of atoms transferred from the reactant compounds to the product compounds (`molarTerms`); 
 * the indicies describing the `to pool`s involved in each `transfer` involved in the `process`; and
