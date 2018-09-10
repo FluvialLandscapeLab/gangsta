@@ -16,7 +16,7 @@ The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic
 Poole, G.C., and Reinhold, A.M.  2018.  gangsta v1.0: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. https://github.com/FluvialLandscapeLab/gangstaBuiltPackage
 
 ### Detailed description of the gangsta and some applications
-Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt.  Constraint-based simulation of multiple interactive elemental cycles in biogeochemical systems.  ***Prepared for submission to Environmental Software & Modelling.***
+Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt.  Constraint-based simulation of multiple interactive elemental cycles in biogeochemical systems.  ***Prepared for submission to Ecological Informatics.***
 
 ## Formalizing and instantiating a conceptual model
 ### Formalize the conceptual model
