@@ -1,7 +1,7 @@
 ---
 title: "Using gangsta v1.0"
 author: "Ann Marie Reinhold"
-date: "2018-05-17"
+date: "2019-03-07"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using gangsta v1.0}
@@ -16,7 +16,7 @@ The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic
 Poole, G.C., and Reinhold, A.M.  2018.  gangsta v1.0: Generalized algorithm for nutrient, growth, stoichiometric, and thermodynamic analysis. https://github.com/FluvialLandscapeLab/gangstaBuiltPackage
 
 ### Detailed description of the gangsta and some applications
-Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt.  Constraint-based simulation of multiple interactive elemental cycles in biogeochemical systems.  ***Prepared for submission to Ecological Informatics.***
+Reinhold, A.M., G.C. Poole, C. Izurieta, A.M. Helton, and E.S. Bernhardt. 2019. Constraint-based simulation of multiple interactive elemental cycles in biogeochemical systems. Ecological Informatics. 50:102-121. DOI: 10.1016/j.ecoinf.2018.12.008
 
 ## Formalizing and instantiating a conceptual model
 ### Formalize the conceptual model
