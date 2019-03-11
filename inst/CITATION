@@ -1,0 +1,42 @@
+citHeader(
+  "To cite package 'gangsta' in publications, please cite BOTH of the following:"
+)
+
+year = substr(meta$Date, 1, 4)
+vers = paste("R package version", meta$Version)
+
+citEntry(
+  entry = "Article",
+  textVersion = "Reinhold, Ann Marie, Geoffrey C. Poole, Clemente Izurieta, Ashley M. Helton, and Emily S. Bernhardt. 2019. Constraint-Based Simulation of Multiple Interactive Elemental Cycles in Biogeochemical Systems. Ecological Informatics 50: 102-121. https://doi.org/10.1016/j.ecoinf.2018.12.008",
+  title = "Constraint-based simulation of multiple interactive elemental cycles in biogeochemical systems",
+  author =
+    personList(
+      as.person("Ann Marie Reinhold"),
+      as.person("Geoffrey C Poole"),
+      as.person("Clemente Izurieta"),
+      as.person("Ashley M Helton"),
+      as.person("Emily S Bernhardt")
+    ),
+  year = "2019",
+  pages = "102-121",
+  journal = "Ecological Informatics",
+  volume = "50",
+  url = "http://www.sciencedirect.com/science/article/pii/S1574954118302292",
+  doi = "10.1016/j.ecoinf.2018.12.008"
+)
+
+citEntry(
+  entry = "Manual",
+  title = "gangsta: The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis.",
+  author = personList(
+    as.person("Geoffrey C Poole"),
+    as.person("Ann Marie Reinhold")
+  ),
+  year = year,
+  note = vers,
+  textVersion =  paste0("Geoffrey C. Poole and Ann Marie Reinhold (",
+                       year,
+                       "). gangsta: The Generalized Algorithm for Nutrient, Growth, Stoichiometric and Thermodynamic Analysis. ",
+                       vers, ".")
+)
+
