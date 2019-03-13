@@ -34,6 +34,8 @@
 #'   \code{checkClass}. Throws an error if not.
 #' @param attribName Name of an attribute associated with 1 or more
 #'   \code{gangsta} classes.
+#' @param asIndex Causes return value to be a logical vector that can be applied
+#'   to \code{gangstaObjects}.
 #' @return \code{gangstasExist} returns TRUE if all names in \code{gangstaNames}
 #'   have an associated \code{gangsta} object in \code{gangstaObjects}.  If not,
 #'   execution is halted and an error reported.  \code{getGangstaAttribute}
@@ -42,7 +44,7 @@
 #'   \code{gangsta} objects.
 
 #' @export
-subsetGangstas = function(gangstaObjects, attributeName, attributeValue) {
+subsetGangstas = function(gangstaObjects, attributeName, attributeValue, asIndex = F) {
   if(length(gangstaObjects) == 0) {
     returnVal = list()
   } else {
@@ -57,7 +59,11 @@ subsetGangstas = function(gangstaObjects, attributeName, attributeValue) {
         itMatches = (sapply(gangstaObjects, "[", name=attributeName) == attributeValue)
       }
     }
-    returnVal = gangstaObjects[itMatches]
+    if(asIndex){
+      returnVal = itMatches
+    }else{
+      returnVal = gangstaObjects[itMatches]
+    }
   }
   return(returnVal)
 }
