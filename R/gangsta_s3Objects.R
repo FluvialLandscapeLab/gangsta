@@ -167,9 +167,49 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
 #' @rdname compoundFactory
 #' @export
 enableIsotopeTracking = function(gangstaObjects, elementList){
-  poolObjectIdx = subsetGanstas(gangstaObjects, "class", getOption("gangsta.classes")["pool"], asIndex = T)
+  poolObjectIdx = subsetGangstas(gangstaObjects, "class", getOption("gangsta.classes")["pool"], asIndex = T)
   elementNames = names(elementList)
+  # error check for duplicate elements
+  if(!(length(elementNames) == length(unique(elementNames)))){
+    stop("One or more elementList names are duplicated")
+  }
+  # Create index vectors to subset Gangstas based on each element name
+  # Each element of the poolObjectElementIdx is an element-specific
+  # logical vector that could be used to subset pool Gangstas
+  poolObjectElementIdx = lapply(elementNames,
+                                subsetGangstas,
+                                gangstaObjects = gangstaObjects[poolObjectIdx],
+                                attributeName = "elementName",
+                                asIndex = T)
+  names(poolObjectElementIdx) <- elementNames
 
+  # Throw a warning for elements in element list that aren't in the model
+  matches <- sapply(poolObjectElementIdx, sum)
+
+  for(i in 1:length(matches)){
+    if (matches[i] < 1){
+      warning(print(elementNames[i], "is in elementList but not in the model"))
+    }
+  }
+
+  # Create isotopic ratios attributes for each pool object with an element whose
+  # isotopes are to be tracked
+
+  addOneIsotopicRatio <- function(poolObj, isotopes){
+    poolObj$isotopicRatios <- structure(.Data = rep("NA", times = length(isotopes)),
+                                        names = isotopes,
+                                        class = "numeric")
+  }
+
+  addIsotopicRatiosSingleElement <- function(poolObjectElementIdxSubset, isotopes){
+    lapply(gangstaObjects[poolObjectIdx][poolObjectElementIdxSubset],
+           addOneIsotopicRatio,
+           isotopes = isotopes)
+  }
+
+  mapply(addIsotopicRatiosSingleElement,
+         poolObjectElementIdxSubset = poolObjectElementIdx,
+         isotopes = elementList)
 }
 
 #' @rdname compoundFactory

@@ -7,7 +7,8 @@
 \alias{gangstasExist}
 \title{Query a list of \code{gangsta} objects}
 \usage{
-subsetGangstas(gangstaObjects, attributeName, attributeValue)
+subsetGangstas(gangstaObjects, attributeName, attributeValue,
+  asIndex = F)
 
 getGangstas(gangstaObjects, gangstaNames)
 
@@ -23,6 +24,9 @@ gangstasExist(gangstaObjects, gangstaNames, checkClass = "")
 \item{attributeValue}{All \code{gangsta} objects where the attribute
 (specified in \code{attributeName}) is equal to \code{attributeValue} will
 be returned.}
+
+\item{asIndex}{Causes return value to be a logical vector that can be applied
+to \code{gangstaObjects}.}
 
 \item{gangstaNames}{Character vector containing the names (value stored in
 the \code{name} attribute) of the \code{gangsta} objects to be returned.}

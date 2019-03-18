@@ -2,11 +2,14 @@
 % Please edit documentation in R/gangsta_s3Objects.R
 \name{compoundFactory}
 \alias{compoundFactory}
+\alias{enableIsotopeTracking}
 \alias{processFactory}
 \title{Create \code{gangsta} objects}
 \usage{
 compoundFactory(compoundName, molarRatios, initialMolecules,
   respirationRate = NA, infiniteCompound = F)
+
+enableIsotopeTracking(gangstaObjects, elementList)
 
 processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
   toCompoundNames, molarTerms, transferOptions = NULL,
@@ -14,8 +17,7 @@ processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
 }
 \arguments{
 \item{compoundName}{A character vector of \code{length = 1} containing the
-  name of the
-\code{compound} to be created.}
+name of the \code{compound} to be created.}
 
 \item{molarRatios}{A named numeric vector.  Vector names are the names of the
 chemical elements (think 'periodic table in chemistry') that are in the
@@ -25,18 +27,19 @@ the vector are the ratios for the number of atoms of each element in the
 
 \item{initialMolecules}{The number of mols (or umols, etc.) of the compound
 available at the beginning of the simulation.  If the \code{compound} is of
-type \code{infiniteCompound}, then \code{initialMolecules} must be set to 0.}
+type \code{infiniteCompound}, then \code{initialMolecules} must be set to
+0.}
 
 \item{respirationRate}{The respiration rate (in units of energy per unit of
-  biomass per model timestep); applies to \code{organism} objects.  When
-  \code{respirationRate} is numeric, an \code{organism} object is returned.
-  When NA, a \code{compound} object is returned.  \code{respirationRate}
+biomass per model timestep); applies to \code{organism} objects.  When
+\code{respirationRate} is numeric, an \code{organism} object is returned.
+When NA, a \code{compound} object is returned.  \code{respirationRate}
 values must be negative (i.e., energy cost to the organisms).}
 
 \item{infiniteCompound}{Boolean when set to \code{TRUE} tags a
-  \code{compound} as being unlimited in supply. \code{infiniteCompound}s
-represent sources/sinks.  When \code{infiniteCompound} is set to \code{TRUE},
-\code{initialMolecules} must be set to 0.}
+\code{compound} as being unlimited in supply. \code{infiniteCompound}s
+represent sources/sinks.  When \code{infiniteCompound} is set to
+\code{TRUE}, \code{initialMolecules} must be set to 0.}
 
 \item{gangstaObjects}{A list of objects of class \code{gangsta} representing
 the \code{organisms}, \code{compounds}, \code{pools}, \code{processes}, and
@@ -46,6 +49,12 @@ using \code{compoundFactory} and \code{processFactory}.
 because \code{gangstaObjects} for all \code{compounds} involved in a
 \code{process} must be created before \code{processFactory} can create the
 \code{process}.}
+
+\item{elementList}{A named list of character vectors where each vector
+contains the names of the isotopes to be tracked for a single element.
+Typically, these are character representations of each isotope's molecular
+weight. The name of each element in this list corresponds to the element
+names used in the \code{molarRatios} list.}
 
 \item{processName}{A character vector of the name of the \code{process} to be
 created.}
@@ -75,22 +84,22 @@ element that are transfered by the \code{process}.  The names of
 \code{processFactory} will create these automatically.
 \code{transferOptions} consist of a list of integer or numeric vectors
 containing the indicies of transfers in a process.  This specification is
-appropriate when each \code{from pool} has exactly one \code{to
-pool}.  However, these must be specified when more than one \code{to pool}
-exists for any transfer involved in a process, i.e., indicies are grouped
-when transfers represent optional pathways. For instance, if a process has
-four transfers (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC),
-the second and third transfers can represent an option.  fromB can go to
-either toB1 or toB2, so long as the sum of the two options is in
-stoichiometric balance with the A and C tranfers.  To represent such an
-option, the transferOption list would be \code{list(1, 2:3, 4)}.}
+appropriate when each \code{from pool} has exactly one \code{to pool}.
+However, these must be specified when more than one \code{to pool} exists
+for any transfer involved in a process, i.e., indicies are grouped when
+transfers represent optional pathways. For instance, if a process has four
+transfers (fromA -> toA, fromB -> toB1, fromB -> toB2, fromC -> toC), the
+second and third transfers can represent an option.  fromB can go to either
+toB1 or toB2, so long as the sum of the two options is in stoichiometric
+balance with the A and C tranfers.  To represent such an option, the
+transferOption list would be \code{list(1, 2:3, 4)}.}
 
 \item{organismName}{Name of the organism carrying out the \code{process}.}
 }
 \value{
-\code{compoundFactory} returns a list of \code{compound} and \code{pool}
-  objects. \code{processFactory} return a list of \code{process} and
-  \code{transfer} objects.
+\code{compoundFactory} returns a list of \code{compound} and
+  \code{pool} objects. \code{processFactory} return a list of \code{process}
+  and \code{transfer} objects.
 }
 \description{
 \code{compoundFactory} and \code{processFactory} are the primary functions
@@ -111,10 +120,10 @@ each element of interest (i.e., tracked element) within a \code{compound} are
 tracked using a \code{pool}.  Each \code{pool} records the mols of a tracked
 element in the \code{compound}.
 
-The \code{molarRatios} describe the chemical composition of the
-tracked elements contained in compounds. For example, the \code{molarRatios}
-for water could be represented as \code{c(H = 2, O = 1)} because a molecule
-of water is composed of two hydrogen atoms and one oxygen atom.
+The \code{molarRatios} describe the chemical composition of the tracked
+elements contained in compounds. For example, the \code{molarRatios} for
+water could be represented as \code{c(H = 2, O = 1)} because a molecule of
+water is composed of two hydrogen atoms and one oxygen atom.
 
 Not all elements in a \code{compound} must be tracked.  The model developer
 only creates \code{pool}s for the elements of interest.  For instance, when
@@ -135,27 +144,28 @@ attribute called \code{respirationRate} For \code{organism}s, the
 \code{respirationRate} is energy (J, KJ, etc.) per mol (or umol, etc.) of
 \code{compound} per timestep.
 
-\code{pool} objects have attributes called \code{name}, \code{elementName} which is
-the chemical element stored in the \code{pool}, \code{compoundName} which
-indicates the compound with which the pool is associated, and
+\code{pool} objects have attributes called \code{name}, \code{elementName}
+which is the chemical element stored in the \code{pool}, \code{compoundName}
+which indicates the compound with which the pool is associated, and
 \code{molarRatio} which describes the ratio of atoms in the \code{pool} per
 unit molecule, i.e., \code{compound}.
 
-\code{process} objects have attributes called \code{name}, \code{energyTerm} which
-is equal to the energy generated or consumed by the \code{process},
+\code{process} objects have attributes called \code{name}, \code{energyTerm}
+which is equal to the energy generated or consumed by the \code{process},
 \code{organismName} which is the name of the \code{organism} carrying out the
 \code{process}, and \code{transferOptions} which are indices for the
-\code{transfer}s associated with each \code{process}.  Each \code{process} with
-nonzero \code{energyTerm} is of class "metabolic."
+\code{transfer}s associated with each \code{process}.  Each \code{process}
+with nonzero \code{energyTerm} is of class "metabolic."
 
-\code{transfer} objects have attributes called \code{name}, \code{from} which is the
-\code{pool} from which atoms are being transfered, \code{to} which is the
-\code{pool} to which atoms are being transfered, \code{molarTerm} which
+\code{transfer} objects have attributes called \code{name}, \code{from} which
+is the \code{pool} from which atoms are being transfered, \code{to} which is
+the \code{pool} to which atoms are being transfered, \code{molarTerm} which
 enforces the stoichiometry of the \code{process}, \code{molarAffinity} which
 is equal to the \code{energyTerm} of the \code{process} divided by the
 \code{molarTerm} of the \code{transfer}, \code{processName} which is the name
 of the \code{process} that the \code{transfer} is associated with, and
-\code{limitToInitMolecules} which is a Boolean that inherits from \code{process}.
+\code{limitToInitMolecules} which is a Boolean that inherits from
+\code{process}.
 
 \code{gangsta}-derived models can operate using any unit of atomic count unit
 (mols, umols, etc.), unit of energy (Joules, KJ, etc.) over any time unit
