@@ -31,6 +31,14 @@ makeCompoundEndMolVars = function(compoundNames) {
   return(makeGenericVars(compoundNames, "endSuffixCompound"))
 }
 
+makeIsotopicRatioStartMolVars = function(poolNames, isotopeNames) {
+  return(makeGenericVars(poolNames, isotopeNames, varTag = "startSuffixIsotopicRatio"))
+}
+
+makeIsotopicRatioEndMolVars = function(poolNames, isotopeNames) {
+  return(makeGenericVars(poolNames, isotopeNames, varTag = "endSuffixIsotopicRatio"))
+}
+
 makePoolStartMolVars = function(poolNames) {
   return(makeGenericVars(poolNames, "startSuffixPool"))
 }
@@ -62,12 +70,14 @@ makeExpressions = function(gangstaObjects) {
   ## Get gangsta.option values
   endSuffixPool = gangstaVarName("endSuffixPool")
   endSuffixCompound = gangstaVarName("endSuffixCompound")
+  endSuffixIsotopicRatio = gangstaVarName("endSuffixIsotopicRatio")
 
   energySuffixProcess = gangstaVarName("energySuffixProcess")
   energySuffixOrganism = gangstaVarName("energySuffixOrganism")
 
   startSuffixPool = gangstaVarName("startSuffixPool")
   startSuffixCompound = gangstaVarName("startSuffixCompound")
+  startSuffixIsotopicRatio = gangstaVarName("startSuffixIsotopicRatio")
 
   transSuffix = gangstaVarName("transSuffix")
 
@@ -91,6 +101,8 @@ makeExpressions = function(gangstaObjects) {
   limitToStartAttrName = gangstaAttributeName("limitToStartMols")
   molarRatioAttrName = gangstaAttributeName("molRatio")
   initialMolsAttrName = gangstaAttributeName("initialMolecules")
+  isotopicRatioAttrName = gangstaAttributeName("isotopicRatio")
+  initialIsotopicRatioAttrName = gangstaAttributeName("initialIsotopicRatio")
   compNameAttrName =  gangstaAttributeName("compName")
   InfiniteCompoundAttrName = gangstaAttributeName("infiniteCompound")
   energyTermAttrName = gangstaAttributeName("energy")
@@ -203,6 +215,34 @@ makeExpressions = function(gangstaObjects) {
       c(
         initialMoleculesHeader,
         paste(compoundStartMolVarNames, "=", initialCompoundMols)
+      )
+    return(expressions)
+  }
+
+  exprsnInitialIsotopicRatios = function() {
+    poolsWithIsotopeTracking = subsetGangstas(gangstaObjects, "class", poolClassName)
+    poolsWithIsotopeTrackingNames = getGangstaAttribute(poolsWithIsotopeTracking, nameAttrName)
+
+    poolWithIsotopeTrackingNumberOfIsotopes = sapply(getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName),
+                                                     length)
+
+    poolNamesForEachIsotope = unlist(mapply(rep,
+                                            poolsWithIsotopeTrackingNames,
+                                            times = poolWithIsotopeTrackingNumberOfIsotopes))
+
+    isotopeMasses = sapply(getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName), name)
+
+    isotopicRatioStartVarNames = makeIsotopicRatioStartMolVars(poolNamesForEachIsotope, isotopeMasses)
+
+    initialIsotopicRatios = unlist(getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName))
+
+    initialIsotopicRatiosHeader =
+      makeLPSolveHeader("Set Pool.initialIsotopicRatio", F)
+
+    expressions =
+      c(
+        initialIsotopicRatiosHeader,
+        paste(isotopicRatioStartVarNames, "=", initialIsotopicRatios)
       )
     return(expressions)
   }

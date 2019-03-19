@@ -196,9 +196,8 @@ enableIsotopeTracking = function(gangstaObjects, elementList){
   # isotopes are to be tracked
 
   addOneIsotopicRatio <- function(poolObj, isotopes){
-    poolObj$isotopicRatios <- structure(.Data = rep("NA", times = length(isotopes)),
-                                        names = isotopes,
-                                        class = "numeric")
+    poolObj$isotopicRatios <- structure(.Data = as.numeric(rep(NA, times = length(isotopes))),
+                                        names = isotopes)
   }
 
   addIsotopicRatiosSingleElement <- function(poolObjectElementIdxSubset, isotopes){
@@ -210,6 +209,7 @@ enableIsotopeTracking = function(gangstaObjects, elementList){
   mapply(addIsotopicRatiosSingleElement,
          poolObjectElementIdxSubset = poolObjectElementIdx,
          isotopes = elementList)
+return(gangstaObjects)
 }
 
 #' @rdname compoundFactory

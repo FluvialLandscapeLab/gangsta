@@ -32,9 +32,11 @@
 
         startSuffixPool = "initialAtoms",
         startSuffixCompound = "initialMolecules",
+        startSuffixIsotopicRatio = "initialIsotopicRatio",
 
         endSuffixPool = "finalAtoms",
         endSuffixCompound = "finalMolecules",
+        endSuffixIsotopicRatio = "finalIsotopicRatio",
 
         energySuffixProcess = "netEnergy",
         energySuffixOrganism = "totalProcessEnergy",
@@ -57,6 +59,7 @@
       molRatio = "molarRatio",
       initialMolecules = "initialMolecules",
       finalMolecules = "finalMolecules",
+      isotopicRatio = "isotopicRatio",
       infiniteCompound = "infiniteCompound",
       energy = "energyTerm",
       element = "elementName",
