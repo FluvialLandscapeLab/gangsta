@@ -166,7 +166,7 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
 
 #' @rdname compoundFactory
 #' @export
-enableIsotopeTracking = function(gangstaObjects, elementList){
+enableIsotopeTracking = function(gangstaObjects, elementList, initialIsotopicRatiosbyPool){
   poolObjectIdx = subsetGangstas(gangstaObjects, "class", getOption("gangsta.classes")["pool"], asIndex = T)
   poolObjects = gangstaObjects[poolObjectIdx]
   elementNames = names(elementList)
@@ -207,6 +207,24 @@ enableIsotopeTracking = function(gangstaObjects, elementList){
       ),
       recursive = F
     )
+
+  # Throw an error if user did not include initialIsotopicRatios for a pool
+  # associated with an element in ElementList
+
+  # Throw an error if user supplied initialIsotopicRatios are not the
+  # same length or don't have the same names as the isotopes for a particular
+  # element specified in elementList
+
+  revisedPoolObjects =
+    Map(
+      function(poolObject, initialIsotopicRatios){
+        poolObject$isotopicRatios <- initialIsotopicRatios
+        return(poolObject)
+      },
+      revisedPoolObjects[names(initialIsotopicRatiosbyPool)],
+      initialIsotopicRatiosbyPool
+    )
+
   gangstaObjects[names(revisedPoolObjects)] <- revisedPoolObjects
   return(gangstaObjects)
 }

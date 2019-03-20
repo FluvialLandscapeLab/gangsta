@@ -4,3 +4,5 @@ doc
 .Rhistory
 .RData
 inst/doc
+vignettes/gangsta_v1.0_vignette_isotopes.R
+vignettes/vignette.lp
