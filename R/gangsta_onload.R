@@ -59,7 +59,7 @@
       molRatio = "molarRatio",
       initialMolecules = "initialMolecules",
       finalMolecules = "finalMolecules",
-      isotopicRatio = "isotopicRatio",
+      isotopicRatios = "isotopicRatios",
       infiniteCompound = "infiniteCompound",
       energy = "energyTerm",
       element = "elementName",
