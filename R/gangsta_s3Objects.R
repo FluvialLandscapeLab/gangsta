@@ -168,6 +168,7 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
 #' @export
 enableIsotopeTracking = function(gangstaObjects, elementList){
   poolObjectIdx = subsetGangstas(gangstaObjects, "class", getOption("gangsta.classes")["pool"], asIndex = T)
+  poolObjects = gangstaObjects[poolObjectIdx]
   elementNames = names(elementList)
   # error check for duplicate elements
   if(!(length(elementNames) == length(unique(elementNames)))){
@@ -176,40 +177,38 @@ enableIsotopeTracking = function(gangstaObjects, elementList){
   # Create index vectors to subset Gangstas based on each element name
   # Each element of the poolObjectElementIdx is an element-specific
   # logical vector that could be used to subset pool Gangstas
-  poolObjectElementIdx = lapply(elementNames,
+  poolObjectsByElement = lapply(elementNames,
                                 subsetGangstas,
-                                gangstaObjects = gangstaObjects[poolObjectIdx],
-                                attributeName = "elementName",
-                                asIndex = T)
-  names(poolObjectElementIdx) <- elementNames
+                                gangstaObjects = poolObjects,
+                                attributeName = "elementName")
+
+  # Might not need this line: names(poolObjectElementIdx) <- elementNames
 
   # Throw a warning for elements in element list that aren't in the model
-  matches <- sapply(poolObjectElementIdx, sum)
+  doesNotMatch <- sapply(poolObjectsByElement, function(x) length(x)==0)
+  if (any(doesNotMatch)) warning("The following elements are in elementList but not in the model:",
+                              paste0(elementNames[doesNotMatch], collapse = ", " ))
 
-  for(i in 1:length(matches)){
-    if (matches[i] < 1){
-      warning(print(elementNames[i], "is in elementList but not in the model"))
-    }
-  }
 
-  # Create isotopic ratios attributes for each pool object with an element whose
-  # isotopes are to be tracked
-
-  addOneIsotopicRatio <- function(poolObj, isotopes){
-    poolObj$isotopicRatios <- structure(.Data = as.numeric(rep(NA, times = length(isotopes))),
-                                        names = isotopes)
-  }
-
-  addIsotopicRatiosSingleElement <- function(poolObjectElementIdxSubset, isotopes){
-    lapply(gangstaObjects[poolObjectIdx][poolObjectElementIdxSubset],
-           addOneIsotopicRatio,
-           isotopes = isotopes)
-  }
-
-  mapply(addIsotopicRatiosSingleElement,
-         poolObjectElementIdxSubset = poolObjectElementIdx,
-         isotopes = elementList)
-return(gangstaObjects)
+  revisedPoolObjects =
+    unlist(
+      Map(
+        function(poolObjects, isotopeNames) {
+          lapply(
+            poolObjects,
+            function(poolObject) {
+              poolObject$isotopicRatios = structure(rep(as.numeric(NA), length(isotopeNames), names = isotopeNames))
+              return(poolObject)
+            }
+          )
+        },
+        poolObjectsByElement,
+        elementList
+      ),
+      recursive = F
+    )
+  gangstaObjects[names(revisedPoolObjects)] <- revisedPoolObjects
+  return(gangstaObjects)
 }
 
 #' @rdname compoundFactory
