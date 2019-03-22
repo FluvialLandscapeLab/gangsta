@@ -36,7 +36,7 @@
 
         endSuffixPool = "finalAtoms",
         endSuffixCompound = "finalMolecules",
-        endSuffixIsotopicRatio = "finalIsotopicRatio",
+        endSuffixIsotopicRatio = "finalIsotopicMols",
 
         energySuffixProcess = "netEnergy",
         energySuffixOrganism = "totalProcessEnergy",

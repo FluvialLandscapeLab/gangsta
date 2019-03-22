@@ -31,11 +31,11 @@ makeCompoundEndMolVars = function(compoundNames) {
   return(makeGenericVars(compoundNames, "endSuffixCompound"))
 }
 
-makeIsotopicRatioStartMolVars = function(poolNames, isotopeNames) {
+makePoolStartIsotopicRatioVars = function(poolNames, isotopeNames) {
   return(makeGenericVars(paste0(poolNames, isotopeNames), varTag = "startSuffixIsotopicRatio", separator = "."))
 }
 
-makeIsotopicRatioEndMolVars = function(poolNames, isotopeNames) {
+makePoolEndIsotopeMolsVars = function(poolNames, isotopeNames) {
   return(makeGenericVars(paste0(poolNames, isotopeNames), varTag = "endSuffixIsotopicRatio", separator = "."))
 }
 
@@ -228,15 +228,13 @@ makeExpressions = function(gangstaObjects) {
                                          poolsWithIsotopeTrackingNames,
                                          times = numberOfIsotopesByPool),
                                      use.names = F)
-
     isotopeMasses = unlist(lapply(getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName), names), use.names = F)
-
-    isotopicRatioStartVarNames = makeIsotopicRatioStartMolVars(poolNamesForEachIsotope, isotopeMasses)
+    isotopicRatioStartVarNames = makePoolStartIsotopicRatioVars(poolNamesForEachIsotope, isotopeMasses)
 
     initialIsotopicRatios = unlist(getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName))
 
     initialIsotopicRatiosHeader =
-      makeLPSolveHeader("Set Pool.initialIsotopicRatio", F)
+      makeLPSolveHeader("Set Pool_Isotope.initialIsotopicRatio", F)
 
     expressions =
       c(
@@ -429,6 +427,115 @@ makeExpressions = function(gangstaObjects) {
     return(expressions)
   }
 
+  exprsnIsotopeBalance = function() {
+    poolsWithIsotopeTracking = gangstaObjects[which(!sapply(getGangstaAttribute(gangstaObjects, isotopicRatioAttrName), is.null))]
+    poolsWithIsotopeTrackingNames = names(poolsWithIsotopeTracking)
+
+    poolStartMolVars = makePoolStartMolVars(poolsWithIsotopeTrackingNames)
+
+    numberOfIsotopesByPool = lapply(getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName), length)
+    poolNamesForEachIsotope = Map(rep,
+                                  poolsWithIsotopeTrackingNames,
+                                  times = numberOfIsotopesByPool)
+
+    isotopeMasses = unlist(lapply(getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName), names), use.names = F)
+    poolEndIsotopicMolVars = makePoolEndIsotopeMolsVars(unlist(poolNamesForEachIsotope), isotopeMasses)
+
+    initialIsotopicRatiosByPool = getGangstaAttribute(poolsWithIsotopeTracking, isotopicRatioAttrName)
+
+    poolStartIsotopicMolVars = mapply(function(poolStartMolVar, initialIsotopicRatios){
+      sapply(initialIsotopicRatios, function(isotopicRatio){
+        paste(isotopicRatio, poolStartMolVar)
+      }
+      )
+    },
+    poolStartMolVar = poolStartMolVars,
+    initialIsotopicRatios = initialIsotopicRatiosByPool
+    )
+
+    transfers = subsetGangstas(gangstaObjects, "class", transClassName)
+
+    transfersIn = lapply(poolsWithIsotopeTrackingNames, subsetGangstas, gangstaObjects = transfers, attributeName = toPoolAttrName)
+    transferInNames = lapply(transfersIn, getGangstaAttribute, nameAttrName)
+    transferInVars = lapply(transferInNames, makeTransferMolTransVars)
+
+    transferInFromPoolNamesByToPool = lapply(transfersIn, getGangstaAttribute, fromPoolAttrName)
+    transfersInFromPoolsByToPool = lapply(transferInFromPoolNamesByToPool,
+                                          function(transferInFromPoolNames) {
+                                            sapply(transferInFromPoolNames,
+                                                   subsetGangstas,
+                                                   gangstaObjects = poolsWithIsotopeTracking,
+                                                   attributeName = nameAttrName)
+                                          }
+    )
+    transfersInFromPoolsIsotopicRatios = lapply(transfersInFromPoolsByToPool,
+                                                function(transfersInFromPools) {
+                                                  lapply(transfersInFromPools,
+                                                         "[[",
+                                                         isotopicRatioAttrName)
+                                                }
+    )
+
+    transfersOut = lapply(poolsWithIsotopeTrackingNames, subsetGangstas, gangstaObjects = transfers, attributeName = fromPoolAttrName)
+    transferOutNames = lapply(transfersOut, getGangstaAttribute, nameAttrName)
+    transferOutVars = lapply(transferOutNames, makeTransferMolTransVars)
+
+    transferInSumString = mapply(
+      function(transferInVars, fromPoolsIsotopicRatios){
+        noFromPools = length(transferInVars)
+        if(noFromPools>=1){
+          noIsotopes = length(fromPoolsIsotopicRatios[[1]])
+          sapply(1:noIsotopes,
+                 function(isotope){
+                   fromPoolsSingleIsotopeRatios = sapply(1:noFromPools,
+                                                         function(fromPool){
+                                                           fromPoolsIsotopicRatios[[fromPool]][isotope]
+                                                         }
+                   )
+                   paste("+", paste0(paste(fromPoolsSingleIsotopeRatios, transferInVars), collapse = " + "))
+                 }
+          )
+        }
+      },
+      transferInVars = transferInVars,
+      fromPoolsIsotopicRatios = transfersInFromPoolsIsotopicRatios
+    )
+
+    transferOutSumString = mapply(
+      function(transferOutVars, initialIsotopicRatios){
+        sapply(initialIsotopicRatios,
+               function(initialIsotopicRatio){
+                paste("-", paste0(paste(initialIsotopicRatio, transferOutVars), collapse = " - "))
+               }
+        )
+      },
+      transferOutVars = transferOutVars,
+      initialIsotopicRatios = initialIsotopicRatiosByPool
+    )
+
+    lapply(numberOfIsotopesByPool[sapply(transfersIn, length) == 0],
+           function(noIsotopes) rep("", times = noIsotopes)
+           )
+
+    transferInSumString[sapply(transfersIn, length) == 0] = lapply(numberOfIsotopesByPool[sapply(transfersIn, length) == 0],
+                                                                   function(noIsotopes) rep("", times = noIsotopes))
+
+    transferOutSumString[sapply(transfersOut, length) == 0] = lapply(numberOfIsotopesByPool[sapply(transfersOut, length) == 0],
+                                                                     function(noIsotopes) rep("", times = noIsotopes))
+
+    expressions = paste0(poolEndIsotopicMolVars, " = ", unlist(poolStartIsotopicMolVars), " ", unlist(transferInSumString),  " ", unlist(transferOutSumString))
+
+    isotopicBalHeader =
+      makeLPSolveHeader("Isotopic molar balance must be conserved", F)
+
+    expressions =
+      c(
+        isotopicBalHeader,
+        expressions
+      )
+
+    return(expressions)
+  }
   exprsnLimitToStartingMol = function() {
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
     compounds = subsetGangstas(compounds, InfiniteCompoundAttrName, F)
@@ -494,6 +601,8 @@ makeExpressions = function(gangstaObjects) {
   # MolBalance Expressions
   molBalExprsns = exprsnMolBalance()
 
+  # IsotopeBalance Expressions
+  isotopeBalExprsns = exprsnIsotopeBalance()
 
   limitToStartExprsns = exprsnLimitToStartingMol()
 
@@ -521,7 +630,8 @@ makeExpressions = function(gangstaObjects) {
     energyBalExprsns,
 
     makeLPSolveHeader("ISOTOPIC CONSTRAINTS", T),
-    initialIsotopicRatioExprsns
+    initialIsotopicRatioExprsns,
+    isotopeBalExprsns
   )
   return(allExpressions)
 }
