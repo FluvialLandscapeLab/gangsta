@@ -166,7 +166,7 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
 
 #' @rdname compoundFactory
 #' @export
-enableIsotopeTracking = function(gangstaObjects, elementList, initialIsotopicRatiosbyPool){
+enableIsotopeTracking = function(gangstaObjects, elementList, initialIsotopicRatios){
   poolObjectIdx = subsetGangstas(gangstaObjects, "class", getOption("gangsta.classes")["pool"], asIndex = T)
   poolObjects = gangstaObjects[poolObjectIdx]
   elementNames = names(elementList)
@@ -174,39 +174,41 @@ enableIsotopeTracking = function(gangstaObjects, elementList, initialIsotopicRat
   if(!(length(elementNames) == length(unique(elementNames)))){
     stop("One or more elementList names are duplicated")
   }
-  # Create index vectors to subset Gangstas based on each element name
-  # Each element of the poolObjectElementIdx is an element-specific
-  # logical vector that could be used to subset pool Gangstas
+  # Sort pool objects to be replaced by element
   poolObjectsByElement = lapply(elementNames,
                                 subsetGangstas,
                                 gangstaObjects = poolObjects,
                                 attributeName = "elementName")
 
-  # Might not need this line: names(poolObjectElementIdx) <- elementNames
-
   # Throw a warning for elements in element list that aren't in the model
-  doesNotMatch <- sapply(poolObjectsByElement, function(x) length(x)==0)
+  doesNotMatch = sapply(poolObjectsByElement, function(x) length(x)==0)
   if (any(doesNotMatch)) warning("The following elements are in elementList but not in the model:",
                               paste0(elementNames[doesNotMatch], collapse = ", " ))
 
-
-  revisedPoolObjects =
+  # Make new pools for each isotope
+  isotopeSpecificPools =
     unlist(
-      Map(
-        function(poolObjects, isotopeNames) {
-          lapply(
-            poolObjects,
-            function(poolObject) {
-              poolObject$isotopicRatios = structure(rep(as.numeric(NA), length(isotopeNames), names = isotopeNames))
-              return(poolObject)
-            }
+      unlist(
+        Map(function(poolObjects, isotopeNames){
+          lapply(poolObjects,
+                 function(poolObject){
+                   isotopeSpecificPoolObjects = Map(pool,
+                                                    compoundName = poolObject$compoundName,
+                                                    elementName = paste0(poolObject$elementName,isotopeNames),
+                                                    molarRatio = poolObject$molarRatio,
+                                                    isotopicRatio = initialIsotopicRatios[[poolObject$name]])
+                   return(isotopeSpecificPoolObjects)
+                 }
           )
         },
         poolObjectsByElement,
         elementList
+        ),
+        recursive = F
       ),
       recursive = F
     )
+  names(isotopeSpecificPools) = lapply(isotopeSpecificPools, function(poolObject) poolObject$name)
 
   # Throw an error if user did not include initialIsotopicRatios for a pool
   # associated with an element in ElementList
@@ -215,18 +217,13 @@ enableIsotopeTracking = function(gangstaObjects, elementList, initialIsotopicRat
   # same length or don't have the same names as the isotopes for a particular
   # element specified in elementList
 
-  revisedPoolObjects =
-    Map(
-      function(poolObject, initialIsotopicRatios){
-        poolObject$isotopicRatios <- initialIsotopicRatios
-        return(poolObject)
-      },
-      revisedPoolObjects[names(initialIsotopicRatiosbyPool)],
-      initialIsotopicRatiosbyPool
-    )
+  # Make new list of gangsta objects by concatenating new isotope specific pools with
+  # the old gangsta list subsetted to exclude pools that have been "split" by isotope
 
-  gangstaObjects[names(revisedPoolObjects)] <- revisedPoolObjects
-  return(gangstaObjects)
+  newGangstaObjects = c(gangstaObjects[!names(gangstaObjects) %in% names(unlist(poolObjectsByElement, recursive = F))],
+                        isotopeSpecificPools)
+
+  return(newgangstaObjects)
 }
 
 #' @rdname compoundFactory
@@ -302,11 +299,14 @@ compound = function(compoundName, initialMolecules, respirationRate = NA, infini
 }
 
 # @rdname compoundFactory
-# @param elementName The name of the element contained by the created
+# @param isotopeName The name of the isotope or element contained by the created
 #   \code{pool}.
-pool = function(compoundName, elementName, molarRatio) {
+pool = function(compoundName, elementName, molarRatio, isotopicRatio = NA) {
   poolName = makePoolNames(compoundName, elementName)
   newPool = list(name = poolName, elementName = elementName, compoundName = compoundName, molarRatio = molarRatio)
+  if(!is.na(isotopicRatio)){
+    newPool$isotopicRatio = isotopicRatio
+  }
   class(newPool) = c("pool", "gangsta")
   return(newPool)
 }

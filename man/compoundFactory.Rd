@@ -9,8 +9,7 @@
 compoundFactory(compoundName, molarRatios, initialMolecules,
   respirationRate = NA, infiniteCompound = F)
 
-enableIsotopeTracking(gangstaObjects, elementList,
-  initialIsotopicRatiosbyPool)
+enableIsotopeTracking(gangstaObjects, elementList, initialIsotopicRatios)
 
 processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
   toCompoundNames, molarTerms, transferOptions = NULL,
