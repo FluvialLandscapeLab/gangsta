@@ -64,7 +64,7 @@ makeLPSolveHeader = function(headerText, majorHeader = F) {
   }
   return(header)
 }
-
+#' @export
 makeExpressions = function(gangstaObjects) {
 
   ## Get gangsta.option values
@@ -101,7 +101,7 @@ makeExpressions = function(gangstaObjects) {
   limitToStartAttrName = gangstaAttributeName("limitToStartMols")
   molarRatioAttrName = gangstaAttributeName("molRatio")
   initialMolsAttrName = gangstaAttributeName("initialMolecules")
-  isotopicRatioAttrName = gangstaAttributeName("isotopicRatios")
+  isotopicRatioAttrName = gangstaAttributeName("isotopicRatio")
   initialIsotopicRatioAttrName = gangstaAttributeName("initialIsotopicRatio")
   compNameAttrName =  gangstaAttributeName("compName")
   InfiniteCompoundAttrName = gangstaAttributeName("infiniteCompound")
@@ -245,35 +245,78 @@ makeExpressions = function(gangstaObjects) {
   }
 
   exprsnCompoundStoich = function() {
+    #get pool objects
     pools = subsetGangstas(gangstaObjects, "class", poolClassName)
-    poolNames = getGangstaAttribute(pools, nameAttrName)
-    molarRatios = getGangstaAttribute(pools, molarRatioAttrName)
 
-    # get compound name and then compound objects and then initial compound mols for each pool
+    # get compound names for each pool and then compound objects
     compoundNames = getGangstaAttribute(pools, compNameAttrName)
     compounds = getGangstas(gangstaObjects, compoundNames)
 
+    # Create a list whose elements contain pools associated with one compound and one element
+    elementNames = sapply(pools, function(pool) substr(pool[[elementAttrName]], 1, 1))
+    uniqueCompoundElementCombos = !duplicated(paste0(compoundNames, elementNames))
+    poolsbyCompoundandElement = mapply(function(compoundName, elementName){
+      poolsforOneCompoundAndElement = subsetGangstas(
+        pools[sapply(pools, function(pool) substr(pool[[elementAttrName]],1,1)== elementName)],
+        attributeName = compNameAttrName,
+        attributeValue = compoundName
+      )
+    },
+    compoundName = compoundNames[uniqueCompoundElementCombos],
+    elementName = elementNames[uniqueCompoundElementCombos]
+    )
+
+    # Re-order compoundNames vector so that compound Names correspond with
+    # elements in the "poolsbyCompoundandElement" list
+    compoundNames = compoundNames[uniqueCompoundElementCombos]
+
+    # Get pool names
+    poolNames = lapply(poolsbyCompoundandElement, getGangstaAttribute, nameAttrName)
+
+    # Get molar ratios for each group of pools
+    molarRatios = lapply(poolsbyCompoundandElement, getGangstaAttribute, molarRatioAttrName)
+
     # Starting stoichiometry expressions
-    poolStartMolVarNames = makePoolStartMolVars(poolNames)
-    compoundStartMolVarNames = makeCompoundStartMolVars(compoundNames)
+    poolStartMolVarNames = lapply(poolNames, makePoolStartMolVars)
+    compoundStartMolVarNames = lapply(compoundNames, makeCompoundStartMolVars)
+
     startStoichHeader =
       makeLPSolveHeader("For each elemental Pool, the Pool.initialAtoms must conform to Compound stoichiometry (Exprsn. 3)", F)
+
+     startStoichEquations = mapply(function(poolStartMolVarNames, compoundStartMolVarNames, molarRatios){
+      paste(paste0(poolStartMolVarNames, collapse = " + "), "=", molarRatios[[1]],compoundStartMolVarNames)
+    },
+    poolStartMolVarNames = poolStartMolVarNames,
+    compoundStartMolVarNames = compoundStartMolVarNames,
+    molarRatios = molarRatios
+    )
+
     expressions =
       c(
         startStoichHeader,
-        paste(poolStartMolVarNames, "=", molarRatios, compoundStartMolVarNames)
+        startStoichEquations
         )
 
     # Ending stoichiometry expressions
-    poolEndMolVarNames = makePoolEndMolVars(poolNames)
-    compoundEndMolVarNames = makeCompoundEndMolVars(compoundNames)
+    poolEndMolVarNames = lapply(poolNames, makePoolEndMolVars)
+    compoundEndMolVarNames = lapply(compoundNames, makeCompoundEndMolVars)
+
     endStoichHeader =
       makeLPSolveHeader("For each elemental Pool, the Pool.finalAtoms must conform to Compound stoichiometry (Exprsn. 4)", F)
+
+    endStoichEquations = mapply(function(poolEndMolVarNames, compoundEndMolVarNames, molarRatios){
+      paste(paste0(poolEndMolVarNames, collapse = " + "), "=", molarRatios[[1]],compoundEndMolVarNames)
+    },
+    poolEndMolVarNames = poolEndMolVarNames,
+    compoundEndMolVarNames = compoundEndMolVarNames,
+    molarRatios = molarRatios
+    )
+
     expressions =
       c(
         expressions,
         endStoichHeader,
-        paste(poolEndMolVarNames, "=", molarRatios, compoundEndMolVarNames)
+        endStoichEquations
       )
     return(expressions)
   }
@@ -627,15 +670,15 @@ makeExpressions = function(gangstaObjects) {
     makeLPSolveHeader("ENERGETIC CONSTRAINTS", T),
     respEnergyExprsns,
     processEnergyExprsns,
-    energyBalExprsns,
-
-    makeLPSolveHeader("ISOTOPIC CONSTRAINTS", T),
-    initialIsotopicRatioExprsns,
-    isotopeBalExprsns
+    energyBalExprsns
+#
+#     makeLPSolveHeader("ISOTOPIC CONSTRAINTS", T),
+#     initialIsotopicRatioExprsns,
+#     isotopeBalExprsns
   )
   return(allExpressions)
 }
-
+#' @export
 formatExpressions = function(expressions) {
   expressions =
     sapply(
