@@ -223,7 +223,45 @@ enableIsotopeTracking = function(gangstaObjects, elementList, initialIsotopicRat
   newGangstaObjects = c(gangstaObjects[!names(gangstaObjects) %in% names(unlist(poolObjectsByElement, recursive = F))],
                         isotopeSpecificPools)
 
-  return(newgangstaObjects)
+  # get all transfers from gangstaObjects
+  transfers = subsetGangstas(gangstaObjects, "class", getOption("gangsta.classes")["trans"])
+  # subset transfers with from and to pools that have been modified
+  fromPoolNames = getGangstaAttribute(transfers, getOption("gangsta.attributes")["fromPool"])
+  transfersWithIsotopeTracking = transfers[fromPoolNames %in% names(unlist(poolObjectsByElement, recursive = F))]
+  # get the names of the element associated with each transfer
+  transfersWithIsotopeTrackingFromPools = poolObjects[getGangstaAttribute(transfersWithIsotopeTracking, getOption("gangsta.attributes")["fromPool"])]
+  transfersWithIsotopeTrackingToPools = poolObjects[getGangstaAttribute(transfersWithIsotopeTracking, getOption("gangsta.attributes")["toPool"])]
+  transferFromPoolCompounds = getGangstaAttribute(transfersWithIsotopeTrackingFromPools, getOption("gangsta.attributes")["compName"])
+  transferToPoolCompounds = getGangstaAttribute(transfersWithIsotopeTrackingToPools, getOption("gangsta.attributes")["compName"])
+  transferElements = getGangstaAttribute(transfersWithIsotopeTrackingFromPools, getOption("gangsta.attributes")["element"])
+
+  # make new transfers by making a copy of the transfer for each isotope and replacing the from and to pool names
+  isotopeSpecificTransfers = unlist(mapply(function(transfer, fromCompound, toCompound, element){
+    isotopeMasses = elementList[[element]]
+    newTransfers = lapply(isotopeMasses,
+                          function(isotopeMass) {
+                            newTransfer = transfer
+                            newTransfer[[getOption("gangsta.attributes")["fromPool"]]] = paste0(fromCompound,"_", element, isotopeMass)
+                            newTransfer[[getOption("gangsta.attributes")["toPool"]]] = paste0(toCompound,"_", element, isotopeMass)
+                            newTransfer[[getOption("gangsta.attributes")["name"]]]= paste0(transfer[[getOption("gangsta.attributes")["procName"]]],"_",
+                                                                                           fromCompound,"_", element, isotopeMass, "_",
+                                                                                           toCompound,"_", element, isotopeMass)
+                            return(newTransfer)
+                          }
+    )
+  },
+  transfer = transfersWithIsotopeTracking,
+  fromCompound = transferFromPoolCompounds,
+  toCompound = transferToPoolCompounds,
+  element = transferElements
+  ),
+  recursive = F)
+  names(isotopeSpecificTransfers) = getGangstaAttribute(isotopeSpecificTransfers,getOption("gangsta.attributes")["name"])
+  # replace old transfers
+  newGangstaObjects = c(newGangstaObjects[!names(newGangstaObjects) %in% names(transfersWithIsotopeTracking)],
+                        isotopeSpecificTransfers)
+
+  return(newGangstaObjects)
 }
 
 #' @rdname compoundFactory
