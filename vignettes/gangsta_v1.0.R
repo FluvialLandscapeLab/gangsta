@@ -82,7 +82,7 @@ myGangstas =
     processFactory(
       myGangstas,
       processName = "AutNitrif",
-      energyTerm = 3.485E-4, 
+      energyTerm = 3.485E-4,
       fromCompoundNames = list(N = "NH4", O = "O2", O = "O2"),
       toCompoundNames = list(N = "NO3", O = "NO3", O = "Ox"),
       molarTerms = list(N = 1, O = 3, O = 1),
@@ -91,7 +91,7 @@ myGangstas =
     processFactory(
       myGangstas,
       processName = "MetMethaneOxid",
-      energyTerm = 8.18E-4, 
+      energyTerm = 8.18E-4,
       fromCompoundNames = list(C = "CH4", O = "O2", O = "O2"),
       toCompoundNames = list(C = "CO2", O = "CO2", O = "Ox"),
       molarTerms = list(C = 1, O = 2, O = 2),
@@ -186,20 +186,19 @@ myGangstas =
   )
 
 ## ----eval = FALSE--------------------------------------------------------
-#  writeGangstaModel(gangstaObjects = myGangstas, file = file.choose())
+writeGangstaModel(gangstaObjects = myGangstas, file = file.choose())
 
 ## ----eval = FALSE--------------------------------------------------------
-#  install.packages("lpSolveAPI")
-#  library(lpSolveAPI)
+library(lpSolveAPI)
 
 ## ----eval = FALSE--------------------------------------------------------
-#  lpModel = read.lp(file.choose(), verbose = "normal")
+lpModel = read.lp(file.choose(), verbose = "normal")
 
 ## ----eval = FALSE--------------------------------------------------------
-#  solve(lpModel)
+solve(lpModel)
 
 ## ----eval = FALSE--------------------------------------------------------
-#  results = get.variables(lpModel)
-#  names(results) = dimnames(lpModel)[[2]]
-#  results
+results = get.variables(lpModel)
+names(results) = dimnames(lpModel)[[2]]
+results
 

@@ -1,5 +1,6 @@
 # Load Gangsta Rapper Functions
-source("./R/gangsta_rapper_functions.R")
+source("/Users/libbymohr-msu/Documents/MSU/RProjects/gangsta/R/gangsta_rapper_functions.R")
+source("/Users/libbymohr-msu/Documents/MSU/RProjects/gangsta/gangsta_isotopePostProcess_functions.R")
 
 # Read lp Model
 lpModel = read.lp("./vignettes/vignette.lp", verbose = "normal")
@@ -178,7 +179,7 @@ atomsTransferred = atomsTransferred)
 
 # 9. Calculate isotopic ratios for each pool
 poolFinalAtomsVarNames = makePoolEndMolVars(names(poolObjectsWithIsotopeTracking))
-finalIsotopicRatios = mapply(function(isotopeAtoms, poolAtoms) if(poolAtoms>0){isotopeAtoms/poolAtoms}else{NA},
+finalIsotopicRatios = mapply(function(isotopeAtoms, poolAtoms) if(poolAtoms>0){isotopeAtoms/poolAtoms}else{isotopeAtoms*NA},
        isotopeAtoms = finalAtoms,
        poolAtoms = results[1,poolFinalAtomsVarNames])
 
