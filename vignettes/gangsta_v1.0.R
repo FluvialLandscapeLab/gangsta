@@ -65,13 +65,17 @@ myGangstas =
       compoundName = "Aut",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * timeStep
+      respirationRate = resp * timeStep,
+      turnoverRate = 0.05,
+      maxGrowthRate = 1.5
     ),
     compoundFactory(
       compoundName = "Met",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * timeStep
+      respirationRate = resp * timeStep,
+      turnoverRate = 0.05,
+      maxGrowthRate = 1.5
     )
   )
 
@@ -82,7 +86,7 @@ myGangstas =
     processFactory(
       myGangstas,
       processName = "AutNitrif",
-      energyTerm = 3.485E-4, 
+      energyTerm = 3.485E-4,
       fromCompoundNames = list(N = "NH4", O = "O2", O = "O2"),
       toCompoundNames = list(N = "NO3", O = "NO3", O = "Ox"),
       molarTerms = list(N = 1, O = 3, O = 1),
@@ -91,7 +95,7 @@ myGangstas =
     processFactory(
       myGangstas,
       processName = "MetMethaneOxid",
-      energyTerm = 8.18E-4, 
+      energyTerm = 8.18E-4,
       fromCompoundNames = list(C = "CH4", O = "O2", O = "O2"),
       toCompoundNames = list(C = "CO2", O = "CO2", O = "Ox"),
       molarTerms = list(C = 1, O = 2, O = 2),
@@ -186,7 +190,7 @@ myGangstas =
   )
 
 ## ----eval = FALSE--------------------------------------------------------
-#  writeGangstaModel(gangstaObjects = myGangstas, file = file.choose())
+writeGangstaModel(gangstaObjects = myGangstas, file = "./vignettes/vignette.lp")
 
 ## ----eval = FALSE--------------------------------------------------------
 #  install.packages("lpSolveAPI")

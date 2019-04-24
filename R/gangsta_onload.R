@@ -45,6 +45,8 @@
     gangsta.attributes = c(
       name = "name",
       respRate = "respirationRate",
+      turnoverRate = "turnoverRate",
+      maxGrowthRate = "maxGrowthRate",
 
       orgName = "organismName",
       procName = "processName",

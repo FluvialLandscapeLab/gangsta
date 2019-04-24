@@ -86,6 +86,8 @@ makeExpressions = function(gangstaObjects) {
   fromPoolAttrName = gangstaAttributeName("fromPool")
   toPoolAttrName = gangstaAttributeName("toPool")
   respAttrName = gangstaAttributeName("respRate")
+  turnoverRateAttrName = gangstaAttributeName("turnoverRate")
+  maxGrowthRateAttrName = gangstaAttributeName("maxGrowthRate")
   procNameAttrName = gangstaAttributeName("procName")
   energyToMolsAttrName =  gangstaAttributeName("molarAffinity")
   limitToStartAttrName = gangstaAttributeName("limitToStartMols")
@@ -137,6 +139,73 @@ makeExpressions = function(gangstaObjects) {
       lapply(organismPoolNames, subsetGangstas, gangstaObjects = transferObjects, attributeName = toPoolAttrName)
     transferInNames = lapply(transferInObjects, getGangstaAttribute, nameAttrName)
     transferInVars = lapply(transferInNames, makeTransferMolTransVars)
+  }
+
+  exprsnTurnover = function() {
+    organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
+    transfers = subsetGangstas(gangstaObjects, "class", transClassName)
+    compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
+    # Find transfers where the from pool is associated with an organism
+    fromPoolNames = getGangstaAttribute(transfers, fromPoolAttrName)
+    fromPools = subsetGangstas(gangstaObjects, "class", poolClassName)[fromPoolNames]
+    fromPoolCompoundNames = getGangstaAttribute(fromPools, compNameAttrName)
+    compoundNames = getGangstaAttribute(compounds, compNameAttrName)
+    fromCompounds = unlist(lapply(fromPoolCompoundNames,
+                                  subsetGangstas,
+                                  gangstaObjects = compounds,
+                                  attributeName = nameAttrName),
+                           recursive = F)
+    organismIndex = subsetGangstas(fromCompounds, "class", organismClassName, asIndex = T)
+    decayTransfers = transfers[organismIndex]
+    decayTransferNames = getGangstaAttribute(decayTransfers, nameAttrName)
+    decayTransferVars = sapply(decayTransferNames, makeTransferMolTransVars)
+
+    organismPoolNames = fromPoolNames[organismIndex]
+    organismStartMolVars = makePoolStartMolVars(organismPoolNames)
+
+    # Get the turnover rates for each organism
+    organismCompounds = fromCompounds[organismIndex]
+    turnoverRates = getGangstaAttribute(organismCompounds, turnoverRateAttrName)
+
+    turnoverHeader =
+      makeLPSolveHeader("For each organism type, decay must be at least equal to turnover rate", F)
+
+    expressions =
+      c(
+        turnoverHeader,
+        paste(decayTransferVars, ">=", turnoverRates, organismStartMolVars)
+      )
+    return(expressions)
+  }
+
+  exprsnMaxGrowthRate = function(){
+    pools = subsetGangstas(gangstaObjects, "class", poolClassName)
+    poolCompoundNames = getGangstaAttribute(pools, compNameAttrName)
+    compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
+    compoundsByPool = unlist(lapply(poolCompoundNames,
+                                    subsetGangstas,
+                                    gangstaObjects = compounds,
+                                    attributeName = nameAttrName),
+                             recursive = F)
+    organismIndex = subsetGangstas(compoundsByPool, "class", organismClassName, asIndex = T)
+    organismPools = pools[organismIndex]
+    organismPoolNames = getGangstaAttribute(organismPools, nameAttrName)
+    organismPoolEndMolVars = makePoolEndMolVars(organismPoolNames)
+    organismPoolStartMolVars = makePoolStartMolVars(organismPoolNames)
+
+    organismCompounds = compoundsByPool[organismIndex]
+    maxGrowthRates = getGangstaAttribute(organismCompounds, maxGrowthRateAttrName)
+
+    growthRateHeader =
+      makeLPSolveHeader("For each organism type, growth may not exceed a maximum rate", F)
+
+    expressions =
+      c(
+        growthRateHeader,
+        paste(organismPoolEndMolVars, "<=", maxGrowthRates, organismPoolStartMolVars)
+      )
+    return(expressions)
+
   }
 
   exprsnAllowNegatives = function() {
@@ -449,6 +518,12 @@ makeExpressions = function(gangstaObjects) {
   # Transfer Expressions
   transferExprsns = exprsnTransfer()
 
+  # Turnover Expressions
+  turnoverExprsns = exprsnTurnover()
+
+  # Max Growth Rate Expressions
+  maxGrowthRateExprsns = exprsnMaxGrowthRate()
+
   # MolBalance Expressions
   molBalExprsns = exprsnMolBalance()
 
@@ -467,6 +542,12 @@ makeExpressions = function(gangstaObjects) {
 
     makeLPSolveHeader("MOLAR TRANSFER", T),
     transferExprsns,
+
+    makeLPSolveHeader("TURNOVER", T),
+    turnoverExprsns,
+
+    makeLPSolveHeader("MAXIMUM GROWTH RATE", T),
+    maxGrowthRateExprsns,
 
     makeLPSolveHeader("ELEMENTAL MOLAR BALANCE", T),
     molBalExprsns,
@@ -493,3 +574,4 @@ formatExpressions = function(expressions) {
     )
   return(expressions)
 }
+

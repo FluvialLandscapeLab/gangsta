@@ -6,11 +6,12 @@
 \title{Create \code{gangsta} objects}
 \usage{
 compoundFactory(compoundName, molarRatios, initialMolecules,
-  respirationRate = NA, infiniteCompound = F)
+  respirationRate = NA, infiniteCompound = F, turnoverRate = NA,
+  maxGrowthRate = NA)
 
 processFactory(gangstaObjects, processName, energyTerm, fromCompoundNames,
-  toCompoundNames, molarTerms, transferOptions = NULL, organismName = "",
-  limitToInitMolecules = T)
+  toCompoundNames, molarTerms, transferOptions = NULL,
+  organismName = "", limitToInitMolecules = T)
 }
 \arguments{
 \item{compoundName}{A character vector of \code{length = 1} containing the

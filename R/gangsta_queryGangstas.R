@@ -41,8 +41,8 @@
 #   \code{gangstaObjects}.  All other functions return a \code{list} of
 #   \code{gangsta} objects.
 
-# @export
-subsetGangstas = function(gangstaObjects, attributeName, attributeValue) {
+#' @export
+subsetGangstas = function(gangstaObjects, attributeName, attributeValue, asIndex = F) {
   if(length(gangstaObjects) == 0) {
     returnVal = list()
   } else {
@@ -57,13 +57,17 @@ subsetGangstas = function(gangstaObjects, attributeName, attributeValue) {
         itMatches = (sapply(gangstaObjects, "[", name=attributeName) == attributeValue)
       }
     }
-    returnVal = gangstaObjects[itMatches]
+    if(asIndex){
+      returnVal = itMatches
+    }else{
+      returnVal = gangstaObjects[itMatches]
+    }
   }
   return(returnVal)
 }
 
 # @rdname subsetGangstas
-# @export
+#' @export
 getGangstas = function(gangstaObjects, gangstaNames) {
   hits = lapply(gangstaNames, subsetGangstas, gangstaObjects = gangstaObjects, attributeName = gangstaAttributeName("name"))
   notFound = (sapply(hits, length) == 0)
@@ -78,7 +82,7 @@ getGangstas = function(gangstaObjects, gangstaNames) {
 }
 
 # @rdname subsetGangstas
-# @export
+#' @export
 getGangstaAttribute = function(gangstaObjects, attribName) {
   sapply(gangstaObjects, "[[", attribName)
 }

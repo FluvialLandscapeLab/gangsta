@@ -153,7 +153,7 @@
 # The remaining constructor methods return an individual \code{gangsta} object of the
 # class corresponding to the function name.
 #' @export
-compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, infiniteCompound = F) {
+compoundFactory = function(compoundName, molarRatios, initialMolecules, respirationRate = NA, infiniteCompound = F, turnoverRate = NA, maxGrowthRate = NA) {
   checkNames = unique(names(molarRatios))==""
   if(any(checkNames) || (length(checkNames) != length(molarRatios))) {
     stop("Each member of the molarRatios vector must be named using an element name.  Element names must be unique.")
@@ -163,7 +163,7 @@ compoundFactory = function(compoundName, molarRatios, initialMolecules, respirat
   elementNames = names(molarRatios)
   newPools = mapply(pool, compoundName, elementNames, molarRatios, USE.NAMES = F, SIMPLIFY = F)
   names(newPools) = sapply(newPools, function(x) x$name)
-  newCompound = list(compound(compoundName, initialMolecules, respirationRate, infiniteCompound))
+  newCompound = list(compound(compoundName, initialMolecules, respirationRate, infiniteCompound, turnoverRate, maxGrowthRate))
   names(newCompound) = compoundName
   return(c(newCompound, newPools))
 }
@@ -223,14 +223,15 @@ processFactory = function(gangstaObjects, processName, energyTerm, fromCompoundN
 }
 
 # @rdname compoundFactory
-compound = function(compoundName, initialMolecules, respirationRate = NA, infiniteCompound) {
+compound = function(compoundName, initialMolecules, respirationRate = NA, infiniteCompound, turnoverRate = NA, maxGrowthRate = NA) {
   newCompound = list(name = compoundName, initialMolecules = initialMolecules, infiniteCompound = infiniteCompound)
   class(newCompound) = c("compound", "gangsta")
   if(!is.na(respirationRate)) {
     if(respirationRate > 0) {
       stop("Respiration rate must be negative.")
     }
-    newCompound = structure(c(newCompound, list(respirationRate = respirationRate)), class = c("organism", class(newCompound)))
+    newCompound = structure(c(newCompound, list(respirationRate = respirationRate, turnoverRate = turnoverRate, maxGrowthRate = maxGrowthRate)),
+                            class = c("organism", class(newCompound)))
   }
   return(newCompound)
 }
