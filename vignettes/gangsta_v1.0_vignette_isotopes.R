@@ -65,17 +65,13 @@ myGangstas =
       compoundName = "Aut",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * timeStep,
-      turnoverRate = 0.05,
-      maxGrowthRate = 1.5
+      respirationRate = resp * timeStep
     ),
     compoundFactory(
       compoundName = "Met",
       molarRatios = c(C=EcoStoichC, N=EcoStoichN, O=EcoStoichO),
       initialMolecules = 1,
-      respirationRate = resp * timeStep,
-      turnoverRate = 0.05,
-      maxGrowthRate = 1.5
+      respirationRate = resp * timeStep
     )
   )
 
@@ -189,15 +185,35 @@ myGangstas =
     )
   )
 
-## ----eval = FALSE--------------------------------------------------------
-writeGangstaModel(gangstaObjects = myGangstas, file = "./vignettes/vignette.lp")
 
-## ----eval = FALSE--------------------------------------------------------
-#  install.packages("lpSolveAPI")
+## ----eval = T------------------------------------------------------------
+myGangstas = enableIsotopeTracking(
+  gangstaObjects = myGangstas,
+  elementList = list(C = c("12", "13"),
+                     O = c("16", "17","18")),
+  initialIsotopicRatios = list(CO2_C = c("12" = 0.9, "13" = 0.1),
+                               CH4_C = c("12" = 0.9, "13" = 0.1),
+                               DOM_C = c("12" = 0.9, "13" = 0.1),
+                               Aut_C = c("12" = 0.9, "13" = 0.1),
+                               Met_C = c("12" = 0.9, "13" = 0.1),
+                               CO2_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
+                               NO3_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
+                               O2_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
+                               DOM_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
+                               Ox_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
+                               Aut_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
+                               Met_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05)
+                               )
+)
+
+## ----eval = T --------------------------------------------------------
+writeGangstaModel(gangstaObjects = myGangstas, file = "./vignettes/vignetteIsotopes.lp")
+
+## ----eval = T --------------------------------------------------------
 library(lpSolveAPI)
 
-## ----eval = FALSE--------------------------------------------------------
-lpModel = read.lp("./vignettes/vignette.lp", verbose = "normal")
+## ----eval = T --------------------------------------------------------
+lpModel = read.lp("./vignettes/vignetteIsotopes.lp", verbose = "normal")
 
 ## ----eval = FALSE--------------------------------------------------------
 solve(lpModel)
