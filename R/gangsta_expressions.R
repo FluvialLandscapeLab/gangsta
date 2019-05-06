@@ -56,7 +56,7 @@ makeLPSolveHeader = function(headerText, majorHeader = F) {
   }
   return(header)
 }
-
+#' @export
 makeExpressions = function(gangstaObjects) {
 
   ## Get gangsta.option values
@@ -560,7 +560,7 @@ makeExpressions = function(gangstaObjects) {
   )
   return(allExpressions)
 }
-
+#' @export
 formatExpressions = function(expressions) {
   expressions =
     sapply(

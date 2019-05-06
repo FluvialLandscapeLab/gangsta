@@ -2,8 +2,10 @@
 
 S3method(print,gangsta)
 export(compoundFactory)
+export(formatExpressions)
 export(getGangstaAttribute)
 export(getGangstas)
+export(makeExpressions)
 export(processFactory)
 export(subsetGangstas)
 export(writeGangstaModel)
