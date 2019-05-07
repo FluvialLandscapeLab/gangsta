@@ -1,14 +1,43 @@
-isotopesToTrack = list(C = c(12,13), O = c(16,17,18))
+isotopesToTrack = list(C = c(12,13))
 
-initialIsotopicRatios = list(CO2_C = c("12" = 0.9, "13" = 0.1),
-                             DOM_C = c("12" = 0.9, "13" = 0.1),
-                             CH4_C = c("12" = 0.9, "13" = 0.1),
-                             Aut_C = c("12" = 0.9, "13" = 0.1),
-                             Met_C = c("12" = 0.9, "13" = 0.1),
-                             CO2_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
-                             NO3_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
-                             O2_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
-                             DOM_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
-                             Ox_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
-                             Aut_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05),
-                             Met_O = c("16" = 0.9, "17" = 0.05, "18" = 0.05)
+RstC <- 0.0112372
+
+initialIsotopicRatios = list(CO2_C = c("12" = 0.9,"13" = 0.1),
+                             CH4_C = c("12" = 1-RstC,"13" = RstC),
+                             DOM_C = c("12" = 1-RstC,"13" = RstC),
+                             Acetate_C = c("12" = 1-RstC,"13" = RstC),
+                             Aut_C = c("12" = 1-RstC,"13" = RstC),
+                             Met_C = c("12" = 1-RstC,"13" = RstC),
+                             Het_C = c("12" = 1-RstC,"13" = RstC),
+                             Acetoclast_C = c("12" = 1-RstC,"13" = RstC))
+
+results <- isotopePostProcess(results = results,
+                              gangstas = myGangstas,
+                              isotopesToTrack = isotopesToTrack,
+                              initialIsotopicRatios = initialIsotopicRatios)
+
+
+CO2_C13 = calculateDelVals(results = results,
+                           poolName = "CO2_C",
+                           AtomicWeight = "13",
+                           RStd = RstC)
+plotIsotopicComposition(results = results,
+                        poolName = "CO2_C",
+                        AtomicWeight = "13",
+                        RStd = RstC)
+plotAllIsotopicCompositions(results = results,
+                            gangstas = myGangstas,
+                            elementName = "C",
+                            AtomicWeight = "13",
+                            RStd = RstC)
+plotTransfersIn(results, "CO2_C")
+plotTransfersOut(results, "CO2_C")
+plotTransfersIn(results, "DOM_C")
+plotTransfersOut(results, "DOM_C")
+plotTransfersIn(results, "CH4_C")
+plotTransfersOut(results, "CH4_C")
+plotAllTransfers(results, "CO2_C")
+plotAllTransfers(results, "DOM_C")
+
+
+
