@@ -145,26 +145,38 @@ makeExpressions = function(gangstaObjects) {
     organisms = subsetGangstas(gangstaObjects, "class", organismClassName)
     transfers = subsetGangstas(gangstaObjects, "class", transClassName)
     compounds = subsetGangstas(gangstaObjects, "class", compoundClassName)
+    processes = subsetGangstas(gangstaObjects, "class", processClassName)
     # Find transfers where the from pool is associated with an organism
     fromPoolNames = getGangstaAttribute(transfers, fromPoolAttrName)
     fromPools = subsetGangstas(gangstaObjects, "class", poolClassName)[fromPoolNames]
     fromPoolCompoundNames = getGangstaAttribute(fromPools, compNameAttrName)
-    compoundNames = getGangstaAttribute(compounds, compNameAttrName)
+    # compoundNames = getGangstaAttribute(compounds, compNameAttrName)
     fromCompounds = unlist(lapply(fromPoolCompoundNames,
                                   subsetGangstas,
                                   gangstaObjects = compounds,
                                   attributeName = nameAttrName),
                            recursive = F)
     organismIndex = subsetGangstas(fromCompounds, "class", organismClassName, asIndex = T)
-    decayTransfers = transfers[organismIndex]
+    # Find transfers to include only those with a process energy of 0
+    processNamesByTransfer = getGangstaAttribute(transfers, procNameAttrName)
+    processesByTransfer = unlist(lapply(processNamesByTransfer,
+                                  subsetGangstas,
+                                  gangstaObjects = processes,
+                                  attributeName = nameAttrName),
+                           recursive = F)
+    zeroEnergyProcessIndex = subsetGangstas(processesByTransfer, energyTermAttrName, 0, asIndex = T)
+
+    # Subset transfers with an organism from pool and a process energy of 0
+    decayTransfers = transfers[organismIndex&zeroEnergyProcessIndex]
+
     decayTransferNames = getGangstaAttribute(decayTransfers, nameAttrName)
     decayTransferVars = sapply(decayTransferNames, makeTransferMolTransVars)
 
-    organismPoolNames = fromPoolNames[organismIndex]
+    organismPoolNames = fromPoolNames[organismIndex&zeroEnergyProcessIndex]
     organismStartMolVars = makePoolStartMolVars(organismPoolNames)
 
     # Get the turnover rates for each organism
-    organismCompounds = fromCompounds[organismIndex]
+    organismCompounds = fromCompounds[organismIndex&zeroEnergyProcessIndex]
     turnoverRates = getGangstaAttribute(organismCompounds, turnoverRateAttrName)
 
     turnoverHeader =
