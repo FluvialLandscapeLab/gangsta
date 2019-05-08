@@ -127,7 +127,7 @@ isotopePostProcess = function(results,
     atomsTransferred = atomsTransferred,
     SIMPLIFY = F)
     # Calculate isotopic ratios for each pool
-    results[[i]]$isotopeVals$finalIsotopicRatios = mapply(function(isotopeAtoms, poolAtoms) if(poolAtoms>0){isotopeAtoms/poolAtoms}else{isotopeAtoms*0},
+    results[[i]]$isotopeVals$finalIsotopicRatios = mapply(function(isotopeAtoms, poolAtoms) if(poolAtoms>0){isotopeAtoms/poolAtoms}else{isotopeAtoms*NA},
                                                           isotopeAtoms = results[[i]]$isotopeVals$finalAtoms,
                                                           poolAtoms = results[[i]]$poolVals[poolNames,"final"],
                                                           SIMPLIFY = F)
