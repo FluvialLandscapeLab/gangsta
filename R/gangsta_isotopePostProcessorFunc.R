@@ -103,13 +103,15 @@ isotopePostProcess = function(results,
       if(!is.null(ncol(atomsTransferredIn))){
         totalAtomsTransferredInByIsotope = apply(X = atomsTransferredIn,
                                                  MARGIN = 1,
-                                                 FUN = sum)
+                                                 FUN = sum,
+                                                 na.rm = T)
       }else{totalAtomsTransferredInByIsotope = 0}
 
       if(!is.null(ncol(atomsTransferredOut))){
         totalAtomsTransferredOutByIsotope = apply(X = atomsTransferredOut,
                                                   MARGIN = 1,
-                                                  FUN = sum)
+                                                  FUN = sum,
+                                                  na.rm = T)
       }else{totalAtomsTransferredOutByIsotope = 0}
       return(totalAtomsTransferredInByIsotope - totalAtomsTransferredOutByIsotope)
     },
