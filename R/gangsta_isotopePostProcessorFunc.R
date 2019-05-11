@@ -1,7 +1,8 @@
 isotopePostProcess = function(results,
                               gangstas,
                               isotopesToTrack,
-                              initialIsotopicRatios){
+                              initialIsotopicRatios,
+                              isotopeLeakInList){
   # Find names of pools with isotope tracking
   elementNames = names(isotopesToTrack)
   poolObjects = subsetGangstas(gangstas, "class", getOption("gangsta.classes")["pool"])
@@ -37,7 +38,23 @@ isotopePostProcess = function(results,
   initialIsotopicRatios = initialIsotopicRatios[names(poolObjectsWithIsotopeTracking)]
   # Calculate atoms of isotope in each pool, atoms transferred in and out, final atoms,  and final isotopic composition
   for(i in 1:length(results)){
-    # Calculate the number of atoms of isotope initially in each pool
+    # Get mols of isotope leaked in
+    stepIsotopeLeakInList = isotopeLeakInList[[i]]
+    # Create list of zeros to initialize leak in list for all pools with isotope tracking
+    poolMolsAddedByIsotope = lapply(poolObjectElements,
+                                    function(element) rep(0, times = length(isotopesToTrack[[element]])))
+    names(poolMolsAddedByIsotope) = poolNames
+
+    # set the values of the initalized leak in list for any compounds that are non-zero
+    if( length(stepIsotopeLeakInList [[1]]) > 0 ) {
+      leakInPoolNames = mapply("[[", stepIsotopeLeakInList, 1)
+      # poolMolsAddedByIsotope[leakInPoolNames] = unlist(mapply("[[", stepIsotopeLeakInList, 2, SIMPLIFY = FALSE) * results[[i]]$leakInPoolVals[leakInPoolNames])
+      poolMolsAddedByIsotope[leakInPoolNames] = mapply(function(atomicFraction, leakInPoolName) {atomicFraction[[2]]*results[[i]]$leakInPoolVals[leakInPoolName]},
+                                                       atomicFraction = stepIsotopeLeakInList,
+                                                       leakInPoolName = leakInPoolNames,
+                                                       SIMPLIFY = F )
+    }
+    # Calculate the number of atoms of isotope initially in each pool and add mols added
     if(i == 1){
       results[[i]]$isotopeVals$initialAtoms = mapply(
         function(poolNames, initialIsotopicRatios){
@@ -49,8 +66,15 @@ isotopePostProcess = function(results,
       )
       results[[i]]$isotopeVals$initialIsotopicRatios = initialIsotopicRatios
     }else{
-      results[[i]]$isotopeVals$initialAtoms =  results[[i-1]]$isotopeVals$finalAtoms
-      results[[i]]$isotopeVals$initialIsotopicRatios = results[[i-1]]$isotopeVals$finalIsotopicRatios
+      results[[i]]$isotopeVals$initialAtoms =  mapply(function(existingAtomsIsotope, atomsIsotopeLeakedIn) existingAtomsIsotope + atomsIsotopeLeakedIn,
+                                                      existingAtomsIsotope = results[[i-1]]$isotopeVals$finalAtoms,
+                                                      atomsIsotopeLeakedIn = poolMolsAddedByIsotope,
+                                                      SIMPLIFY = F)
+      # results[[i]]$isotopeVals$initialIsotopicRatios = results[[i-1]]$isotopeVals$finalIsotopicRatios
+      results[[i]]$isotopeVals$initialIsotopicRatios = mapply(function(isotopeAtoms, poolAtoms) if(poolAtoms>0){isotopeAtoms/poolAtoms}else{isotopeAtoms*NA},
+                                                              isotopeAtoms = results[[i]]$isotopeVals$initialAtoms,
+                                                              poolAtoms = results[[i]]$poolVals[poolNames,"initial"],
+                                                              SIMPLIFY = F)
     }
     # Get atoms transferred for transfers in and out of each pool
     transferAtomsIn = lapply(transferInVars,
@@ -146,7 +170,7 @@ calculateDelVals = function(results, poolName, AtomicWeight, RStd){
   sapply(AtomicFractions, function(AtomicFractions){
     AF = AtomicFractions[AtomicWeight]
     R<- AF/(1-AF)
-    del <- (R/RStd-1)*1000
+    del <- round((R/RStd-1)*1000, digits = 0)
   })
 }
 
