@@ -1,5 +1,5 @@
 # Load Gangsta Rapper Functions
-source("/Users/libbymohr-msu/Documents/MSU/RProjects/gangsta/R/gangsta_rapper_functions.R")
+source("/Users/libbymohr-msu/Documents/MSU/RProjects/Microcosm Gangsta/gangsta_rapper_functions.R")
 source("/Users/libbymohr-msu/Documents/MSU/RProjects/gangsta/gangsta_isotopePostProcess_functions.R")
 
 # Read lp Model

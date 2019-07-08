@@ -1,3 +1,4 @@
+source("/Users/libbymohr-msu/Documents/MSU/RProjects/gangsta/R/gangsta_isotopePostProcess_functions.R")
 isotopePostProcess = function(results,
                               gangstas,
                               isotopesToTrack,
@@ -183,3 +184,4 @@ getPoolNamesForOneElement = function(results, gangstas, elementName){
   poolNames = names(poolObjectsOfElement)
   return(poolNames)
 }
+
