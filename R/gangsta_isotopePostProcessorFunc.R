@@ -183,3 +183,4 @@ getPoolNamesForOneElement = function(results, gangstas, elementName){
   poolNames = names(poolObjectsOfElement)
   return(poolNames)
 }
+
