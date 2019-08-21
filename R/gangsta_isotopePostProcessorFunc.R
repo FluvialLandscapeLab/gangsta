@@ -1,3 +1,4 @@
+source("/Users/libbymohr-msu/Documents/MSU/RProjects/gangsta/R/gangsta_isotopePostProcess_functions.R")
 isotopePostProcess = function(results,
                               gangstas,
                               isotopesToTrack,
